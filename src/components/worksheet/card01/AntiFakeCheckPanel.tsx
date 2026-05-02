@@ -97,9 +97,7 @@ export function AntiFakeCheckPanel({ checks }: { checks: CardOneChecks }) {
                 </p>
                 <span className="sr-only">狀態：{statusText(it.status)}</span>
                 {it.status === "warning" && (
-                  <p className="mt-1.5 text-[12px] leading-[1.6] text-text-tertiary">
-                    {it.hint}
-                  </p>
+                  <p className="mt-1.5 text-[12px] leading-[1.6] text-text-tertiary">{it.hint}</p>
                 )}
               </div>
             </div>

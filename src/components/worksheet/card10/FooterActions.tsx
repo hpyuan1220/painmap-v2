@@ -106,7 +106,9 @@ export function FooterActions() {
       <Dialog open={shareOpen} onOpenChange={setShareOpen}>
         <DialogContent className="max-w-md bg-canvas-overlay border-border-default">
           <DialogHeader>
-            <DialogTitle className="font-display tracking-[-0.01em]">分享你的痛點身份證</DialogTitle>
+            <DialogTitle className="font-display tracking-[-0.01em]">
+              分享你的痛點身份證
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 text-sm">
             <p className="text-text-secondary">

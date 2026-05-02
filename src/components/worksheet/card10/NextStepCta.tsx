@@ -116,11 +116,10 @@ function GhostButton({
 function TruePainVariant() {
   return (
     <>
-      <p className="text-base sm:text-lg font-medium text-text-primary">
-        你寫下了：這是真痛點。
-      </p>
+      <p className="text-base sm:text-lg font-medium text-text-primary">你寫下了：這是真痛點。</p>
       <p className="mt-3 text-text-secondary text-[15px] leading-[1.7]">
-        把卡 8 的訪談對象一個一個約起來、現場再確認一次。確認沒問題之後，可以進階段二：PainMap App，再往「能不能賺到錢」走一步。
+        把卡 8 的訪談對象一個一個約起來、現場再確認一次。確認沒問題之後，可以進階段二：PainMap
+        App，再往「能不能賺到錢」走一步。
       </p>
       <div className="mt-6 flex flex-col sm:flex-row gap-3">
         <PrimaryButton href="/app/start">進入 PainMap App</PrimaryButton>
@@ -164,9 +163,7 @@ function FakePainVariant() {
 
   return (
     <>
-      <p className="text-base sm:text-lg font-medium text-text-primary">
-        你寫下了：這是假痛點。
-      </p>
+      <p className="text-base sm:text-lg font-medium text-text-primary">你寫下了：這是假痛點。</p>
       <p className="mt-3 text-text-secondary text-[15px] leading-[1.7]">
         <strong className="text-text-primary">
           不要覺得可惜。這就是這份填空簿真正的價值 — 它幫你省下了 3 個月走錯路的時間。

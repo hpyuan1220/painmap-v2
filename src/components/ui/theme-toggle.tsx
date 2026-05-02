@@ -62,7 +62,9 @@ export function ThemeToggle({ className, variant = "icon" }: Props) {
       type="button"
       onClick={cycle}
       aria-label={mounted ? nextLabelMap[choice] : "Toggle theme"}
-      title={mounted ? `${labelMap[choice]} · click to ${nextLabelMap[choice].toLowerCase()}` : "Theme"}
+      title={
+        mounted ? `${labelMap[choice]} · click to ${nextLabelMap[choice].toLowerCase()}` : "Theme"
+      }
       className={cn(
         "relative inline-flex h-9 w-9 items-center justify-center rounded-md border border-border-hairline bg-canvas-raised/60 text-text-secondary transition-all hover:bg-surface-hover hover:border-border-default hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-electric focus-visible:ring-offset-2 focus-visible:ring-offset-canvas-base",
         className,

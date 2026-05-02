@@ -67,9 +67,7 @@ export function CompletionHeader() {
         <div className="flex flex-wrap items-center gap-x-6 gap-y-3 mt-8 pt-6 border-t border-border-subtle">
           <span className="font-mono text-[11px] uppercase tracking-[0.06em] text-text-tertiary">
             <span className="text-text-secondary">Started</span>{" "}
-            <span className="text-text-primary tabular-nums">
-              {card.created_at.slice(0, 10)}
-            </span>
+            <span className="text-text-primary tabular-nums">{card.created_at.slice(0, 10)}</span>
           </span>
           <span className="font-mono text-[11px] uppercase tracking-[0.06em] text-text-tertiary">
             <span className="text-text-secondary">Last edit</span>{" "}

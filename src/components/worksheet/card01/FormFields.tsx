@@ -31,10 +31,17 @@ function fieldClasses(opts: { warning?: boolean; error?: boolean; highlight?: bo
     "placeholder:text-text-tertiary",
     "transition-all duration-200",
     "focus:outline-none focus:border-accent-electric focus:shadow-[0_0_0_2px_var(--accent-glow-mid)]",
-    !opts.warning && !opts.error && !opts.highlight && "border-border-default hover:border-border-strong",
-    opts.highlight && !opts.error && !opts.warning && "border-accent-electric shadow-[0_0_0_2px_var(--accent-glow-soft)]",
+    !opts.warning &&
+      !opts.error &&
+      !opts.highlight &&
+      "border-border-default hover:border-border-strong",
+    opts.highlight &&
+      !opts.error &&
+      !opts.warning &&
+      "border-accent-electric shadow-[0_0_0_2px_var(--accent-glow-soft)]",
     opts.warning && !opts.error && "border-status-warning",
-    opts.error && "border-status-danger shadow-[0_0_0_2px_color-mix(in_oklch,var(--status-danger)_30%,transparent)]",
+    opts.error &&
+      "border-status-danger shadow-[0_0_0_2px_color-mix(in_oklch,var(--status-danger)_30%,transparent)]",
   );
 }
 
@@ -56,8 +63,17 @@ function FieldLabel({ id, label, required }: { id: string; label: string; requir
 
 export function TextField(props: CommonProps) {
   const {
-    id, label, helper, value, placeholder, required,
-    warning, error, highlight, onChange, onBlur,
+    id,
+    label,
+    helper,
+    value,
+    placeholder,
+    required,
+    warning,
+    error,
+    highlight,
+    onChange,
+    onBlur,
   } = props;
   const describedBy = `${id}-helper${warning ? ` ${id}-warning` : ""}${error ? ` ${id}-error` : ""}`;
   return (
@@ -108,8 +124,19 @@ type TextareaProps = CommonProps & {
 
 export function TextareaField(props: TextareaProps) {
   const {
-    id, label, helper, value, placeholder, rows = 4, maxLength, required,
-    warning, error, highlight, onChange, onBlur,
+    id,
+    label,
+    helper,
+    value,
+    placeholder,
+    rows = 4,
+    maxLength,
+    required,
+    warning,
+    error,
+    highlight,
+    onChange,
+    onBlur,
   } = props;
   const describedBy = `${id}-helper${warning ? ` ${id}-warning` : ""}${error ? ` ${id}-error` : ""}`;
   return (
@@ -158,7 +185,8 @@ export function TextareaField(props: TextareaProps) {
         </div>
         {maxLength && (
           <span className="font-mono text-[11px] text-text-tertiary shrink-0 tabular-nums">
-            {value.length}<span className="text-text-tertiary/50"> / {maxLength}</span>
+            {value.length}
+            <span className="text-text-tertiary/50"> / {maxLength}</span>
           </span>
         )}
       </div>

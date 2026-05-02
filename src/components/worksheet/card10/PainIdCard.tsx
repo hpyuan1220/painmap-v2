@@ -230,10 +230,7 @@ export function PainIdCard() {
             <p className="text-text-secondary leading-[1.7] pt-2">{card.verdict.reason_100w}</p>
           )}
           <div className="grid sm:grid-cols-2 gap-3 pt-2">
-            <Meta
-              label="最有把握"
-              value={card.verdict.most_confident_evidence || <Empty />}
-            />
+            <Meta label="最有把握" value={card.verdict.most_confident_evidence || <Empty />} />
             <Meta label="最沒把握" value={card.verdict.least_confident || <Empty />} />
           </div>
         </FieldBlock>

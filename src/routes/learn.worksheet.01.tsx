@@ -130,8 +130,8 @@ function CardOnePage() {
           intro={
             <>
               你應該有聽過某人說：「欸，要是有人做一個 ___ 就好了！」這張卡只請你做一件事：
-              <span className="font-semibold text-text-primary">忠實複述</span>。分析的事，留給後面 8
-              張卡。
+              <span className="font-semibold text-text-primary">忠實複述</span>。分析的事，留給後面
+              8 張卡。
             </>
           }
         />

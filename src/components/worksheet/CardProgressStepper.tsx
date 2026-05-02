@@ -58,9 +58,7 @@ export function CardProgressStepper() {
       <div className="md:hidden flex items-center justify-between px-5 py-3">
         <span className="font-mono text-[11px] uppercase tracking-[0.08em] text-text-tertiary">
           Card{" "}
-          <span className="text-text-primary tabular-nums">
-            {String(current).padStart(2, "0")}
-          </span>
+          <span className="text-text-primary tabular-nums">{String(current).padStart(2, "0")}</span>
           {" / 09"}
           {current === 10 && " · DONE"}
         </span>
@@ -93,9 +91,7 @@ export function CardProgressStepper() {
                 <div
                   className={cn(
                     "h-px flex-1 mt-3.5 mx-1 transition-colors",
-                    state === "completed"
-                      ? "bg-accent-electric/60"
-                      : "bg-border-hairline",
+                    state === "completed" ? "bg-accent-electric/60" : "bg-border-hairline",
                   )}
                   aria-hidden
                 />
@@ -177,10 +173,7 @@ const StepDot = memo(function StepDot({ step, state }: { step: CurrentStep; stat
       to={pathFor(step)}
       aria-current="step"
       aria-label={`卡 ${step}（進行中）`}
-      className={cn(
-        baseClasses,
-        "bg-accent-electric text-text-primary glow-accent-sm",
-      )}
+      className={cn(baseClasses, "bg-accent-electric text-text-primary glow-accent-sm")}
     >
       {numberLabel}
     </Link>
