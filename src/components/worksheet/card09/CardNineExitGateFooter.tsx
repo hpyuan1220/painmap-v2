@@ -123,7 +123,7 @@ export function CardNineExitGateFooter({
         <div className="flex items-center gap-2">
           <button
             type="button"
-            onClick={() => setExpanded((v) => !v)}
+            onClick={handleToggleClick}
             aria-expanded={expanded}
             aria-controls="card9-reflection-panel"
             id="card9-reflection-toggle"
