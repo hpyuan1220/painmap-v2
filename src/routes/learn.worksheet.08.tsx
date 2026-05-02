@@ -1,11 +1,14 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { Sparkles, Mic, AlertCircle } from "lucide-react";
+import { toast } from "sonner";
 
 import { useSavedAgo } from "@/hooks/useSavedAgo";
 import { usePainCardStore } from "@/store/painCard";
 import {
   CONTACT_MIN,
+  PERSONA_MIN,
+  PLANNED_MIN,
   TARGETS_MAX,
   TARGETS_MIN,
   evaluateQuestions,
