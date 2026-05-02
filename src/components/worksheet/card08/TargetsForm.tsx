@@ -133,12 +133,44 @@ export function TargetsForm({ targets, highlightIndex, onUpdate, onAdd, onRemove
                       ? "例:林老師 / LINE: xxx / 0912-..."
                       : "例:去家長社團 PO 文找 3 位家長"
                   }
+                  aria-describedby={`contact-${i}-counter`}
                   className={cn(
                     "min-h-[56px] transition-all",
                     isHl && !contactOk &&
                       "border-secondary ring-2 ring-secondary/40 bg-secondary/5 animate-pulse",
                   )}
                 />
+                {(() => {
+                  const len = t.contact_info.trim().length;
+                  const remaining = Math.max(0, CONTACT_MIN - len);
+                  return (
+                    <div
+                      id={`contact-${i}-counter`}
+                      aria-live="polite"
+                      className={cn(
+                        "text-[11.5px] tabular-nums flex items-center gap-1.5",
+                        contactOk ? "text-verified" : "text-text-muted",
+                      )}
+                    >
+                      {contactOk ? (
+                        <>
+                          <Check className="h-3 w-3" />
+                          <span>已達 {CONTACT_MIN} 字 ✓ 可勾選</span>
+                          <span className="text-text-muted">（目前 {len} 字）</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>
+                            還差 <span className="font-semibold text-secondary">{remaining}</span> 字可通過
+                          </span>
+                          <span className="text-text-muted">
+                            （{len} / {CONTACT_MIN}）
+                          </span>
+                        </>
+                      )}
+                    </div>
+                  );
+                })()}
               </div>
 
               {/* planned_time */}
