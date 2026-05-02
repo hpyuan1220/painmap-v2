@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Sparkles, Brain, AlertCircle } from "lucide-react";
+import { Sparkles, Brain, AlertCircle, RotateCcw } from "lucide-react";
 
 import { Textarea } from "@/components/ui/textarea";
 import { usePainCardStore } from "@/store/painCard";
@@ -61,6 +61,34 @@ function CardSevenPage() {
   const [unlocked, setUnlocked] = useState<boolean>(
     Boolean(sg.phase_a_completed_at),
   );
+
+  // hydrate 完成後，若偵測到任何已存在的 Card 7 草稿，顯示「已恢復」橫幅
+  const hasDraft = useMemo(() => {
+    const anyGuess = Object.values(sg.guesses).some((v) => v.trim().length > 0);
+    const anyCheckpoint = Object.values(sg.ai_checkpoints_passed).some(Boolean);
+    const anyDelta = Object.values(sg.deltas).some((v) => v.trim().length > 0);
+    const anyTable = sg.pain_judgment_table.trim().length > 0;
+    return anyGuess || anyCheckpoint || anyDelta || anyTable;
+  }, [sg]);
+  const [draftBannerDismissed, setDraftBannerDismissed] = useState(false);
+  const showDraftBanner = hydrated && hasDraft && !draftBannerDismissed;
+
+  // hydrate 前顯示骨架，避免 SSR/CSR mismatch（React error #419）
+  if (!hydrated) {
+    return (
+      <div className="flex flex-col min-h-[calc(100vh-7.5rem)] bg-page">
+        <main className="flex-1 max-w-3xl w-full mx-auto px-4 sm:px-6 py-8 space-y-6">
+          <div className="h-6 w-24 bg-muted rounded animate-pulse" />
+          <div className="h-10 w-3/4 bg-muted rounded animate-pulse" />
+          <div className="h-32 w-full bg-muted rounded animate-pulse" />
+          <div className="h-64 w-full bg-muted rounded animate-pulse" />
+          <p className="text-[12px] text-text-muted text-center">
+            正在恢復草稿…
+          </p>
+        </main>
+      </div>
+    );
+  }
 
   // 同步 store 變化（當 reset / 退回時清空）
   useEffect(() => {
