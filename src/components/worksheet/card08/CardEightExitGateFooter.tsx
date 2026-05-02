@@ -1,5 +1,23 @@
 import { Button } from "@/components/ui/button";
-import { ReflectionHint, type ReflectionHintState } from "@/components/worksheet/ReflectionHint";
+import {
+  ReflectionHint,
+  type ReflectionExample,
+  type ReflectionHintState,
+} from "@/components/worksheet/ReflectionHint";
+
+/**
+ * 「聯絡方式 / 你打算去哪找他」欄的填寫範例
+ * 涵蓋三種真實場景：認識的人 / 弱連結 / 完全陌生
+ * 全部都 ≥ 5 字（CONTACT_MIN）以保證一貼上就過驗證
+ */
+const CONTACT_EXAMPLES: ReflectionExample[] = [
+  { label: "LINE", text: "林老師(認識) / LINE: teacher_lin / 0912-345-678" },
+  { label: "IG", text: "IG @some_user / DM 約週末咖啡聊 30 分鐘" },
+  { label: "Email", text: "王經理 wang@example.com / 上週研討會交換名片" },
+  { label: "社群", text: "去家長社團 PO 文徵 3 位願意聊 20 分鐘的家長" },
+  { label: "場合", text: "下週三晚上補習班接小孩時間,直接問 2-3 位家長" },
+];
+
 
 type Props = {
   hasContact: boolean;
