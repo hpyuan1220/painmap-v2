@@ -36,19 +36,38 @@ export function CardFiveExitGateFooter({
         ? "回去把「為什麼那邊會被犧牲」用一句話寫清楚"
         : undefined;
 
+  const sidesState: ReflectionHintState = sidesPass ? "ok" : "pending";
+  const sacrificedState: ReflectionHintState = sacrificedPass ? "ok" : "pending";
+  const reasonState: ReflectionHintState = sacrificedReasonPass
+    ? "ok"
+    : sacrificedPass
+      ? "thinking"
+      : "pending";
+
   return (
     <div className="sticky bottom-0 left-0 right-0 z-20 border-t border-border bg-surface/95 backdrop-blur-sm">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 space-y-3">
-        <div>
-          <p className="text-[12px] font-semibold tracking-wide uppercase text-text-secondary mb-1.5">
-            想想看
-          </p>
-          <ul className="flex flex-wrap gap-x-5 gap-y-1.5 text-[13px]">
-            <ConditionItem passed={sidesPass} label="A、B 兩端都寫具體了嗎" />
-            <ConditionItem passed={sacrificedPass} label="標出通常會犧牲哪邊了嗎" />
-            <ConditionItem passed={sacrificedReasonPass} label="為什麼那邊會被犧牲，寫清楚了嗎" />
-          </ul>
-        </div>
+        <h3 className="text-sm font-semibold text-text-primary">反思問題</h3>
+        <ul className="flex flex-col gap-2">
+          <ReflectionHint
+            question="A、B 兩端，你能不能各自用一句話讓別人聽得懂？"
+            state={sidesState}
+            hint={!sidesPass ? "兩端都需要寫到 ≥ 10 字才算具體。" : undefined}
+          />
+          <ReflectionHint
+            question="這個人通常會犧牲哪一邊？你有標出來嗎？"
+            state={sacrificedState}
+          />
+          <ReflectionHint
+            question="為什麼是那邊被犧牲？是他自己說的、還是你猜的？"
+            state={reasonState}
+            hint={
+              !sacrificedReasonPass && sacrificedPass
+                ? "用一句話把原因寫清楚，不要只是「比較不重要」這種空話。"
+                : undefined
+            }
+          />
+        </ul>
 
         {blockedMessage && (
           <div
