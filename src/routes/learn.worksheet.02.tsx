@@ -336,6 +336,9 @@ function CardTwoPage() {
                 checks={checks}
                 commitment={commitment}
                 onCommitmentChange={setCommitment}
+                backgroundStatus={backgroundStatus}
+                backgroundHint={bgVerdict === "warn" ? bgReason ?? undefined : undefined}
+                backgroundAnalyzing={bgAnalyzing && bgVerdict === null}
               />
             </div>
           </section>
