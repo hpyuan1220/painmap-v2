@@ -275,6 +275,7 @@ function CardSevenPage() {
           </div>
         )}
 
+        <ContextSummary card={card} />
 
         {/* Phase A */}
         <PhaseAGuessForm
