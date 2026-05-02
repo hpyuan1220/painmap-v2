@@ -1,23 +1,26 @@
 /**
  * Step 4：逐題回答 AI 列的「需要再問清楚」的問題。
  *
- * 設計（2026-05 重構）：
- * - 若 AI 沒列任何問題 → 綠色通過狀態，免填，自動放行
- * - 若有問題 → 每題一個 textarea，至少 10 字才算「已回答」
- * - 每題提供 checkbox：「答不出來，已預約找主人翁問」(reserved)
- *   勾選後 textarea disabled、不必填，視為已處理
- * - 底部進度提示：已處理 X / N 題
- * - 仍提供退路：退回卡 1 重聊（卡 3 已填內容會保留）
+ * - 沒問題 → 自動通過
+ * - 有問題 → 每題 textarea ≥ 10 字 OR 勾「預約問」才算處理完
  */
 import { Link } from "@tanstack/react-router";
+import { CheckCircle2 } from "lucide-react";
+
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import { CheckCircle2 } from "lucide-react";
 import { ANSWER_MIN, type ClarifyingItemStatus } from "@/lib/cardThreeValidators";
+
+export type ClarifyingAnswerEntry = {
+  question: string;
+  answer: string;
+  reserved: boolean;
+};
 
 type Props = {
   questions: string[];
+  answers: ClarifyingAnswerEntry[];
   items: ClarifyingItemStatus[];
   resolvedCount: number;
   totalCount: number;
@@ -28,6 +31,7 @@ type Props = {
 
 export function ClarifyingQAPanel({
   questions,
+  answers,
   items,
   resolvedCount,
   totalCount,
@@ -35,6 +39,7 @@ export function ClarifyingQAPanel({
   onReservedChange,
   highlight,
 }: Props) {
+  const answerByQ = new Map(answers.map((a) => [a.question, a]));
   const empty = questions.length === 0;
 
   return (
@@ -71,18 +76,13 @@ export function ClarifyingQAPanel({
         <>
           <ul className="space-y-4">
             {items.map((item, idx) => {
-              const a = item.question;
-              const answer =
-                items[idx].answered || items[idx].reserved
-                  ? // 取目前 textarea 文字（透過下方 onChange 回傳；此處只決定狀態樣式）
-                    undefined
-                  : undefined;
-              void answer;
+              const entry = answerByQ.get(item.question);
               return (
                 <ClarifyingItem
-                  key={`${a}-${idx}`}
+                  key={`${item.question}-${idx}`}
                   index={idx + 1}
                   status={item}
+                  answerText={entry?.answer ?? ""}
                   onAnswerChange={(v) => onAnswerChange(item.question, v)}
                   onReservedChange={(v) => onReservedChange(item.question, v)}
                 />
@@ -126,20 +126,18 @@ export function ClarifyingQAPanel({
 function ClarifyingItem({
   index,
   status,
+  answerText,
   onAnswerChange,
   onReservedChange,
 }: {
   index: number;
-  status: ClarifyingItemStatus & { _answer?: string };
+  status: ClarifyingItemStatus;
+  answerText: string;
   onAnswerChange: (v: string) => void;
   onReservedChange: (v: boolean) => void;
 }) {
-  // 我們不在這層保管 textarea value（由父層 store 為 SSOT），
-  // 但 ClarifyingItemStatus 沒帶 answer 文字。為避免雙寫，這裡接受 uncontrolled 行為：
-  // 父層每次 evaluate 都重新傳入 status；textarea 用 defaultValue 風險高，因此
-  // 我們改成 controlled — 從 store 讀取 answer 透過外部傳入。
-  // 為保持簡潔，這裡讓父層直接傳 textarea value via DOM data attr 略嫌繁瑣；
-  // 改成：父層在傳入 items 時順便附上 answer 文字（透過 status 物件的擴充欄位）。
+  const len = answerText.trim().length;
+  const showShortHint = !status.reserved && len > 0 && len < ANSWER_MIN;
   return (
     <li className="rounded-md border border-border bg-page/40 p-3.5 space-y-2.5">
       <div className="flex items-start gap-2">
@@ -160,19 +158,23 @@ function ClarifyingItem({
       </div>
 
       <Textarea
-        value={status._answer ?? ""}
+        value={answerText}
         onChange={(e) => onAnswerChange(e.target.value)}
         disabled={status.reserved}
         rows={2}
+        maxLength={500}
         placeholder={
           status.reserved
             ? "已標記為「預約找主人翁問」"
             : `你的回答（至少 ${ANSWER_MIN} 字）…`
         }
-        className={cn(
-          status.reserved && "opacity-60 cursor-not-allowed",
-        )}
+        className={cn(status.reserved && "opacity-60 cursor-not-allowed")}
       />
+      {showShortHint && (
+        <p className="text-[12px] text-caution">
+          再多寫一點（目前 {len} 字、至少 {ANSWER_MIN} 字）。
+        </p>
+      )}
 
       <label className="flex items-center gap-2 text-[12.5px] text-text-secondary cursor-pointer">
         <Checkbox
