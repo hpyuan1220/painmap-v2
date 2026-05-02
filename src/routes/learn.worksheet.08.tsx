@@ -385,7 +385,7 @@ function CardEightPage() {
         </section>
 
         {/* Section 5: rules */}
-        <section className="space-y-4">
+        <section id="card8-rules" className="space-y-4 scroll-mt-24">
           <div>
             <h2 className="text-[20px] font-bold text-text-primary">第三步：訪談規則（很重要）</h2>
           </div>
