@@ -99,7 +99,7 @@ export function JudgmentForm({
                 value={opt.value}
                 aria-label={`${opt.label}：${opt.description}`}
                 className={cn(
-                  "h-auto w-auto aspect-auto rounded-lg border p-3 cursor-pointer flex flex-col gap-1 items-start text-left transition-colors",
+                  "h-auto w-auto aspect-auto rounded-lg border p-3 cursor-pointer flex flex-col gap-1 items-start text-left transition-colors [&>span]:hidden",
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2",
                   "data-[state=checked]:border-accent data-[state=checked]:ring-2 data-[state=checked]:ring-accent/30 data-[state=checked]:bg-accent/5",
                   !selected && "border-border bg-surface hover:border-accent/40",
@@ -234,7 +234,7 @@ export function JudgmentForm({
                 value={opt.value}
                 aria-label={`${opt.label}：${opt.hint}`}
                 className={cn(
-                  "h-auto w-auto aspect-auto block rounded-md border p-3 cursor-pointer text-left transition-colors",
+                  "h-auto w-auto aspect-auto block rounded-md border p-3 cursor-pointer text-left transition-colors [&>span]:hidden",
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2",
                   "data-[state=checked]:border-secondary data-[state=checked]:ring-2 data-[state=checked]:ring-secondary/30 data-[state=checked]:bg-secondary/5",
                   !selected && "border-border bg-surface hover:border-secondary/40",
