@@ -71,6 +71,11 @@ export function CardEightExitGateFooter({
           <ReflectionHint
             question="你寫的題,是在問他「怎麼做的」,還是在誘導他說「想用你的解法」?"
             state={questionsState}
+            hint={
+              !questionsAllFilled
+                ? "每題 ≥ 15 字才算寫完。好題的關鍵描述:① 問「上次/最近一次」的具體經驗(過去式),② 聚焦「怎麼做、用什麼、花多久、卡在哪」,③ 不出現你的產品名 / 解法 / 「會不會想用」這類引導詞。避免:假設性問題(「如果有 XX 你會用嗎」)、是非題、推銷式描述。"
+                : undefined
+            }
           />
           <ReflectionHint question="訪談時哪些事不要做,你有清楚嗎?" state={taboosState} />
           <ReflectionHint
