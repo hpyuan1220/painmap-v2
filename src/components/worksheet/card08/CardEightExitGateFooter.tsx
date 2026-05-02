@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -6,6 +6,7 @@ import {
   type ReflectionExample,
   type ReflectionHintState,
 } from "@/components/worksheet/ReflectionHint";
+import { usePersistedToggle } from "@/hooks/usePersistedToggle";
 
 /**
  * 「聯絡方式 / 你打算去哪找他」欄的填寫範例
