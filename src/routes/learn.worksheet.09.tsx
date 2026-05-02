@@ -18,6 +18,7 @@ import { ScoresForm } from "@/components/worksheet/card09/ScoresForm";
 import { ScoresSummary } from "@/components/worksheet/card09/ScoresSummary";
 import { JudgmentForm } from "@/components/worksheet/card09/JudgmentForm";
 import { CardNineExitGateFooter } from "@/components/worksheet/card09/CardNineExitGateFooter";
+import { InterviewTargetsPrefill } from "@/components/worksheet/card09/InterviewTargetsPrefill";
 
 const searchSchema = z.object({
   mode: z.enum(["teaching", "production"]).optional(),
@@ -340,6 +341,13 @@ function CardNinePage() {
           onLeastConfidentChange={setLeast}
           nextAction={v.next_action}
           onNextActionChange={setNextAction}
+        />
+
+        {/* 訪談目標自動預填：依 judgment + next_action 動態調整顯示 */}
+        <InterviewTargetsPrefill
+          targets={card.interview_plan.targets}
+          judgment={v.judgment}
+          nextAction={v.next_action}
         />
 
         <p className="text-[12px] text-text-muted" aria-live="polite">
