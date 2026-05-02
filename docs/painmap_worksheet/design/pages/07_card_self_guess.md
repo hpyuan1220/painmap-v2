@@ -73,7 +73,7 @@ worksheet 卡 7 開頭原文：
    - section_purpose: 顯示 AI 回覆 + 4 個 checkpoint checkbox + 第二輪追問 prompt + 3 deltas 欄
 6. **exit_gate**
    - section_type: exit_gate
-   - section_purpose: 過關條件 4 項勾選 + 「進入卡 8」CTA
+   - section_purpose: 反思問題 4 項勾選 + 「進入卡 8」CTA
 
 ---
 
@@ -256,12 +256,12 @@ worksheet 卡 7 開頭原文：
     - check_4: Checklist Item / 「Phase A 4 欄猜測已寫完」/ 自動勾選（已被 Phase A 控制）
   - completion_status: Body MD / required / 「✓ 4/4 已通過」或「還差 N 項」
   - cta_next: Button Primary Large / required / 「進入卡 8：真人訪談規劃 →」/ -> `/learn/worksheet/08`
-  - cta_back_to_card6: Button Ghost / optional / 「← 退回卡 6 補資訊」/ -> `/learn/worksheet/06`
+  - cta_back_to_card6: Button Ghost / optional / 「← 回去把卡 6 想清楚再來 補資訊」/ -> `/learn/worksheet/06`
   - help_link: TextLink Secondary / optional / 「我不知道怎麼填」/ 開啟側邊 Drawer
 - **states**:
   - default: 4 個 check 都未勾選，cta_next disabled
   - all_passed: cta_next 變 Amber CTA + 微妙 scale(1.02)
-  - failed_route: 任一 checkpoint 未通過 → 顯示「沒過 N 項。可以用第二輪 prompt 補強，或退回卡 6」
+  - failed_route: 任一 checkpoint 未通過 → 顯示「沒過 N 項。可以用第二輪 prompt 補強，或回去把卡 6 想清楚再來」
 - **copy_constraints**: cta_next ≤ 18 字；不可用「恭喜」「達成」
 
 ---
@@ -285,7 +285,7 @@ worksheet 卡 7 開頭原文：
 - **強制條件**：4 欄 textarea 全部 ≥ minLength（10 字）才能解鎖
 - **不可繞過**：即使 LocalStorage 直接改 `self_guess.guesses.*` 欄位，Phase B 仍鎖（因為解鎖判定在前端 state，不純依資料）
 - **不可回頭修改 Phase A**：解鎖 Phase B 後，Phase A 變 readonly。理由：避免使用者看到 AI 後回去修改猜測（這會破壞訓練本意）
-- **例外**：使用者可從 stepper 退回卡 6，但會清空卡 7 所有資料 + 顯示確認 modal「退回會清空卡 7 進度，確定？」
+- **例外**：使用者可從 stepper 回去把卡 6 想清楚再來，但會清空卡 7 所有資料 + 顯示確認 modal「退回會清空卡 7 進度，確定？」
 
 ### 自動儲存策略
 
@@ -332,7 +332,7 @@ worksheet 卡 7 開頭原文：
 
 ## [EXIT GATE]
 
-### 過關條件（必須全部通過）
+### 反思問題（必須全部通過）
 
 | # | 條件 | 自動判定邏輯 | 失敗訊息 |
 | :- | :--- | :--- | :--- |
@@ -344,8 +344,8 @@ worksheet 卡 7 開頭原文：
 ### 失敗路由
 
 - 任一 checkpoint 未通過 → 留在當頁，顯示第二輪 prompt 引導
-- 多個 checkpoint 未通過 + AI 回覆過於空泛 → 提示「退回卡 6 補更多細節」
-- **退回卡 6 時清空卡 7 所有 self_guess 資料**（避免污染重來）
+- 多個 checkpoint 未通過 + AI 回覆過於空泛 → 提示「回去把卡 6 想清楚再來 補更多細節」
+- **回去把卡 6 想清楚再來 時清空卡 7 所有 self_guess 資料**（避免污染重來）
 
 ### 狀態機影響
 
@@ -484,7 +484,7 @@ worksheet 卡 7 開頭原文：
 - pain_judgment_table textarea 接受 ≥ 100 字輸入 + autosave
 - 3 個 deltas 欄位達 minLength 後 exit_gate check 自動勾選
 - exit_gate 4 個 check 全通過後，cta_next 解鎖
-- 從 stepper 退回卡 6 → 顯示確認 modal「退回會清空卡 7 進度」+ 確認後清空
+- 從 stepper 回去把卡 6 想清楚再來 → 顯示確認 modal「退回會清空卡 7 進度」+ 確認後清空
 - LocalStorage 直接修改 `self_guess.guesses.*` 不能繞過 Phase B 鎖（前端 state 額外驗證）
 - 不出現禁用語（「猜對 / 猜錯」「準確度」「闖關」等）
 - 不出現倒數計時器 / 進度百分比 / 排行榜元素

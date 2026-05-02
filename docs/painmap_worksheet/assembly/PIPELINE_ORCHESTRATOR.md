@@ -1,8 +1,15 @@
-# PainMap Worksheet — Assembly Prompt Template (Pipeline Orchestrator)
+# PainMap Worksheet — Assembly Prompt Template (Pipeline Orchestrator) v2.0
 
 > 將 PainMap Brand System + Worksheet Page Spec 組裝為可直接餵給 Lovable / Claude Code 的完整 Prompt。
 > 對應 `docs/superpowers/specs/2026-05-01-painmap-worksheet-design.md` → M1 設計文件交付。
-> 仿照 `docs/web_design/assembly/PIPELINE_ORCHESTRATOR.md`，但針對 Worksheet 的「9 卡片 + 教學模式 + 反 solution mode」特性加上額外區塊。
+> 仿照 `docs/web_design/assembly/PIPELINE_ORCHESTRATOR.md`，但針對 Worksheet 的「9 卡片 + 蘇格拉底式取捨 + 反 solution mode」特性加上額外區塊。
+>
+> **v2.0 簡化說明**（2026-05-02）：
+> - 移除「教學 / 生產雙模式」設計（worksheet 只剩單一模式，無 score 欄位）
+> - 卡 5 改為蘇格拉底式取捨自陳（不再有 6 矛盾 radio / TRIZ 編號）
+> - 卡 9 改為極簡判斷頁（5 個 Socratic 反思問句純 UI 提示，**不寫進資料**；資料層只有 judgment + reason_100w + most/least confident + next_action）
+> - 卡 10 匯出單一格式（無模式切換）
+> - 整體架構更簡單：less mode toggle、less score logic、less filtering rules
 
 ---
 
@@ -52,7 +59,7 @@
 
 ### 品牌特質
 
-**結構化 (Structured)** / **賦權感 (Empowering)** / **沉穩 (Calm)** / **教學優先 (Teaching-first)**
+**結構化 (Structured)** / **賦權感 (Empowering)** / **沉穩 (Calm)** / **蘇格拉底式 (Socratic)**
 
 ### Color Tokens（壓縮版，當前頁面常用子集）
 
@@ -100,12 +107,15 @@ React 18 + TypeScript + Tailwind CSS + Zustand（本地狀態） + React Hook Fo
 - 禁止 #7 Unpredictability：不可有抽卡 / loot box / 神秘獎勵
 - 禁止 #8 Loss Avoidance：不可有 streak（連續打卡）、過期警告、進度倒退恐嚇
 
-### 教學模式特殊鐵律
+### 蘇格拉底式特殊鐵律（v2.0）
 
 1. **反 solution mode**：卡 3-8 任何 AI 互動，後端與前端皆須注入 guard prompt「不可建議解決方案、不可推薦工具、只做痛點探索」
 2. **書面優先於 UI 體驗**：使用者必須產出可帶離本網站的書面 PainCard，UI 美化不得以削弱書面結構為代價
-3. **過關條件透明**：每張卡片的 exit gate 規則須在頁面顯示給使用者看，不可隱藏
-4. **失敗回退路徑**：失敗時引導回前面卡片補資訊，不可顯示「失敗」「不及格」字眼
+3. **反思問題透明，不擋人**：每張卡片的反思問題（原「過關條件」）須在頁面顯示給使用者看；卡片只**建議**回頭重想，不擋你前進
+4. **回頭重想路徑中性**：回頭重想時的訊息使用「想想看 / 回去把卡 X 想清楚再來」中性語氣，不顯示「失敗」「不及格」「過關」「退回」字眼
+5. **零分數**：worksheet 系統內**永遠不出現**任何「N / 25」「N / 100」「N 星」型分數 UI（v2.0 schema 內已無 score 欄位）
+6. **零分類學**：卡 5 不貼 TRIZ 6 矛盾標籤（v2.0 改為使用者自陳取捨）；AI 任何時候不可給編號或分類學標籤
+7. **卡 9 AI 永久禁用**：判斷層所有欄位（judgment / reason_100w / most_confident_evidence / least_confident / next_action）一律由使用者親自寫，即使 M2+ 站內 LLM 上線也不開放
 
 ---
 
@@ -167,14 +177,15 @@ React 18 + TypeScript + Tailwind CSS + Zustand（本地狀態） + React Hook Fo
 
 ---
 
-### [EXIT GATE]
+### [REFLECTION HINTS]
 
-依 `references/exit_gates_matrix.md` 嚴格執行：
+依 `references/exit_gates_matrix.md` v2.0 嚴格執行：
 
-- 過關條件（資料層判定）
-- 失敗時提示文案（不可用「失敗」「錯誤」「不及格」等焦慮字眼）
-- 失敗時回退路徑（refer specs 第 6 節）
-- 過關後狀態更新（更新 PainCard.current_step）
+- 反思問題（中性提示，不擋人）
+- 必填欄位狀態（CTA disable 直到資料齊備，這不算「擋」，是「資料還沒齊」）
+- 真實性護欄觸發時的中性 hint 文案（不可用「失敗」「錯誤」「不及格」「過關」「退回」字眼）
+- 回頭重想路徑（refer matrix §2）
+- 卡片寫完後狀態更新（更新 PainCard.current_step）
 
 ---
 
@@ -263,7 +274,6 @@ prompt 開頭強制注入：
 
 - 為什麼選用某種 layout（如「左右欄而非單欄」）
 - 如何避免黑帽 Octalysis 元素
-- 教學模式 vs 生產模式的 UI 差異（refer `guides/teaching_vs_production_mode.md`）
 - 任何必要的權衡考量（如「為了反 solution mode，犧牲一鍵 AI 自動填入功能」）
 
 ### Step 3：實作方案
@@ -290,8 +300,8 @@ prompt 開頭強制注入：
 - [ ] 響應式設計完整（Desktop / Tablet / Mobile 三斷點皆驗證）
 - [ ] 所有狀態已處理（Loading / Error / Empty / Disabled / Focus）
 - [ ] 無障礙支援（鍵盤完整 Tab 順序 + ARIA labels + WCAG AA 對比度）
-- [ ] PainCard schema 對應正確（欄位名 / 型別 / 必填規則與 `data_model.md` 一致）
-- [ ] Exit gate 規則正確（與 `references/exit_gates_matrix.md` 一致）
+- [ ] PainCard schema 對應正確（欄位名 / 型別 / 必填規則與 `data_model.md` v2.0 一致）
+- [ ] 反思提示規則正確（與 `references/exit_gates_matrix.md` v2.0 一致）
 - [ ] 無 brand 禁令（無分數 UI / 排行榜 / FOMO）
 - [ ] 無 Octalysis 黑帽（無 streak / loot box / 過期）
 - [ ] AI 整合（若有）含 anti-solution guard
@@ -341,13 +351,13 @@ prompt 開頭強制注入：
 - M2 同步：PATCH `/api/paincards/:id/cards/1`
 - 無 AI 整合（卡 1 完全禁用 AI）
 
-### [EXIT GATE]
+### [REFLECTION HINTS]
 
-過關條件：`complaint.verbatim`/`source_name`/`source_relation`/`datetime`/`scene` 全部非空 且 verbatim ≥ 10 字 且 通過 R2.1 anti-fake validator。
+必填欄位（CTA disable 直到齊備）：`complaint.verbatim`/`source_name`/`source_relation`/`datetime`/`scene` 全部非空 且 verbatim ≥ 10 字。
 
-失敗提示文案：
+中性 hint 文案（不擋過）：
 - verbatim 太短：「再聽一次他的原話。10 字以上比較能保留情境。」
-- 觸發 R2.1：「這像是你的解讀。請改寫成他親口說的句子。」
+- 觸發 R2.1：「想想看：這幾個字像不像是你自己幫他想的？」
 
 ### [AI INTEGRATION]
 
@@ -364,13 +374,14 @@ prompt 開頭強制注入：
 
 ### 黑帽掃描
 
-- [x] 無分數 UI
+- [x] 無分數 UI（v2.0：schema 內已無 score 欄位）
+- [x] 無分類學標籤（v2.0：schema 內已無 triz_id / triz_label）
 - [x] 無 streak
 - [x] 無 loot box
 - [x] 無 FOMO
 - [x] 無過期警告
 - [x] 行動按鈕文案中性：「儲存並進入卡 2」
-- [x] 失敗提示無「失敗 / 不及格」字眼
+- [x] 中性 hint 無「失敗 / 不及格 / 過關 / 退回」字眼
 
 ---
 
@@ -378,13 +389,13 @@ prompt 開頭強制注入：
 
 1. **Global 規範** > **Page 特定需求** > **Exception**
 2. PainMap brand 禁令 > Octalysis 白帽應用（衝突時禁令優先）
-3. 教學模式鐵律（反 solution mode、書面優先）> UI 美觀
+3. 蘇格拉底式鐵律（反 solution mode、零分數、零分類學、書面優先）> UI 美觀
 
 ---
 
 ## 版本資訊
 
 - Global System 版本：v1.0（painmap_brand_system.md）
-- Worksheet Spec 版本：v1.0（worksheet v1.0 → 2026-05-01）
-- Assembly Template 版本：v1.0
-- 最後更新：2026-05-01
+- Worksheet Spec 版本：v2.0（worksheet v2.0 → 2026-05-02 蘇格拉底式大一統重構）
+- Assembly Template 版本：v2.0
+- 最後更新：2026-05-02

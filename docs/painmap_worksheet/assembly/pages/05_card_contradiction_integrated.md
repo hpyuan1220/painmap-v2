@@ -1,25 +1,27 @@
-# PainMap Worksheet — Card 5 (TRIZ Contradiction) Integrated Prompt
+# PainMap Worksheet — Card 5 (兩件事不能同時要｜蘇格拉底版) Integrated Prompt
 
 > 自我包含整合 prompt — 直接貼入 Lovable / Claude Code 即可生成卡 5 完整實作。
 > 對應 page spec：`docs/painmap_worksheet/design/pages/05_card_contradiction.md`
-> 對應資料模型：`docs/painmap_worksheet/product/data_model.md` § Card 5
-> 組裝日期：2026-05-02 ｜ Worksheet v1.0
+> 對應資料模型：`docs/painmap_worksheet/product/data_model.md` v2.0 § Card 5
+> 組裝日期：2026-05-02 ｜ Worksheet v2.0
+>
+> **v2.0 重大變更**：徹底刪除 TRIZ 6 矛盾分類學。卡 5 不再有 `triz_id` / `triz_label` 欄位、不再有「請 AI 從 6 種挑 1 個」prompt block、不再有 retreat banner。改為**蘇格拉底式取捨自陳**：使用者用自己的話寫 side_a / side_b、選犧牲哪邊、寫**為什麼那邊會被犧牲**（新欄位 `sacrificed_reason`）。
 
 ---
 
 ## === GLOBAL PROJECT GUIDELINE (DO NOT OVERRIDE) ===
 
-你是「PainMap 題眼 — Worksheet 教學模式」的資深產品設計師與前端工程師。
+你是「PainMap 題眼 — Worksheet」的資深產品設計師與前端工程師。
 
 ### 品牌特質
 
-**結構化** ｜ **賦權感** ｜ **沉穩** ｜ **教學優先**
+**結構化** ｜ **賦權感** ｜ **沉穩** ｜ **蘇格拉底式**
 
 ### Color Tokens
 
 | Token | 色值 | 用途 |
 | :--- | :--- | :--- |
-| Primary #1E3A5F / Primary Light #E8EEF5 / Secondary #2D7D8A / Accent CTA #E8913A / Verified #2D9D78 / Caution #D97706（selector_warning）/ BG Page #F7F8FA / BG Muted #F1F3F5 / Text Primary #1A2332 / Text Secondary #5C6B7A / Border Default #DFE3E8 / Border Focus #2D7D8A |
+| Primary #1E3A5F / Primary Light #E8EEF5 / Secondary #2D7D8A / Accent CTA #E8913A / Verified #2D9D78 / Caution #D97706 / BG Page #F7F8FA / BG Muted #F1F3F5 / Text Primary #1A2332 / Text Secondary #5C6B7A / Border Default #DFE3E8 / Border Focus #2D7D8A |
 
 ### Typography
 
@@ -35,44 +37,42 @@ H1 28px / H2 22px / H3 18px / Body LG 17px / Body MD 15px / Body SM 13px / Capti
 
 ### 技術棧
 
-React 18 + TypeScript + Tailwind + Zustand + React Hook Form + Zod。LocalStorage key：`painmap_worksheet:cards`、`user_pref.ai_tool`。
+React 18 + TypeScript + Tailwind + Zustand + React Hook Form + Zod。LocalStorage key：`painmap-worksheet-v2`、`user_pref.ai_tool`。
 
 ### 絕對禁令（PainMap Brand）
 
-- 禁止：分數、星等、A-F、成功率、排行榜、徽章、倒數計時
-- 禁用詞：「抽 1 個」「抽到」「神秘」「神奇」「AI 神秘推薦」「AI 智慧匹配」「解鎖第 7 種」「你的命運矛盾」「百搭組合」「複合矛盾」「闖關」「升級」「streak」
+- 禁止：分數、星等、A-F 等級、成功率、排行榜、徽章、倒數計時
+- **禁止：分類學標籤（TRIZ 6 矛盾、設計模式、商業書名詞）**（v2.0 新增）
+- 禁用詞：「TRIZ」「triz_id」「6 種矛盾」「請挑 1 個」「Speed vs Quality」「Personalization vs Scale」「神秘」「神奇」「闖關」「升級」「streak」
 - 禁止 Inline styles / `console.log`
 - WCAG AA / 語意化 HTML / focus ring Teal
 
-### 絕對禁令（Octalysis 黑帽 — 卡 5 為**反 #7 警示最高**）
+### 絕對禁令（Octalysis 黑帽）
 
-- 禁止 #6 Scarcity：時間壓力、「神秘第 7 種限時開放」
-- **禁止 #7 Unpredictability**（**卡 5 重點警示**）：
-  - 不可有 carousel / shuffle / flip / spin 動畫
-  - 不可隨機顯示 6 種選項順序
-  - 不可有「神秘 AI 推薦」黑盒
-  - 不可有抽卡式 UI、卡片翻轉動畫、解鎖音效
+- 禁止 #6 Scarcity：時間壓力
+- 禁止 #7 Unpredictability：carousel / shuffle / flip / spin / 抽卡式 UI
 - 禁止 #8 Loss Avoidance：streak / 過期 / 「沒選會消失」
 
-### 教學模式特殊鐵律
+### 蘇格拉底式特殊鐵律
 
 1. **反 solution mode**：本卡 prompt 含「不要建議解決方案」guard
-2. **書面優先**：A、B 兩端必須具體（不是抽象詞）
-3. **過關條件透明**：單選 + side_a/b 具體 + sacrificed 已選
-4. **失敗回退**：6 個都不像 → 退回卡 3（拆得不夠細）
+2. **反分類學**：AI prompt 明確要求「不要給編號 / 不要給分類學標籤」
+3. **書面優先**：A、B 兩端必須具體（不是抽象詞）；sacrificed_reason 必須 ≥ 1 句完整描述
+4. **反思問題透明**：UI 顯示反思問題（不是「過關條件」）
+5. **回頭重想中性**：AI 認為卡關句沒拆乾淨時，中性建議「回去把卡 3 想清楚再來」（不寫「退回卡 3」）
 
 ---
 
-## === CURRENT TASK: BUILD CARD 5 — TRIZ CONTRADICTION ===
+## === CURRENT TASK: BUILD CARD 5 — 兩件事不能同時要（蘇格拉底版） ===
 
 ### [PAGE META]
 
-- **page_name**: Card 5 - TRIZ Contradiction
+- **page_name**: Card 5 - Contradiction Articulation (Socratic)
 - **route_path**: `/learn/worksheet/05?id={paincard_uuid}`
 - **card_step**: 5
-- **page_type**: card_input + ai_prompt_copy_block + structured_selector
-- **primary_goal**: 引導使用者填 `contradiction.triz_id`（單選 1 種，禁止複選）+ `side_a` + `side_b` + `sacrificed`，透過 AI 提案選擇最符合的矛盾
-- **secondary_goal**: 訓練「真痛點背後通常是兩件事不能同時要」的拆解思維
+- **page_type**: card_input + ai_prompt_copy_block + tradeoff_articulation
+- **primary_goal**: 引導使用者用自己的話寫出 `contradiction.side_a` + `side_b` + `sacrificed` + **`sacrificed_reason`**（新欄位），透過 AI 協助釐清取捨；**不**做任何分類學選擇
+- **secondary_goal**: 訓練「真痛點 = 兩件事不能同時要 + 為什麼那邊會被犧牲」的拆解思維
 - **prerequisite_cards**: [1, 2, 3, 4]
 - **expected_time_on_page**: 8-15 分鐘
 
@@ -80,13 +80,13 @@ React 18 + TypeScript + Tailwind + Zustand + React Hook Form + Zod。LocalStorag
 
 ### [STRUCTURE: SECTIONS]
 
-1. **stepper_header** — 卡 1-4 ✓ / 卡 5 高亮 + AI badge「✅ TRIZ 提案」
-2. **card_intro** — 「真痛點 = 兩件事不能同時要」+ 6 種矛盾預覽（純資訊不可選）
-3. **ai_prompt_block**（Step 1）— AI 從 6 種挑 1 個
-4. **ai_response_input**（Step 2）— 貼回 AI 推薦的矛盾編號 + 解釋（暫存 UI）
-5. **triz_selector**（Step 3）— 確認選擇（單選 radio）+ 填 side_a/b/sacrificed
-6. **example_reference** — 林老師範例
-7. **exit_gate_footer** — 過關條件 + retreat_action_card（6 個都不像時）
+1. **stepper_header** — 卡 1-4 ✓ / 卡 5 高亮 + AI badge「協助釐清取捨」
+2. **card_intro** — 「真痛點 = 兩件事不能同時要」+ 蘇格拉底引導句（不再列 6 矛盾預覽）
+3. **ai_prompt_block**（Step 1）— AI 協助使用者用自己的話寫兩端 + 為什麼犧牲
+4. **ai_response_input**（Step 2）— 貼回 AI 回應（暫存 UI，用於下一步預填）
+5. **tradeoff_form**（Step 3）— 4 個欄位：side_a / side_b / sacrificed / sacrificed_reason
+6. **example_reference** — 林老師範例（無 TRIZ 編號，純蘇格拉底）
+7. **reflection_footer** — 反思問題 + 中性「回去把卡 3 想清楚再來」link
 
 ---
 
@@ -95,48 +95,47 @@ React 18 + TypeScript + Tailwind + Zustand + React Hook Form + Zod。LocalStorag
 #### Section 1: stepper_header
 
 - 與卡 1-4 一致
-- `ai_indicator` (Badge, Verified Green border): "AI 介入：✅ TRIZ 提案"
+- `ai_indicator` (Badge, Verified Green border): "AI 介入：協助你用自己的話寫"
 
 #### Section 2: card_intro
 
 - `card_number`: "卡 5 / 9"
-- `card_title` (H1): "找出「兩件事不能同時要」"
-- `rule_callout` (AlertBox, Primary Light, icon=GitMerge)：「**為什麼這張卡關鍵：** 很多痛點背後其實是「他想要兩件事，但只能選一個」。看清這個矛盾，後面才知道訪談要怎麼問、產品要怎麼切。」
-- `six_contradictions_preview` (純資訊列表，**不可點選**；選擇放在 triz_selector)：
-  1. 想快但又想做得好
-  2. 想客製化但又想規模化
-  3. 想快但又想正確
-  4. 想很專業但又想新手好上手
-  5. 想自動化但又怕失控
-  6. 想多嘗試但又怕出包
-- `reference_link` (Link): "查看 6 種矛盾的詳細說明" → `references/triz_contradictions.md`
+- `card_title` (H1): "兩件事不能同時要"
+- `socratic_callout` (AlertBox, Primary Light, icon=GitMerge)：
+  - 「**他想要 ___，但又同時想要 ___。如果他能放掉其中一邊，他不會卡在這裡——所以他放不下哪邊？為什麼那邊會被犧牲？**」
+- `intro_body` (Body MD): 「真痛點背後通常是『他想要兩件事，但只能選一個』。看清這個取捨，後面才知道訪談要怎麼問、答案會在哪裡浮出來。」
+
+> ❌ 移除：6 矛盾預覽列表、TRIZ reference link、「查看 6 種矛盾的詳細說明」
 
 #### Section 3: ai_prompt_block（Step 1）
 
-- `step_label` (H2): "Step 1：請 AI 從 6 種挑 1 個最像的"
+- `step_label` (H2): "Step 1：請 AI 協助你釐清取捨"
 - `tool_picker` (AIToolPicker, optional)：4 chips
 - `prompt_block` (AIPromptCopyBlock, monospace)：
-  - prompt_template（**逐字引用 worksheet，禁止改寫**）：
-  
+  - prompt_template（**逐字引用 ai_prompt_library.md v2.0 §3.2**）：
+
   ```
   有一個人遇到這個卡關：
   {stuck_formula}
-  
+
   他現在用：
   {workaround}
-  
-  從以下 6 種「兩件事不能同時要」中，挑出最符合他的 1 種：
-  
-  1. 想快但又想做得好
-  2. 想客製化但又想規模化
-  3. 想快但又想正確
-  4. 想很專業但又想新手好上手
-  5. 想自動化但又怕失控
-  6. 想多嘗試但又怕出包
-  
-  請挑 1 個，並用主人翁的話說明這 2 件事在他身上具體是什麼。
-  不要挑超過 1 個。如果你覺得 6 個都不像，回答「不像，請我退回卡片 3」。
+
+  我想用「他想要 ___，但又同時想要 ___」這個結構，看清他到底卡在哪。
+
+  請協助我：
+  1. 用主人翁自己的話寫出他想要的 A 端（具體事件、語氣、量化都好）
+  2. 用主人翁自己的話寫出他想要的 B 端（跟 A 端對立的另一邊）
+  3. 在 A、B 之間，他通常會犧牲哪一邊？為什麼那邊會被犧牲？
+
+  規則：
+  1. 不要給編號、不要給分類學標籤、不要說「這屬於哪一種矛盾」
+  2. 不要建議解決方案、不要推薦工具
+  3. 不要替我下判斷說「他應該犧牲 X」——只描述他現況通常會犧牲哪邊、原因是什麼
+  4. 用主人翁的話寫，不要用抽象詞（避免「品質好」「速度快」這種空話）
+  5. 如果你覺得這個卡關句還拆不出兩邊，直接說「卡關句還沒拆清楚，建議回去把卡 3 想得更具體」
   ```
+
   - 變數插值：
     - `{stuck_formula}` ← `stuck_formula.ai_polished || user_draft`
     - `{workaround}` ← `${workaround.tool_name} — ${workaround.why_still_stuck}（不滿：${workaround.user_dissatisfactions.join("、")}）`
@@ -145,75 +144,72 @@ React 18 + TypeScript + Tailwind + Zustand + React Hook Form + Zod。LocalStorag
 
 #### Section 4: ai_response_input（Step 2）
 
-- `step_label` (H2): "Step 2：AI 推薦的是哪個？（記下來）"
-- `field_ai_recommendation` (TextField, optional, **僅 UI 暫存**)：
-  - label (H3): "AI 推薦的矛盾類型"
-  - helper: "把 AI 推薦的選項編號（1-6）填這裡。如果 AI 回「不像，請退回卡片 3」，點下方退回 link"
-  - placeholder: "2"
-- `field_ai_explanation` (Textarea, rows=3, optional, **僅 UI 暫存，用於 selector 預填**)：
-  - label (H3): "AI 用主人翁的話說明的版本"
-- `retreat_link` (Link, conditional): "AI 說 6 個都不像 → 退回卡 3" → `/learn/worksheet/03?id={uuid}`（顯示確認 modal）
+- `step_label` (H2): "Step 2：貼回 AI 的回應（會自動帶入下方欄位）"
+- `field_ai_raw_response` (Textarea, rows=8, optional, **僅 UI 暫存**)：
+  - label (H3): "AI 回應原文"
+  - helper: "貼回 AI 的回應後，下方 4 個欄位會嘗試自動帶入。你可以直接編輯。"
+- `parse_button` (Button Secondary): "解析並填入下方欄位"
+  - 解析規則：用 regex 偵測「A 端」「B 端」「通常會犧牲」「為什麼會被犧牲」段落，分別填入下方欄位
+  - 同時跑 anti-taxonomy 檢查（CARD_5_ANTI_TAXONOMY_PATTERNS，見 `ai_proxy_spec.md §2.3`），若偵測到 TRIZ / 編號 / 分類學標籤 → 顯示提示「AI 偷渡了分類學標籤，請複製這段補強 prompt 重跑」
+- **無 retreat_link**（v2.0 移除「AI 說 6 個都不像 → 退回卡 3」）：改在 reflection_footer 提供中性「回去把卡 3 想清楚再來」入口
 
-#### Section 5: triz_selector（Step 3）
+#### Section 5: tradeoff_form（Step 3）
 
-- `step_label` (H2): "Step 3：確認選擇 + 填 A/B 兩端"
-- `selector_warning` (AlertBox, Caution Amber, icon=AlertTriangle, **必填顯眼**)：
-  - 「**單選**（不可複選）— 複選代表你還沒拆乾淨，會被擋過關。如果你覺得超過一個，退回卡 3 再聊。」
-- `triz_radio_selector` (RadioGroup, **single select, 順序固定 1-6, 禁止 carousel/shuffle/flip 動畫**)：
-  - 6 個 radio button，**垂直排列**（Desktop / Mobile 都垂直）
-  - data_field: `contradiction.triz_id` (1-6) + `contradiction.triz_label` (auto-fill)
-  - options（依 `data_model.md` § TrizLabel）：
+- `step_label` (H2): "Step 3：4 個欄位（用主人翁的話寫）"
 
-| triz_id | triz_label | EN |
-| :-- | :--- | :--- |
-| 1 | 想快但又想做得好 | Speed vs Quality |
-| 2 | 想客製化但又想規模化 | Personalization vs Scale |
-| 3 | 想快但又想正確 | Speed vs Accuracy |
-| 4 | 想很專業但又想新手好上手 | Expert vs Novice |
-| 5 | 想自動化但又怕失控 | Automation vs Control |
-| 6 | 想多嘗試但又怕出包 | Experimentation vs Risk |
+##### `field_side_a` (Textarea, rows=2)
 
-  - hint_per_option: 每個選項下方顯示「典型範例」（來自 `references/triz_contradictions.md`）
+- label (H3): "A 端（他想要這個）"
+- helper: "用主人翁自己的話寫具體事件 / 語氣 / 量化"
+- placeholder: "家長要看見「我的孩子」被個別關照（具體事件、語氣有溫度）"
+- data_field: `contradiction.side_a`
+- validation: minLength 10
 
-- `field_side_a` (Textarea, rows=2, **enabled 才能填**)：
-  - label (H3): "A 端（他想要這個）"
-  - helper: "選了矛盾後，A 端是什麼？用主人翁的話寫具體"
-  - placeholder: "家長要看見「我的孩子」被個別關照（具體事件、語氣有溫度）"
-  - data_field: `contradiction.side_a`
-  - validation: minLength 10
-- `field_side_b` (Textarea, rows=2)：
-  - label (H3): "B 端（他也想要這個）"
-  - helper: "B 端是什麼？跟 A 端對立的另一邊"
-  - placeholder: "老師一週只有 2-3 小時可寫 30 則（每則 < 6 分鐘）"
-  - data_field: `contradiction.side_b`
-  - validation: minLength 10
-- `field_sacrificed` (RadioGroup, single select)：
-  - label (H3): "如果只能選一邊，他通常會犧牲哪邊？"
-  - options:
-    - 「犧牲 A 端」/ value: `'a'`
-    - 「犧牲 B 端」/ value: `'b'`
-  - data_field: `contradiction.sacrificed`
+##### `field_side_b` (Textarea, rows=2)
+
+- label (H3): "B 端（他也想要這個）"
+- helper: "跟 A 端對立的另一邊"
+- placeholder: "老師一週只有 2-3 小時可寫 30 則（每則 < 6 分鐘）"
+- data_field: `contradiction.side_b`
+- validation: minLength 10
+
+##### `field_sacrificed` (RadioGroup, single select)
+
+- label (H3): "如果只能選一邊，他通常會犧牲哪邊？"
+- options:
+  - 「犧牲 A 端」/ value: `'a'`
+  - 「犧牲 B 端」/ value: `'b'`
+- data_field: `contradiction.sacrificed`
+
+##### `field_sacrificed_reason` (Textarea, rows=4, **v2.0 新增欄位**)
+
+- label (H3): "為什麼那邊會被犧牲？"
+- helper: "用 1-2 句話說明：為什麼在他現況裡，那邊會被犧牲？（時間壓力？利益順序？心理門檻？）"
+- placeholder: "因為時間是硬上限（家長期待週日早上前要收到），具體性可以靠模板偷工。一旦時間壓力出現，老師會選擇『先有訊息發出去』勝過『訊息有溫度』。"
+- data_field: `contradiction.sacrificed_reason`
+- validation: minLength 15（建議 ≥ 1 句完整描述）
+
+> ❌ 移除：`triz_radio_selector`（6 個 radio）、`triz_id` / `triz_label` 欄位、`SixContradictionsPreview` 區塊、`selector_warning`「單選不可複選」警告（不再相關）
 
 #### Section 6: example_reference（可摺疊）
 
-- 內容（直接引用 worksheet 卡 5）：
-  - **AI 挑的：第 2 種（想客製化但又想規模化）**
-  - A 端（個人化）：家長要看見「我的孩子」被個別關照（具體事件、語氣有溫度）
-  - B 端（規模化）：老師一週只有 2-3 小時可寫 30 則（每則 < 6 分鐘）
-  - 通常會犧牲：A 端（罐頭訊息、家長一看就知道沒在用心）
+- 內容（蘇格拉底版，無 TRIZ 編號）：
+  - **A 端（家長端）**：家長要看見「我的孩子」被個別關照（具體事件、語氣有溫度）
+  - **B 端（時間端）**：老師一週只有 2-3 小時可寫 30 則（每則 < 6 分鐘）
+  - **通常會犧牲**：A 端
+  - **為什麼會被犧牲**：因為時間是硬上限（家長期待週日早上前要收到），具體性可以靠模板偷工。一旦時間壓力出現，老師會選擇「先有訊息發出去」勝過「訊息有溫度」。家長會察覺，但抱怨後老師仍會在下次重複同樣選擇——時間是不可協商的，溫度是可協商的。
 
-#### Section 7: exit_gate_footer
+#### Section 7: reflection_footer
 
-- `exit_conditions` (ExitGateChecklist)：
-  - "[ ] 只選 1 個（複選代表你還沒拆乾淨，退回卡片 3）"
-  - "[ ] A、B 兩端都具體（不是抽象詞）"
-- `primary_cta` (Button Primary): "儲存並進入卡 6 →"
+- `reflection_hints` (`<ReflectionHint>` 元件)：
+  - "想想看：A、B 兩端都用主人翁的話寫了嗎？（不是「想要好」「想要快」這種空話）"
+  - "想想看：『為什麼那邊會被犧牲』寫得夠清楚嗎？（時間？利益？心理？）"
+- `primary_cta` (Button Primary): "繼續到卡 6 →"
+  - enable 條件：side_a ≥ 10 字 AND side_b ≥ 10 字 AND sacrificed ∈ {'a', 'b'} AND sacrificed_reason ≥ 15 字
 - `secondary_cta` (Button Ghost): "回到卡 4"
-- `blocked_message` (AlertBox, Caution Amber, conditional)
-- `retreat_action_card` (Card, conditional, AI 回「都不像」或使用者不知如何選)：
-  - title (H3): "6 個都不像？拆得不夠細"
-  - body：**引用 worksheet**「過不了 → 退回卡片 3，拆得不夠細。」
-  - cta (Button Ghost): "退回卡 3 重新拆" → `/learn/worksheet/03?id={uuid}`
+- `back_to_card_3_link` (TextLink, optional, 中性語氣): "兩端拆不出來？回去把卡 3 想清楚再來" → `/learn/worksheet/03?id={uuid}`（保留卡 3-5 資料）
+
+> ❌ 移除：`exit_conditions` ExitGateChecklist「[ ] 只選 1 個」、`retreat_action_card`「6 個都不像？拆得不夠細 → 退回卡 3」（改為中性 link）、`blocked_message` AlertBox
 
 ---
 
@@ -221,22 +217,28 @@ React 18 + TypeScript + Tailwind + Zustand + React Hook Form + Zod。LocalStorag
 
 #### 主要互動流程
 
-1. 頁面載入 → 從 LocalStorage 讀 `stuck_formula` + `workaround` → 預填 prompt 變數
+1. 頁面載入 → 從 LocalStorage `painmap-worksheet-v2` 讀 `stuck_formula` + `workaround` → 預填 prompt 變數
 2. Step 1：使用者點「複製 prompt」→ 跳到外部 AI
-3. Step 2：使用者貼回 AI 推薦的矛盾編號 + 解釋（暫存 UI state）
-4. Step 3：使用者在 triz_radio_selector 確認選擇（單選） → triz_label 自動填入 → 填 side_a / side_b / sacrificed
+3. Step 2：使用者貼回 AI 回應 → 點「解析」→ 自動帶入 side_a / side_b / sacrificed / sacrificed_reason；同時跑 anti-taxonomy 檢查
+4. Step 3：使用者編輯 / 確認 4 個欄位
 5. 點擊 `primary_cta`：
-   - **a**: 檢查 triz_id 已選（1-6）
-   - **b**: 檢查 side_a / side_b minLength 10
-   - **c**: 檢查 sacrificed 已選 a or b
-   - **d**: 全通過 → PATCH `current_step = 6` → 導向卡 6
+   - **a**: 檢查 side_a / side_b minLength 10
+   - **b**: 檢查 sacrificed ∈ {'a', 'b'}
+   - **c**: 檢查 sacrificed_reason minLength 15
+   - **d**: 全通過 → 寫入 PainCard.contradiction → `current_step = 6` → 導向卡 6
 
-#### Triz 選擇器互動細節（**反 #7 鐵律**）
+#### Anti-taxonomy 檢測流程（v2.0 新增）
 
-- **單選互動**：`<input type="radio">` 標準語意（不是自訂 chip 多選）
-- **無動畫切換**：選擇 radio **不觸發旋轉、卡片翻轉、隨機洗牌動畫**
-- **順序固定**：6 種矛盾按 1-6 編號顯示，**絕對不可隨機排序**
-- **未選擇時的下游欄位**：side_a / side_b / sacrificed 為 disabled 灰色，視覺提示「先選矛盾」
+```ts
+const CARD_5_ANTI_TAXONOMY_PATTERNS = [
+  /(triz|TRIZ|矛盾編號|這屬於第 ?\d+ ?種|矛盾類型 ?\d+)/i,
+  /(Speed vs Quality|Personalization vs Scale|Speed vs Accuracy|Expert vs Novice|Automation vs Control|Experimentation vs Risk)/i,
+  /(挑 ?1 ?個|選 ?1 ?個|6 ?種.*挑)/,
+];
+```
+
+若解析時偵測到任一 pattern → 顯示中性提示框：
+> 「AI 偷渡了分類學標籤（如 TRIZ 編號）。我們不需要這些。請複製這段補強 prompt 重跑：『請刪除任何編號或分類學標籤，只用主人翁的話寫 A/B 兩端。』」
 
 #### Prompt 插值邏輯
 
@@ -249,79 +251,76 @@ const workaroundStr = `${painCard.workaround.tool_name} — ${painCard.workaroun
 
 | 斷點 | 佈局 |
 | :--- | :--- |
-| Desktop | 全寬單欄，6 個 radio 垂直，side_a/b 並排 2 欄 |
-| Tablet | 同 Desktop，side_a/b 維持並排 |
-| Mobile | 全部單欄，side_a/b 垂直堆疊 |
+| Desktop | 全寬單欄；side_a/b 並排 2 欄；sacrificed_reason 全寬 |
+| Tablet | 同 Desktop |
+| Mobile | 全部單欄垂直堆疊 |
 
 ---
 
 ### [DATA & API]
 
-- **endpoints**: `GET / PATCH /api/paincards/{id}`
+- **endpoints**: `GET / PATCH /api/paincards/{id}/cards/5`
 - **localStorage 寫入**：
-  - `painmap_worksheet:cards.{id}.contradiction.triz_id` (1-6)
-  - `painmap_worksheet:cards.{id}.contradiction.triz_label` (auto-fill)
-  - `painmap_worksheet:cards.{id}.contradiction.side_a`
-  - `painmap_worksheet:cards.{id}.contradiction.side_b`
-  - `painmap_worksheet:cards.{id}.contradiction.sacrificed` ('a' | 'b')
-  - `painmap_worksheet:cards.{id}.current_step` → 6（過關後）
-- **schema**：
+  - `painmap-worksheet-v2.{id}.contradiction.side_a`
+  - `painmap-worksheet-v2.{id}.contradiction.side_b`
+  - `painmap-worksheet-v2.{id}.contradiction.sacrificed` ('a' | 'b')
+  - `painmap-worksheet-v2.{id}.contradiction.sacrificed_reason` （**v2.0 新欄位**）
+  - `painmap-worksheet-v2.{id}.current_step` → 6
+- **schema** (v2.0)：
   ```typescript
   type Contradiction = {
-    triz_id: 1 | 2 | 3 | 4 | 5 | 6;        // single select
-    triz_label: string;                     // 對應 TrizLabel enum
-    side_a: string;                         // minLength 10
-    side_b: string;                         // minLength 10
+    side_a: string;             // minLength 10
+    side_b: string;             // minLength 10
     sacrificed: 'a' | 'b';
+    sacrificed_reason: string;  // minLength 15（v2.0 新增）
   };
+  // 注意：無 triz_id, triz_label
   ```
-- **error_cases**: 同前
 
 ---
 
-### [EXIT GATE]
+### [REFLECTION HINTS]
 
-#### 過關條件
+#### 必填條件（CTA disable 直到齊備）
 
 | # | 條件 | 判定 |
 | :- | :--- | :--- |
-| 1 | 只選 1 個 | `triz_id` 為 1-6 之一（單值，UI 強制 single select） |
-| 2 | A、B 兩端都具體 | `side_a.length >= 10` 且 `side_b.length >= 10` |
+| 1 | A 端具體 | `side_a.length >= 10` |
+| 2 | B 端具體 | `side_b.length >= 10` |
 | 3 | sacrificed 已選 | `sacrificed === 'a' \|\| 'b'` |
+| 4 | sacrificed_reason 寫了原因 | `sacrificed_reason.length >= 15` |
 
-#### 失敗路由
+#### 中性提示文案
 
-| 失敗 | 文案 |
+| 情況 | 文案 |
 | :--- | :--- |
-| `triz_id` 未選 | 「請選 1 種矛盾。如果 6 個都不像，點「退回卡 3 重新拆」。」 |
-| AI 回「6 個都不像，請退回卡 3」 | retreat_action_card：「**拆得不夠細。** 退回卡 3 再聊一次主人翁，把卡關句寫得更具體。」 |
-| `side_a` 或 `side_b` 太短 | 「兩端要具體（不是「想要好」「想要快」這種抽象詞）。看 worksheet 林老師範例如何具體描述。」 |
-| `sacrificed` 未選 | 「請選通常會犧牲哪邊。」 |
-
-#### 退回工作流
-
-> 卡 5 過不了 → 退回**卡 3**（拆得不夠細）
-> retreat_action_card 「退回卡 3 重新拆」→ 保留卡 3-5 資料，提示「修改卡 3 後請回來重新跑卡 5 的 AI prompt」
+| `side_a` 或 `side_b` 太短 | 「想想看：用主人翁的話寫，會更具體（不是「想要好」「想要快」這種抽象詞）」 |
+| `sacrificed_reason` 太短 | 「想想看：為什麼那邊會被犧牲？（時間？利益？心理？用 1-2 句話寫清楚）」 |
+| 兩端拆不出來 | 「兩件事拆不出來，通常代表卡關句還沒拆乾淨。回去把卡 3 想清楚再來。」（中性 link，不強制） |
 
 ---
 
 ### [AI INTEGRATION]
 
-- **AI 介入狀態**：✅ **啟用 — TRIZ 提案**
-- **AI 角色**：
-  - ✅ 從固定的 6 種矛盾中挑 1 個最像的
-  - ✅ 用主人翁的話說明 A、B 兩端具體是什麼
-  - ✅ 如果 6 個都不像，AI 可建議「退回卡 3」
-  - ❌ 替使用者最終確認（使用者要在 triz_selector 確認選擇）
-  - ❌ 提案 6 種以外的新矛盾類型
-- **內建 prompt**：直接從 worksheet 卡 5「🤖 AI 幫你提案」段落萃取，**逐字引用，禁止改寫**
+- **AI 介入狀態**：✅ **啟用 — 協助釐清取捨**
+- **AI 角色**（v2.0 蘇格拉底版）：
+  - ✅ 用主人翁的話寫 A、B 兩端具體是什麼
+  - ✅ 描述他現況通常會犧牲哪邊
+  - ✅ 寫為什麼那邊會被犧牲
+  - ❌ 給編號 / 分類學標籤（TRIZ、設計模式、商業書名詞）
+  - ❌ 替使用者下規範性判斷（「他應該犧牲 X」）
+  - ❌ 推薦解法
+- **內建 prompt**：直接從 `ai_prompt_library.md` v2.0 §3.2 引用，**逐字引用，禁止改寫**
 - **變數插值**：`{stuck_formula}` + `{workaround}`
-- **MVP 模式**：使用者複製到外部 AI 跑 → 貼回 ai_recommendation + ai_explanation（暫存 UI）→ 在 triz_selector 確認
-- **Fallback**：使用者沒有 AI 工具 → 可直接在 triz_selector 自選（小字 link「跳過 AI 提案，我自己選」），但仍須滿足過關條件
+- **MVP 模式**：使用者複製到外部 AI 跑 → 貼回 ai_raw_response → 點「解析」→ 自動帶入 4 欄位
+- **Fallback**：使用者沒有 AI 工具 → 可直接在 tradeoff_form 自填，仍須滿足必填條件
 
-#### Anti-solution mode guard
+#### Anti-solution mode + Anti-taxonomy guard
 
-prompt 不直接含「不要建議方案」字眼，但限定 AI 只能在 6 種固定範圍內挑選，自然防止解決方案推銷。
+prompt 內建兩種 guard：
+1. 規則 1「不要給編號、不要給分類學標籤」
+2. 規則 2「不要建議解決方案、不要推薦工具」
+3. 規則 3「不要替我下判斷說『他應該犧牲 X』」
 
 ---
 
@@ -329,49 +328,34 @@ prompt 不直接含「不要建議方案」字眼，但限定 AI 只能在 6 種
 
 #### 主驅動力：#3 Empowerment of Creativity & Feedback
 
-- 6 種矛盾的選擇是**思辨選擇** — 使用者要主動判斷
-- AI 提案後使用者**仍要在 triz_selector 主動確認**
-- 「6 個都不像 → 退回卡 3」是高度賦權
+- 使用者用自己的話寫 4 個欄位（最高賦權）
+- AI 是放大鏡，不是裁判
+- 「兩端拆不出來 → 回去把卡 3 想清楚再來」是高賦權自決
 
 #### 副驅動力：#1 Epic Meaning
 
-- card_intro 引用 worksheet 進階詞彙「TRIZ 矛盾識別」
-- 「拆出真正的矛盾」是判斷力訓練的核心高光時刻
+- card_intro 強調「看清取捨是判斷力訓練的核心」
 
 #### 副驅動力：#2 Development & Accomplishment
 
-- 完成卡 5 = 真正進入「結構化思考」（過了一半）
+- 寫完卡 5 = 真正進入「結構化思考」（過了一半）
 
-#### 反模式警告（**這張卡反模式警示級別最高**）
+#### 反模式警告（v2.0 強化）
 
 | 禁用 | 為何 |
 | :--- | :--- |
-| ❌ **「抽卡」式 UI**（隨機顯示、shuffle 動畫、卡片翻轉） | 違反 #7 Unpredictability — TRIZ 是結構化框架，不是運氣 |
-| ❌ **隨機排序 6 種選項** | 違反「結構優於裝飾」brand 原則 |
-| ❌ **AI 自動寫入 triz_id** | 違反「思辨選擇」核心訓練 |
-| ❌ **複選機制** | 違反 worksheet 鐵律「只選 1 個」 |
+| ❌ **TRIZ 6 矛盾 radio group** | v2.0 鐵律：worksheet 不貼分類學標籤 |
+| ❌ **「請挑 1 個」「不可複選」「神秘第 7 種」** | 鐵律 |
+| ❌ **「抽卡」式 UI**（隨機顯示、shuffle 動畫、卡片翻轉） | 違反 #7 Unpredictability |
+| ❌ **AI 自動寫入 triz_id**（schema 內已無此欄位） | v2.0 鐵律 |
+| ❌ **AI 給規範性判斷「他應該犧牲 X」** | 違反「描述現況」蘇格拉底原則 |
 | ❌ **AI 解鎖動畫**（「叮咚！AI 為你選好了！」） | 過度遊戲化 |
-| ❌ **「神秘第 7 種」彩蛋** | 違反「6 種固定範圍」鐵律 |
-| ❌ **「你的選擇與 X% 使用者相同」** | 違反 anti-comparison |
-| ❌ **倒數計時器** | 違反 anti-anxiety |
-
-#### #3 Empowerment vs #7 Unpredictability 紅線
-
-| 白帽 #3 | 黑帽 #7 |
-| :--- | :--- |
-| ✅ 主動選從固定 6 種挑 1 個 | ❌ 隨機顯示讓使用者「期待下一個更好」 |
-| ✅ 順序、選項、含義皆透明 | ❌ Shuffle / 抽卡 / 翻牌動畫 |
-| ✅ AI 提案有清楚 prompt 邏輯 | ❌ 黑盒「AI 神秘推薦」 |
-| ✅ 結果可被質疑（「都不像」） | ❌ 結果是「命運」不可挑戰 |
 
 ---
 
 ## === EXCEPTION RULES ===
 
-本頁面**無特殊例外**，但有兩個鐵律加強條款：
-
-1. **6 種矛盾順序固定為 1-6，絕對不可隨機**（schema 強制 + UI 強制）
-2. **triz_radio_selector 不使用任何 carousel / shuffle / flip / spin 動畫**（即使是「酷炫」的微互動也禁止）
+本頁面**無特殊例外**。
 
 ---
 
@@ -380,60 +364,53 @@ prompt 不直接含「不要建議方案」字眼，但限定 AI 只能在 6 種
 ### Step 1：結構確認
 
 - 7 個 sections + 用途
-- PainCard schema 對應：`contradiction.{triz_id, triz_label, side_a, side_b, sacrificed}`
-- 資料流：URL `?id` → 讀 `stuck_formula` + `workaround` → 3 個 step → debounce 寫回 → exit gate → PATCH
-- exit gate pseudocode
+- PainCard schema 對應（v2.0）：`contradiction.{side_a, side_b, sacrificed, sacrificed_reason}`
+- 資料流：URL `?id` → 讀 `stuck_formula` + `workaround` → 3 個 step → debounce 寫回 → 必填條件檢查 → PATCH
 
 ### Step 2：設計決策說明
 
 說明 3 個關鍵設計決策：
-1. **為什麼 6 種矛盾必須單選 + 順序固定？** — TRIZ 是結構化框架，不是運氣；複選代表還沒拆乾淨；隨機順序會偷渡 #7 Unpredictability 黑帽
-2. **如何確保 triz_radio_selector 沒有偷渡「抽卡感」？** — 用 HTML standard `<input type="radio">`、垂直排列、無動畫；測試清單明確列出禁止 carousel/shuffle/flip/spin
-3. **AI 提案 vs 使用者確認的雙層設計** — AI 在外部跑只提供建議；使用者在 triz_selector 主動確認；「6 個都不像」是高賦權出口
+1. **為什麼移除 TRIZ 6 矛盾分類？** — 分類學是借權威包裝，本質是通用 trade-off 識別。蘇格拉底式工具不貼分類，只問問題。使用者用自己的話寫，比挑編號更能訓練判斷力。
+2. **為什麼新增 sacrificed_reason 欄位？** — 「他想要 X 但又想要 Y」只是觀察；「為什麼 Y 會被犧牲」才是判斷。寫出原因 = 訓練「看到取捨背後的力量」。
+3. **AI 角色從『挑 1 個』降級為『協助釐清』** — AI 越主動，使用者越被動。降級 AI 角色 = 提升使用者賦權。
 
 ### Step 3：實作方案（Option A）
 
 - `Card5ContradictionPage.tsx`
-- `StepperHeader` / `CardIntro` / `SixContradictionsPreview` / `AiPromptBlock` / `AiResponseInput` / `TrizSelector` / `ExampleReference` / `ExitGateFooter` / `RetreatActionCard`
-- Zod schema for contradiction
-- TrizLabel constants（從 `data_model.md` § TrizLabel 對應）
+- `StepperHeader` / `CardIntro` / `AiPromptBlock` / `AiResponseInput` / `TradeoffForm` / `ExampleReference` / `ReflectionFooter`
+- Zod schema for contradiction (v2.0)
 - RWD Tailwind
 
 ### 品質檢查清單（部署前必過）
 
 #### 通用
 - [ ] 7 個 Section 依序渲染
-- [ ] 從 LocalStorage 正確讀取 `stuck_formula` + `workaround`
+- [ ] 從 LocalStorage `painmap-worksheet-v2` 正確讀取 `stuck_formula` + `workaround`
 - [ ] ai_prompt_block 正確插值 `{stuck_formula}` + `{workaround}`
-- [ ] **prompt 內容與 worksheet 卡 5 原文 100% 一致**
+- [ ] **prompt 內容與 ai_prompt_library.md v2.0 §3.2 100% 一致**
 - [ ] copy_button 正確複製到剪貼簿
-- [ ] triz_radio_selector 為**單選**（HTML radio group），UI 強制 single select
-- [ ] **triz_radio_selector 6 個選項順序固定為 1-6，不隨機**
-- [ ] **triz_radio_selector 不使用 carousel / shuffle / flip / spin 動畫**
-- [ ] triz_id 對應 triz_label 自動填入
-- [ ] field_side_a + field_side_b 在 triz_id 未選時為 disabled
-- [ ] field_side_a / side_b minLength 10 才能過關
+- [ ] field_side_a / field_side_b minLength 10 才能繼續
 - [ ] field_sacrificed 為單選 radio（'a' / 'b'）
-- [ ] retreat_action_card「退回卡 3 重新拆」link 正確導向（保留卡 3-5 資料）
-- [ ] CTA 過關後 PATCH `current_step = 6`
-- [ ] selector_warning 醒目顯示「單選」
-- [ ] AI 介入 badge「✅ TRIZ 提案」
-- [ ] 鍵盤 Tab 順序：stepper → tool_picker → copy_button → external_link → ai_recommendation → ai_explanation → 6 個 radio → side_a → side_b → sacrificed radio → CTA
-- [ ] 螢幕閱讀器讀出 6 個 radio 為單選 group（aria-radiogroup）
+- [ ] field_sacrificed_reason minLength 15 才能繼續
+- [ ] **schema 內無 `triz_id` / `triz_label` 欄位**
+- [ ] Anti-taxonomy 檢測：解析 AI 回應時跑 CARD_5_ANTI_TAXONOMY_PATTERNS
+- [ ] 完成後 PATCH `current_step = 6`
+- [ ] AI 介入 badge「協助你用自己的話寫」
+- [ ] 鍵盤 Tab 順序：stepper → tool_picker → copy_button → external_link → ai_raw_response → parse_button → side_a → side_b → sacrificed radio → sacrificed_reason → CTA
 - [ ] RWD 三斷點正確
 
-#### Octalysis 黑帽掃描（生成程式碼後**必跑**，**卡 5 重點**）
-- [ ] 是否出現分數 UI？→ 砍掉
-- [ ] 是否有 streak / 連續打卡？→ 砍掉
-- [ ] **是否有 loot box / 抽卡 / 神秘獎勵 / shuffle / flip / spin / carousel？→ 砍掉**
+#### 反模式掃描（生成程式碼後**必跑**，**v2.0 卡 5 重點**）
+- [ ] **是否出現 TRIZ 6 矛盾 radio group？→ 砍掉**
+- [ ] **是否出現「請挑 1 個」「不可複選」UI？→ 砍掉**
+- [ ] **是否出現 triz_id / triz_label 欄位？→ 砍掉**
+- [ ] **是否出現「6 種矛盾」「Speed vs Quality」等分類學標籤？→ 砍掉**
+- [ ] 是否有 loot box / 抽卡 / shuffle / flip / spin / carousel？→ 砍掉
 - [ ] 是否有 FOMO 文案？→ 砍掉
-- [ ] 是否有過期警告？→ 砍掉
-- [ ] 是否有排行榜 / 「你的選擇與 X% 使用者相同」？→ 砍掉
-- [ ] 是否有「神秘第 7 種」「複合矛盾」「百搭組合」？→ 砍掉
+- [ ] 是否有「失敗 / 過關 / 退回卡 3」字眼？→ 砍掉
 
-#### 禁用詞掃描
-- [ ] 全頁面零出現「抽 1 個 / 抽到 / 神秘 / 神奇 / AI 神秘推薦 / AI 智慧匹配 / 解鎖第 7 種 / 你的命運矛盾 / 百搭組合 / 複合矛盾」
+#### 禁用詞掃描（v2.0 強化）
+- [ ] 全頁面零出現「TRIZ」「triz_id」「6 種矛盾」「請挑 1 個」「Speed vs Quality」「Personalization vs Scale」「神秘」「抽 1 個」「過關條件」「退回卡 3」
 
 ---
 
-**版本資訊**：Worksheet v1.0 ｜ Brand v1.0 ｜ 2026-05-02
+**版本資訊**：Worksheet v2.0 ｜ Brand v1.0 ｜ 2026-05-02

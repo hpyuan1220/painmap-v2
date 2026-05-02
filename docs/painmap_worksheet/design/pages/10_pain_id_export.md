@@ -103,9 +103,9 @@
     - field_contradiction:
       - label: H3 / required / 「兩件事不能同時要」
       - content: Body MD / required / 從 `PainCard.contradiction` 顯示：
-        - triz_label: TRIZ 標籤（如「想客製化但又想規模化」）
         - side_a / side_b 各一行
         - sacrificed: 「他通常會犧牲：{a 或 b 的內容}」
+        - sacrificed_reason: 「為什麼：{sacrificed_reason}」
     - field_ai_evidence:
       - label: H3 / required / 「AI 找到的關鍵證據」
       - content: Body MD / required / 從 `PainCard.self_guess.pain_judgment_table` 顯示精華（前 5 行 + 「展開完整判斷表 ▼」按鈕）
@@ -130,15 +130,11 @@
         - reason_full: Body MD / 從 `PainCard.verdict.reason_100w` 顯示完整 100+ 字
         - most_confident: Caption / 「最有把握：{most_confident_evidence}」
         - least_confident: Caption / 「最沒把握：{least_confident}」
-    - field_pain_quality（**僅在 mode === 'teaching' 顯示**）:
-      - label: H3 / required / 「Pain Quality（5 維度反思）」
-      - content: Body MD / 顯示 total_score「{total_score} / 25」+ 5 維度小列表
-      - teaching_note: Caption Italic / required / 「分數只是工具，不是答案。」
     - field_next_action:
       - label: H3 / required / 「下一步」
       - content: Body LG / required / 動態文字依 `verdict.next_action`：
         - `interview` → 「訪談卡 8 的對象」
-        - `more_evidence` → 「退回卡 6 找更多證據」
+        - `more_evidence` → 「回去把卡 6 想清楚再來」
         - `change_topic` → 「換題目重新填一輪」
   - card_footer:
     - signature_line: Caption / required / 「═══════════════════════════════════」
@@ -146,8 +142,7 @@
 - **states**:
   - default: 全部欄位展開
   - collapsed_views: 使用者可點 `field_ai_evidence.extra` 等展開完整判斷表
-  - production_mode: field_pain_quality 隱藏
-- **copy_constraints**: 不可使用「分數」「等級」「排名」UI 元素；teaching_note 不可省略
+- **copy_constraints**: 不可使用「分數」「等級」「排名」UI 元素；不可使用 TRIZ 標籤；無教學/生產模式切換
 
 ### Section: export_actions
 
@@ -283,7 +278,6 @@
       - 「複製可分享連結（短網址，僅分享你選的欄位）」
       - 「下載 .md 後手動分享」
       - 「轉成圖片（生成中... M2 範圍）」
-    - privacy_warning: CalloutBox Warning / required / 「分享連結預設不包含 5 維度評分（生產模式輸出規則 R4.2）。要包含分數嗎？」
     - share_field_selector: CheckboxGroup / required / 讓使用者選哪些欄位要分享（預設只勾 verdict.judgment + reason_100w）
   - delete_confirm_modal: DeleteConfirmModal / conditional / 點 action_delete 開啟
     - title: H2 / required / 「真的刪除這份痛點身份證？」
@@ -303,11 +297,11 @@
 
 ### 主要互動流程
 
-1. 頁面載入 → 從 LocalStorage 讀取 PainCard，從 settings 讀取 display_mode
+1. 頁面載入 → 從 LocalStorage 讀取 PainCard
 2. 渲染完整 pain_id_card（依 PainCard 9 個欄位填入）
 3. 使用者點 export 按鈕 → 觸發對應格式生成：
-   - Markdown：用 template 字串組合 9 卡資料 + worksheet 框架
-   - JSON：直接 `JSON.stringify(PainCard, null, 2)`
+   - Markdown：用 template 字串組合 9 卡資料 + worksheet 框架（單一格式，無模式分支）
+   - JSON：直接 `JSON.stringify(PainCard, null, 2)`（無 score / triz 欄位需要過濾）
    - PDF：使用 jsPDF 或 React-PDF 將 pain_id_card DOM 轉 PDF
 4. 下載完成 → toast 通知 + 寫入 `PainCard.exported.formats` + `PainCard.exported.exported_at`
 5. 使用者點 next_step_cta primary 按鈕 → 依 verdict 路由：
@@ -340,10 +334,10 @@
   - {dissatisfactions[2]}
 
 ## 兩件事不能同時要
-- 類型：{contradiction.triz_label}
 - A 端：{contradiction.side_a}
 - B 端：{contradiction.side_b}
 - 通常犧牲：{sacrificed_label}
+- 為什麼：{contradiction.sacrificed_reason}
 
 ## AI 找到的關鍵證據
 {self_guess.pain_judgment_table}
@@ -370,34 +364,23 @@
 - 最有把握：{most_confident_evidence}
 - 最沒把握：{least_confident}
 
-## Pain Quality（5 維度反思，僅教學模式）
-- 人群具體度：{score}/5
-- 發生頻率：{score}/5
-- 痛苦強度：{score}/5
-- 現有解法不滿：{score}/5
-- 證據可信度：{score}/5
-- 總分：{total_score}/25
-
-> 分數只是工具，不是答案。
-
 ## 下一步
 {next_action_label}
 ```
 
-**生產模式下**：Pain Quality 區塊整段不輸出。
+**單一輸出格式 — 沒有 mode-gated 過濾**。v2.0 重構後沒有分數欄位要隱藏。
 
 #### JSON 格式
 
-直接輸出完整 PainCard 物件（包含 verdict.scores），檔名 `paincard-{slug}-{YYYY-MM-DD}.json`。
+直接輸出完整 PainCard 物件（無 verdict.scores、無 total_score、無 contradiction.triz_id/triz_label），檔名 `paincard-{slug}-{YYYY-MM-DD}.json`。
 
-**對外分享連結時**：依 R4.1 規則過濾 verdict.scores + total_score。
+實作：`buildShareableJson(card)` = `JSON.stringify(card, null, 2)`，沒有任何 production filter。
 
 #### PDF 格式
 
 - A4 一頁版（適合列印）
 - 字體：Noto Sans TC
 - 結構同 Markdown
-- 教學模式才包含 Pain Quality 區塊
 
 ### 自動儲存策略
 
@@ -419,8 +402,7 @@
 
 - **uses_api**: false（MVP 階段全部 LocalStorage）
 - **localstorage_keys**:
-  - `painmap_worksheet:cards`（讀取整個 PainCard）
-  - `painmap_worksheet:settings.display_mode`（讀取教學 / 生產模式）
+  - `painmap-worksheet-v2`（讀取整個 PainCard，v2.0 新 key）
 - **data_paths_read**: 全部 PainCard 欄位（這頁是整合 view）
 - **data_paths_written**:
   - `PainCard.exported.formats` (push 'markdown' / 'json' / 'pdf')
@@ -512,7 +494,6 @@
 - ✅ 可分享身份證連結（白帽：「我做了這份判斷，給你看」）
 - ❌ 不可顯示「N 個人覺得你的判斷準確」（社會比較焦慮）
 - ❌ 不可顯示「同類痛點排行榜」
-- ❌ 分享連結預設不包含 5 維度評分（避免異化為比較工具）
 
 ### 永久禁用驅動力
 
@@ -561,6 +542,8 @@
 | 「Pro 解鎖更多匯出格式」 | 功能勒索 — 違反 brand |
 | 「分享後可獲得 X 點」 | 遊戲化禁令 |
 | 「你是第 N 位完成」 | 社會比較焦慮 |
+| 「Pain Quality」「品質分數」「總分」「教學/生產模式」 | v2.0 鐵律：完全移除 |
+| 「TRIZ 矛盾類型」 | v2.0 鐵律：完全移除 |
 
 ### 建議用語
 
@@ -599,6 +582,9 @@
 - 匯出後 PainCard.exported.formats 正確 push 對應格式
 - PainCard.exported.exported_at 正確寫入 ISO8601
 - **不需要登入即可匯出**（嚴格驗收 — 違反此項即為嚴重 bug）
+- **匯出格式單一**：無 mode-gated 內容過濾（v2.0 重構）
+- **匯出內容不含 verdict.scores、total_score、contradiction.triz_id/triz_label**（這些欄位在 v2.0 已移除）
+- **匯出內容包含 contradiction.sacrificed_reason**（v2.0 新欄位）
 
 ### Verdict 路由驗收
 
@@ -619,12 +605,6 @@
 - 「查看舊身份證」→ `/learn/worksheet/history`（M2 範圍可預留）
 - 「分享」→ 開啟 modal，預設不勾選分享 5 維度評分
 - 「刪除本機資料」→ 開啟確認 modal，提示先匯出
-
-### 教學 / 生產模式驗收
-
-- mode === 'teaching' → field_pain_quality 顯示
-- mode === 'production' → field_pain_quality 隱藏
-- 切換模式不影響 export 行為（生產模式分享連結仍過濾分數）
 
 ### 反模式驗收（必須全部不出現）
 

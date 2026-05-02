@@ -57,7 +57,7 @@ React 18 + TypeScript + Tailwind + Zustand + React Hook Form + Zod。LocalStorag
    - 反推銷偵測（規則式關鍵字）會偵測 raw_response 是否進入「設計產品」模式
    - 命中 → 提供 fallback prompt 重跑
 2. **書面優先**：raw_response 必須完整保存（≥ 200 字），未來查核用
-3. **過關條件透明**：8 題答案各達 minLength + 反推銷通過 + raw_response 完整
+3. **反思問題透明**：8 題答案各達 minLength + 反推銷通過 + raw_response 完整
 4. **失敗回退**：偵測到推銷詞 → fallback prompt 補強重跑（不退回上一卡）
 
 ---
@@ -85,7 +85,7 @@ React 18 + TypeScript + Tailwind + Zustand + React Hook Form + Zod。LocalStorag
 4. **prompt_copy_block** — 完整證據蒐集 prompt + 一鍵複製 + 外部連結
 5. **eight_answers_form** — raw_response + 8 題結構化欄位
 6. **anti_solution_check** — 自動偵測推銷詞 + fallback prompt（**Card 6 核心反 solution mode 機制**）
-7. **exit_gate** — 過關條件 3 項 + 「進入卡 7」CTA
+7. **exit_gate** — 反思問題 3 項 + 「進入卡 7」CTA
 
 ---
 
@@ -218,7 +218,7 @@ React 18 + TypeScript + Tailwind + Zustand + React Hook Form + Zod。LocalStorag
   - check_2: 「AI 沒有推銷解法」/ 自動勾選（依 `no_solution_check_passed`）
   - check_3: 「raw_response 已完整保存」/ 自動勾選（依 raw_response.length >= 200）
 - `cta_next` (Button Primary Large): "進入卡 7：自己先猜 + 讀 AI →" → `/learn/worksheet/07`
-- `cta_back` (Button Ghost, optional): "← 退回卡 5 補資訊"
+- `cta_back` (Button Ghost, optional): "← 回去把卡 5 想清楚再來 補資訊"
 
 ---
 
@@ -273,7 +273,7 @@ React 18 + TypeScript + Tailwind + Zustand + React Hook Form + Zod。LocalStorag
 
 ### [EXIT GATE]
 
-#### 過關條件
+#### 反思問題
 
 | # | 條件 | 自動判定 | 失敗訊息 |
 | :- | :--- | :--- | :--- |
@@ -285,7 +285,7 @@ React 18 + TypeScript + Tailwind + Zustand + React Hook Form + Zod。LocalStorag
 
 - 任一條件未過 → 留在當頁，顯示具體缺什麼
 - 反推銷偵測命中 → 提供 fallback prompt + 手動覆寫
-- **絕不退回卡 1-5**（與卡 7 不同；卡 6 的 fail 是「補資訊重跑」）
+- **絕不回去把卡 1 想清楚再來-5**（與卡 7 不同；卡 6 的 fail 是「補資訊重跑」）
 
 #### 狀態機
 

@@ -1,6 +1,6 @@
 # Page-Level Prompt: Card 4 — 現在怎麼解
 
-> Worksheet 第四張卡片。對應「卡片 4 ｜ 找出他現在怎麼解」。使用者填工具/方法名 + 為什麼還卡，AI 介入提案 5 個常見 workaround。**重點：使用者必須拿 AI 提案去問主人翁，再填回 ≥ 3 個具體不滿理由。** 過不了 → 退回卡 1（這個人沒在花時間解）。
+> Worksheet 第四張卡片。對應「卡片 4 ｜ 找出他現在怎麼解」。使用者填工具/方法名 + 為什麼還卡，AI 介入提案 5 個常見 workaround。**重點：使用者必須拿 AI 提案去問主人翁，再填回 ≥ 3 個具體不滿理由。** 過不了 → 回去把卡 1 想清楚再來（這個人沒在花時間解）。
 
 ---
 
@@ -66,7 +66,7 @@
     - placeholder: "LINE + Excel 成績表 + 翻群組對話（手動拼湊）"
     - data_field: `workaround.tool_name`
     - validation: minLength 3
-    - anti_fake_hint: 偵測 R2.4 禁用詞（"沒人解過"、"沒解過"、"會自己想辦法"、"用想的"、"不知道怎麼解"），即時 warning「這代表這個人沒在花時間解 → 退回卡 1」
+    - anti_fake_hint: 偵測 R2.4 禁用詞（"沒人解過"、"沒解過"、"會自己想辦法"、"用想的"、"不知道怎麼解"），即時 warning「這代表這個人沒在花時間解 → 回去把卡 1 想清楚再來」
   - field_why_still_stuck: TextField / required
     - label: H3 / "為什麼還是覺得卡"
     - helper: Body SM / "用主人翁告訴你的話，不是你的解釋"
@@ -179,8 +179,8 @@
   - blocked_message: AlertBox / conditional
   - retreat_action_card: Card / conditional / 當 R2.4 觸發或 dissatisfactions < 3 多次失敗時顯示
     - title: H3 / "這個人可能還沒真正在意這個問題"
-    - body: Body MD / 引用 worksheet：「過不了 → 退回卡片 1，這個人可能還沒真正在意這個問題（沒在花錢花時間解）。」
-    - cta: Button Ghost / "退回卡 1，找另一個更痛的人" / -> `/learn/worksheet/01?id={uuid}`
+    - body: Body MD / 引用 worksheet：「過不了 → 回去把卡 1 想清楚再來，這個人可能還沒真正在意這個問題（沒在花錢花時間解）。」
+    - cta: Button Ghost / "回去把卡 1 想清楚再來，找另一個更痛的人" / -> `/learn/worksheet/01?id={uuid}`
 - **states**:
   - default: CTA disabled
   - all_required_filled: CTA Active
@@ -252,9 +252,9 @@ Step 4 涉及「離開電腦去問主人翁」這個異步動作。UI 提示：
 
 ## [EXIT GATE]
 
-> **過關條件 100% 對應 worksheet「🚦 過關條件」段落（卡片 4）**
+> **反思問題 100% 對應 worksheet「🚦 反思問題」段落（卡片 4）**
 
-### 過關條件
+### 反思問題
 
 | # | 條件 | 資料層判定 | UI 反饋 |
 | :- | :--- | :--- | :--- |
@@ -266,7 +266,7 @@ Step 4 涉及「離開電腦去問主人翁」這個異步動作。UI 提示：
 
 | 失敗情境 | 路由 | 友善文案 |
 | :--- | :--- | :--- |
-| `tool_name` 含 R2.4 禁用詞（「沒人解過」/「會自己想辦法」/「用想的」） | 顯示 retreat_action_card | 「**這個人可能還沒真正在意這個問題（沒在花錢花時間解）。** 退回卡 1 找另一個更痛的人。」 |
+| `tool_name` 含 R2.4 禁用詞（「沒人解過」/「會自己想辦法」/「用想的」） | 顯示 retreat_action_card | 「**這個人可能還沒真正在意這個問題（沒在花錢花時間解）。** 回去把卡 1 想清楚再來 找另一個更痛的人。」 |
 | `user_dissatisfactions.length < 3` | 停留卡 4 + 高亮 dissatisfactions 欄位 | 「需要至少 3 個具體不滿理由。如果只能列 1-2 個 → 拿 AI 清單回去問主人翁，看他有沒有試過其他方法。」 |
 | `user_dissatisfactions` 中含抽象詞（「不好用」「不方便」） | warning 不擋 + 提示具體化 | 「『不好用』太抽象。具體是哪一步、卡多久、有什麼後果？」 |
 | `tool_name` 為空 | 高亮欄位 | 「請寫具體工具/方法名（例：『Notion 模板』『Excel + 翻群組』）」 |
@@ -275,10 +275,10 @@ Step 4 涉及「離開電腦去問主人翁」這個異步動作。UI 提示：
 
 > 卡 4 過不了 → 退回**卡 1**
 
-理由（引用 worksheet）：「過不了 → 退回卡片 1，這個人可能還沒真正在意這個問題（沒在花錢花時間解）。」
+理由（引用 worksheet）：「過不了 → 回去把卡 1 想清楚再來，這個人可能還沒真正在意這個問題（沒在花錢花時間解）。」
 
 實作：
-- retreat_action_card 提供「退回卡 1，找另一個更痛的人」link
+- retreat_action_card 提供「回去把卡 1 想清楚再來，找另一個更痛的人」link
 - 點擊後導向卡 1，但**將 PainCard 標記 `status = 'draft'`**，提示使用者「你可能需要重選主人翁 — 卡 2-4 的資料保留供參考」
 
 ---
@@ -394,7 +394,7 @@ Step 4 涉及「離開電腦去問主人翁」這個異步動作。UI 提示：
 - [ ] copy_button 正確複製到剪貼簿
 - [ ] R2.4 偵測（"沒人解過"、"會自己想辦法"、"用想的"、"不知道怎麼解"、"沒解過"）
 - [ ] R2.4 觸發後 retreat_action_card 顯示
-- [ ] retreat_action_card 「退回卡 1」link 正確 PATCH `status = 'draft'`
+- [ ] retreat_action_card 「回去把卡 1 想清楚再來」link 正確 PATCH `status = 'draft'`
 - [ ] field_ai_alternatives 用 TagInput，min 3、max 10
 - [ ] field_user_dissatisfactions TagInput，min 3 才能過關
 - [ ] dissatisfactions 含抽象詞（"不好用"/"不方便"/"不順"）顯示 warning 不擋

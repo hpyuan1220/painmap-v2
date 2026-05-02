@@ -1,8 +1,9 @@
-# Exit Gate Check 元件規格
+# Reflection Hint Footer 元件規格
 
-> 每張卡片底部的「下一步」按鈕區塊。
-> 責任：檢查 PainCard 對應欄位是否符合過關條件，符合則放行，未符合則顯示「還缺什麼」。
-> 對應 `references/exit_gates_matrix.md` 的完整失敗回退規則。
+> v2.1 更名：「Exit Gate Check」→「Reflection Hint Footer」。
+> 每張卡片底部的「繼續到下一張」按鈕區塊。
+> 責任：以中性反思提示提醒使用者「這一題是否寫到位」，**不評等、不擋路**——只建議。
+> 對應 `references/exit_gates_matrix.md` 的完整反思提示規則（同步改名為 `reflection_hints_matrix.md` 中的中性版）。
 
 ---
 
@@ -10,10 +11,10 @@
 
 - **位置**：每個卡片頁 (`/learn/worksheet/01` ~ `/09`) 的底部，採 sticky 定位
 - **責任**：
-  1. 即時檢查當前 PainCard 是否符合該卡片的過關條件
-  2. 顯示 checklist：哪些通過、哪些還缺
-  3. 控制「下一張卡片」按鈕的 enabled / disabled 狀態
-  4. 失敗時提供「友善建議」回退路徑（不是強制）
+  1. 即時檢查當前 PainCard 對應欄位是否寫到反思檢核標準
+  2. 顯示中性反思清單：哪些已寫、哪些還可以再想想
+  3. 控制「繼續到下一張」按鈕的視覺強度（推薦 / 一般 / 還可以再想想）——**永遠 enabled**
+  4. 寫得還不夠時提供蘇格拉底反思提示（建議性，不是強制）
   5. 記錄通過後寫入 `current_step` 並導向下一張
 
 - **不負責**：
@@ -25,175 +26,210 @@
 
 ## 2. 結構
 
-### 2.1 視覺 Layout
+### 2.1 視覺 Layout（v2.1 三態：pending / thinking / ok）
 
-#### 未通過狀態（locked）
+> **v2.1 重要設計變更：** 移除「pass / fail」紅綠色語意；改用蘇格拉底式三態。所有圖示中性（bullet / 思考雲 / 中性勾），不用 ✗ 紅色。
+
+#### `pending` 狀態（還可以再想想）
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
-│ 過關檢查                                                      │
+│ 想想看                                                        │
 │                                                                │
-│  ✓ 寫的是原句，不是你的解釋                                   │
-│  ✓ 至少有 1 個有名字的真人                                    │
-│  ✗ 場景描述太抽象                                             │
+│  • 寫的是原句，不是你的解釋                                   │
+│  • 至少有 1 個有名字的真人                                    │
+│  ◦ 場景描述還可以更具體                                       │
 │                                                                │
-│  ┌─ 還缺什麼 ─────────────────────────────────────────────┐ │
-│  │ 場景太抽象。試試寫「2026-04-15 21:00，他在書桌前打開    │ │
-│  │ LINE 寫家長訊息」這種具體時間 + 地點 + 動作。            │ │
+│  ┌─ 蘇格拉底提示 ─────────────────────────────────────────┐ │
+│  │ 試試寫「2026-04-15 21:00，他在書桌前打開 LINE 寫家長    │ │
+│  │ 訊息」這種具體時間 + 地點 + 動作。                       │ │
+│  │ 寫不出來也沒關係——可以先繼續，等之後想到再回來。       │ │
 │  └──────────────────────────────────────────────────────┘ │
 │                                                                │
-│  [先存檔離開]                       [下一張卡片 →] (disabled) │
+│  [先存檔離開]                       [繼續到下一張 →]          │
 └──────────────────────────────────────────────────────────────┘
 ```
 
-#### 通過狀態（ready）
+#### `thinking` 狀態（AI 偵測到值得二想的訊號）
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
-│ ✓ 過關檢查通過                                                │
+│ 想想看                                                        │
 │                                                                │
-│  ✓ 寫的是原句，不是你的解釋                                   │
-│  ✓ 至少有 1 個有名字的真人                                    │
-│  ✓ 場景描述具體                                               │
+│  • 8 題 prompt 都有 AI 回答                                   │
+│  ⊙ AI 提到「建議開發 App」——這像不像 solution mode？        │
 │                                                                │
-│  [先存檔離開]                       [下一張卡片 →]            │
-└──────────────────────────────────────────────────────────────┘
-```
-
-#### 警告通過狀態（warning，可繼續但建議檢視）
-
-```
-┌──────────────────────────────────────────────────────────────┐
-│ ⚠️ 通過但有疑慮                                                │
-│                                                                │
-│  ✓ 8 題 prompt 都有 AI 回答                                   │
-│  ⚠️ 偵測到 AI 提到「建議開發 App」                            │
-│                                                                │
-│  ┌─ 建議 ────────────────────────────────────────────────┐ │
+│  ┌─ 蘇格拉底提示 ─────────────────────────────────────────┐ │
 │  │ AI 偷渡了解法建議。你可以選擇：                          │ │
 │  │ 1. 重跑 prompt 加一句「不要建議任何解決方案」            │ │
 │  │ 2. 自己手動忽略 AI 的解法建議部分，繼續下一張           │ │
 │  └──────────────────────────────────────────────────────┘ │
 │                                                                │
-│  [回去重跑]                         [仍要繼續 →] (amber)      │
+│  [重新跑一次卡 6]                   [繼續到下一張 →]          │
 └──────────────────────────────────────────────────────────────┘
 ```
 
-### 2.2 元件結構
+#### `ok` 狀態（已寫到位）
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│ 已寫到位                                                      │
+│                                                                │
+│  • 寫的是原句，不是你的解釋                                   │
+│  • 至少有 1 個有名字的真人                                    │
+│  • 場景描述具體                                               │
+│                                                                │
+│  [先存檔離開]                       [繼續到下一張 →]          │
+└──────────────────────────────────────────────────────────────┘
+```
+
+### 2.2 共用元件 `ReflectionHint`
+
+v2.1 抽出共用元件 `src/components/worksheet/ReflectionHint.tsx`，取代原先 9 張卡片各自宣告的 `ConditionItem`。
+
+```typescript
+type ReflectionHintProps = {
+  /** 三態之一 */
+  kind: 'pending' | 'thinking' | 'ok';
+  /** 該反思項目的中性描述 */
+  message: string;
+};
+```
+
+| kind | 圖示 | 顏色 | 語意 |
+| :--- | :--- | :--- | :--- |
+| `pending` | `◦` (空心 bullet) | Text Secondary | 還可以再想想；不是失敗 |
+| `thinking` | `⊙` (中性問號雲) | Amber 但不刺眼 | 偵測到值得二想的訊號 |
+| `ok` | `•` (實心 bullet) | Text Primary | 已寫到位；不是綠色勾勾 |
+
+**禁用：** ✗（紅）、✓（綠）、紅色背景方塊、警示三角形。
+
+### 2.3 元件結構
 
 | 區塊 | 元素 | 必/選 |
 | :--- | :--- | :--- |
-| 標題列 | gate_title (動態：通過 / 未通過 / 警告) | 必 |
-| Checklist | check_items (每個 exit condition 一條) | 必 |
-| 「還缺什麼」說明區 | failure_hint | 條件顯示 |
-| 主按鈕 | next_button (Primary / disabled / amber) | 必 |
+| 標題列 | header_title (動態：「想想看」/「已寫到位」) | 必 |
+| Reflection list | reflection_items (每個反思檢核一條，使用 `ReflectionHint`) | 必 |
+| 蘇格拉底提示區 | socratic_hint (寫不到位時的具體建議) | 條件顯示 |
+| 主按鈕 | next_button (永遠 enabled，視覺強度依狀態) | 必 |
 | 退出按鈕 | retreat_link (Secondary, link style) | 必 |
 
 ---
 
-## 3. 三種狀態
+## 3. 三種狀態（v2.1 中性化）
 
-### 3.1 `locked` — 未通過
-
-| 屬性 | 值 |
-| :--- | :--- |
-| gate_title | "過關檢查" + 中性灰圖示 |
-| checklist 視覺 | 通過項目 ✓ 綠色，未通過項目 ✗ Text Secondary 灰色 |
-| failure_hint | 顯示，列出缺什麼 + 具體建議 |
-| next_button | disabled，hover tooltip 顯示「還缺：XXX」 |
-| 觸發條件 | `validateExitGate(card)` 回傳 `passed: false` |
-
-#### Tooltip 文案
-
-next_button 為 disabled 時，hover 顯示：
-- 單一缺項：「還缺：場景描述」
-- 多項缺：「還缺：場景描述、3 個有名字的人」
-
-### 3.2 `ready` — 通過
+### 3.1 `pending` — 還可以再想想
 
 | 屬性 | 值 |
 | :--- | :--- |
-| gate_title | "✓ 過關檢查通過" + 綠色圖示 |
-| checklist 視覺 | 全部 ✓ 綠色 |
-| failure_hint | 隱藏 |
-| next_button | enabled，Primary 樣式（Amber CTA） |
-| 觸發條件 | `validateExitGate(card)` 回傳 `passed: true` 且無警告 |
+| header_title | "想想看" + 中性圖示 |
+| reflection 視覺 | 已寫到位 `•` Text Primary，還可再想 `◦` Text Secondary |
+| socratic_hint | 顯示，蘇格拉底式建議「再想想看 X」 |
+| next_button | **永遠 enabled**，但採用 secondary 樣式（不是 primary CTA） |
+| 觸發條件 | `validateReflection(card)` 回傳 `kind: "hint"` |
 
-### 3.3 `warning` — 通過但有疑慮
+> **v2.1 關鍵變更：** 不再有 `disabled` 按鈕。蘇格拉底工具不擋路；它只問問題。使用者寫得不夠仍能前進——卡片**建議**回頭，不**強迫**回頭。
+
+### 3.2 `thinking` — 偵測到值得二想的訊號
 
 | 屬性 | 值 |
 | :--- | :--- |
-| gate_title | "⚠️ 通過但有疑慮" + amber 圖示 |
-| checklist 視覺 | 通過項目 ✓ 綠色，警告項目 ⚠️ amber |
-| failure_hint | 顯示，建議重跑或繼續 |
-| next_button | enabled，但採用 amber 樣式（不是綠色 CTA） |
-| 觸發條件 | `passed: true` 且 `warnings.length > 0` |
+| header_title | "想想看" + 中性圖示 |
+| reflection 視覺 | 已寫到位 `•`，二想項目 `⊙` |
+| socratic_hint | 顯示，建議重跑或繼續 |
+| next_button | enabled，採用 amber secondary 樣式 |
+| 觸發條件 | 內容有寫但 AI 偵測到反模式訊號（如 solution mode） |
 
-#### 警告場景（依卡片）
+#### 二想場景（依卡片）
 
 - 卡 6：AI 回覆偵測到 solution mode 字串
 - 卡 7：「猜 vs AI 差異」textarea 字數少於 30 字
 - 卡 9：書面理由字數少於 100 字（接近邊界）
 
-警告通過後不阻斷流程，但會在下一張卡片頭部顯示「卡 X 有警告，要不要回去檢視？」reminder。
+繼續後不阻斷流程，但會在下一張卡片頭部顯示中性提醒「卡 X 有反思提示，要不要回去看看？」
+
+### 3.3 `ok` — 已寫到位
+
+| 屬性 | 值 |
+| :--- | :--- |
+| header_title | "已寫到位" + 中性圖示（不是綠色勾） |
+| reflection 視覺 | 全部 `•` Text Primary |
+| socratic_hint | 隱藏 |
+| next_button | enabled，Primary 樣式（Amber CTA） |
+| 觸發條件 | `validateReflection(card)` 回傳 `kind: "ok"` |
 
 ---
 
-## 4. 過關條件 Validation Logic
+## 4. 反思檢核 Validation Logic
 
-### 4.1 通用介面
+### 4.1 通用介面（v2.1 蘇格拉底化）
+
+> **v2.1 關鍵：** 回傳值統一為 `{ kind: "ok" | "hint" | "thinking", message?: string }`，**永不**回傳 `passed: false` 或 `fail`。蘇格拉底工具不評等。
 
 ```typescript
-type ValidationResult = {
-  passed: boolean;
-  errors: string[];        // 未通過原因
-  warnings: string[];      // 通過但有疑慮的原因
-  failure_routes: FailureRoute[];  // 失敗時的回退建議
+type ReflectionResult = {
+  /** 三態之一——ok / hint(pending) / thinking */
+  kind: 'ok' | 'hint' | 'thinking';
+  /** 還可以再想想的具體事項（kind="hint" 或 "thinking" 時填） */
+  hints: ReflectionHintItem[];
 };
 
-type FailureRoute = {
-  reason: string;          // 失敗的具體原因
-  target_card: number | 'stay';  // 建議目標卡片號或留在當頁
-  suggestion: string;      // 給使用者的建議文案
+type ReflectionHintItem = {
+  /** 還可以再想想的事 */
+  reason: string;
+  /** 建議回頭看哪張卡（純建議，不強制） */
+  suggested_card?: number;
+  /** 給使用者的中性蘇格拉底提示 */
+  suggestion: string;
 };
 
-function validateExitGate(
+function validateReflection(
   cardNumber: number,
   card: PainCard,
-  metadata?: { ai_response_warnings?: string[] }
-): ValidationResult { /* ... */ }
+  metadata?: { ai_response_signals?: string[] }
+): ReflectionResult { /* ... */ }
 ```
 
-### 4.2 各卡片的 Validation 邏輯（摘要）
+### 4.2 各卡片的 Validation 邏輯（摘要，v2.1 中性化）
 
-> 完整邏輯詳見 `references/exit_gates_matrix.md`。本元件依此邏輯執行檢查。
+> 完整邏輯詳見 `references/exit_gates_matrix.md`。本元件依此邏輯執行檢查。所有 `errors` 已重新命名為 `hints`，所有「未通過 / 失敗」措辭改成「還可以再想想」。
 
 #### 卡 1：抱怨原句
 
 ```typescript
-function validateCard1(card: PainCard): ValidationResult {
-  const errors: string[] = [];
+function validateCard1(card: PainCard): ReflectionResult {
+  const hints: ReflectionHintItem[] = [];
 
   if (!card.complaint.verbatim || card.complaint.verbatim.length < 10) {
-    errors.push('原句太短或未填');
+    hints.push({
+      reason: '原句還可以更具體',
+      suggestion: '回憶你聽到的具體話語，逐字寫下來。',
+    });
   }
-  if (!card.complaint.source_name) errors.push('來源人物未填');
-  if (!card.complaint.source_relation) errors.push('與來源關係未填');
-  if (!card.complaint.datetime) errors.push('時間或情境未填');
-  if (!card.complaint.scene) errors.push('當時場景未填');
+  if (!card.complaint.source_name) {
+    hints.push({ reason: '來源人物還沒填', suggestion: '寫下這句話是誰說的。' });
+  }
+  if (!card.complaint.source_relation) {
+    hints.push({ reason: '與來源關係還沒填', suggestion: '寫下你和他的關係。' });
+  }
+  if (!card.complaint.datetime) {
+    hints.push({ reason: '時間或情境還沒填', suggestion: '寫下你聽到這句話的時間。' });
+  }
+  if (!card.complaint.scene) {
+    hints.push({ reason: '當時場景還沒填', suggestion: '寫下當時的具體場景。' });
+  }
 
-  // 反模式偵測
+  // 蘇格拉底護欄（保留——這是真實性提示，不是評分）
   if (card.complaint.source_name?.match(/老師 ?[A-Z]|某人|匿名/)) {
-    errors.push('來源是匿名或代號（如「老師 A」），不是真名');
+    hints.push({
+      reason: '來源像是匿名或代號',
+      suggestion: '想想看：這幾個字像不像是你自己幫他想的？',
+    });
   }
 
   return {
-    passed: errors.length === 0,
-    errors,
-    warnings: [],
-    failure_routes: errors.includes('原句太短或未填')
-      ? [{ reason: '原句不夠', target_card: 'stay', suggestion: '回憶你聽到的具體話語' }]
-      : [],
+    kind: hints.length === 0 ? 'ok' : 'hint',
+    hints,
   };
 }
 ```
@@ -201,92 +237,89 @@ function validateCard1(card: PainCard): ValidationResult {
 #### 卡 2：三個有名字的人
 
 ```typescript
-function validateCard2(card: PainCard): ValidationResult {
-  const errors: string[] = [];
+function validateCard2(card: PainCard): ReflectionResult {
+  const hints: ReflectionHintItem[] = [];
 
   if (card.people.list.length !== 3) {
-    errors.push(`需要 3 個人，目前 ${card.people.list.length} 個`);
+    hints.push({
+      reason: `想想看：還需要 ${3 - card.people.list.length} 個有名字的人`,
+      suggested_card: 1,
+      suggestion: '你能不能今天就傳訊息給其中一個？如果不能，那他算「有名字的人」嗎？',
+    });
   }
 
   card.people.list.forEach((p, i) => {
     if (!p.name || p.name.match(/^老師[A-Z]$|^某|^匿名/)) {
-      errors.push(`第 ${i + 1} 個人：名字不是真名`);
+      hints.push({
+        reason: `第 ${i + 1} 個人：名字像是代號`,
+        suggested_card: 1,
+        suggestion: '你還不認識這個圈子。先去這群人聚集的地方混 1-2 週，再回來吧。',
+      });
     }
-    if (!p.contact) errors.push(`第 ${i + 1} 個人：聯絡方式未填`);
-    if (!p.relation) errors.push(`第 ${i + 1} 個人：關係未填`);
+    if (!p.contact) hints.push({ reason: `第 ${i + 1} 個人：聯絡方式還沒填`, suggestion: '寫下你能傳訊息給他的方式。' });
+    if (!p.relation) hints.push({ reason: `第 ${i + 1} 個人：關係還沒填`, suggestion: '寫下你和他的關係。' });
   });
 
   return {
-    passed: errors.length === 0,
-    errors,
-    warnings: [],
-    failure_routes: errors.length > 0
-      ? [{
-          reason: '還沒接觸真人',
-          target_card: 1,
-          suggestion: '你還不認識這個圈子。先去這群人聚集的地方混 1-2 週，再回來吧。',
-        }]
-      : [],
+    kind: hints.length === 0 ? 'ok' : 'hint',
+    hints,
   };
 }
 ```
 
 #### 卡 3-9：依此類推
 
-完整 13 個 validation function 詳見 `references/exit_gates_matrix.md`。
+完整 9 個 validation function 詳見 `references/exit_gates_matrix.md`（v2.1 已同步改名為「reflection hints matrix」並中性化措辭）。
 
 ---
 
-## 5. 失敗路由文案
+## 5. 蘇格拉底反思提示文案（v2.1 中性化）
 
 ### 5.1 通用文案模板
 
 ```typescript
-const FAILURE_ROUTE_TEMPLATES: Record<string, FailureRoute> = {
+const REFLECTION_HINT_TEMPLATES: Record<string, ReflectionHintItem> = {
   card_2_no_real_people: {
     reason: '還沒接觸真人',
-    target_card: 1,
+    suggested_card: 1,
     suggestion: '你還不認識這個圈子。先去這群人聚集的地方混 1-2 週，再回來吧。',
   },
   card_3_too_abstract: {
-    reason: '卡關公式太抽象',
-    target_card: 1,
-    suggestion: '句子裡的兩個空格還太抽象。退回卡 1，再去找主人翁聊一次。',
+    reason: '卡關公式還可以更具體',
+    suggested_card: 1,
+    suggestion: '句子裡的兩個空格還太抽象。回去把卡 1 想清楚再來——再去找主人翁聊一次。',
   },
   card_4_no_dissatisfaction: {
     reason: '說不出 3 個不滿',
-    target_card: 1,
-    suggestion: '主人翁說不出 3 個不滿，可能他沒在花時間解這個問題。',
+    suggested_card: 1,
+    suggestion: '主人翁說不出 3 個不滿，可能他沒在花時間解這個問題。他過去 30 天有沒有真的花時間或錢試圖解？',
   },
-  card_5_multiple_picked: {
-    reason: '矛盾沒拆乾淨',
-    target_card: 3,
-    suggestion: '你選了多個矛盾，代表還沒拆到「兩件事不能同時要」。回卡 3 把卡關公式講清楚。',
+  card_5_no_tradeoff: {
+    reason: 'side_a / side_b 還沒寫到位',
+    suggested_card: 3,
+    suggestion: '想想看：他想要 ___，但又同時想要 ___。如果他能放掉其中一邊，他不會卡在這裡——所以他放不下哪邊？',
   },
   card_6_solution_mode: {
     reason: 'AI 進入 solution mode',
-    target_card: 'stay',
     suggestion: 'AI 開始推銷解法了。加一句「不要建議任何解決方案」再跑一次。',
   },
   card_6_too_vague: {
-    reason: 'AI 答得太空泛',
-    target_card: 'stay',
+    reason: 'AI 答得還太空泛',
     suggestion: '補上更多卡片 1-5 的具體細節，再跑一次 prompt。',
   },
-  card_7_checkpoints_fail: {
-    reason: '4 個檢查點未過',
-    target_card: 6,
-    suggestion: 'AI 給的不夠具體。退回卡 6 補更多細節再跑一次。',
+  card_7_checkpoints_thin: {
+    reason: '4 個自問點還沒檢視完',
+    suggested_card: 6,
+    suggestion: 'AI 給的不夠具體。回去把卡 6 想清楚再來——補更多細節再跑一次。',
   },
   card_8_no_contact: {
-    reason: '找不到聯絡管道',
-    target_card: 2,
+    reason: '還沒找到聯絡管道',
+    suggested_card: 2,
     suggestion: '你還沒進入這個社群。先去那個圈子混 1-2 週再回來。',
   },
   card_9_short_reason: {
-    reason: '書面理由不足 100 字',
-    target_card: 'stay',
-    suggestion: '理由還太短。書面交付物需要 ≥ 100 字，包括「為什麼真 / 為什麼假」。',
+    reason: '書面理由還可以再多寫一點',
+    suggestion: '想想看：這 100 字是要說服未來的你。再加一些「為什麼真 / 為什麼假」的證據。',
   },
 };
 ```
@@ -295,18 +328,19 @@ const FAILURE_ROUTE_TEMPLATES: Record<string, FailureRoute> = {
 
 #### ✓ 應該
 
-- 中性、解釋性：「你還沒接觸真人」「句子太抽象」
-- 提供具體建議：「退回卡 X」「再加一句『不要建議...』」
-- 給出「為什麼」：「可能他沒在花時間解這個問題」
+- 中性、解釋性：「你還沒接觸真人」「句子還可以更具體」
+- 提供蘇格拉底問句：「他過去 30 天有沒有真的花時間或錢試圖解？」
+- 提供溫和回頭路徑：「回去把卡 X 想清楚再來」
 - 用「你」稱呼，保持平等對話感
 
 #### ✗ 禁止
 
 - 焦慮話術：「不繼續就失去進度」「再不填就過期」
 - FOMO：「24 小時內未完成資料消失」
-- 評判：「你做得不夠好」「失敗了」
+- 評判：「你做得不夠好」「失敗了」「未通過」「未過關」
 - 過度激勵：「再加把勁！」「衝衝衝！」
 - 比較：「平均使用者 2 分鐘就過了」
+- pass/fail 措辭：「過關」「退回卡 X」「擋住前進」
 
 ---
 
@@ -320,25 +354,29 @@ const FAILURE_ROUTE_TEMPLATES: Record<string, FailureRoute> = {
 - ❌ 「跳過此關將扣分」
 - ❌ 倒數計時器 / 進度過期警告
 
-### 6.2 評判 / 比較禁令
+### 6.2 評判 / 比較禁令（v2.1 強化）
 
-- ❌ 「未完成扣分」UI（即使內部有 score 也不在 exit gate 顯示）
+- ❌ 「未完成扣分」UI（v2.1 整個系統沒有 score 可扣，本來就不存在）
 - ❌ 「你低於平均水準」
 - ❌ 「失敗 3 次將鎖定」（沒有失敗次數一說）
-- ❌ 「Pain Quality 不夠高，無法繼續」
-- ❌ 紅色 ✗ 標示（用 Text Secondary 灰色或 Amber）
+- ❌ 任何形式的 0-25 分、5 維度評分、Pain Quality Score（v2.1 已徹底刪除）
+- ❌ 紅色 ✗ 標示（用 Text Secondary 灰色 bullet `◦` 或中性 `⊙`）
+- ❌ 綠色 ✓ pass 勾（用中性 bullet `•` 取代）
+- ❌ 「過關 / 未過關」措辭
 
-### 6.3 強制路徑禁令
+### 6.3 強制路徑禁令（v2.1 強化）
 
 - ❌ 強制路由（不給「先存檔離開」選項）
-- ❌ 失敗時 modal 攔截（必須點某按鈕才能繼續）
+- ❌ 任何 disabled 主按鈕（v2.1 next_button 永遠 enabled——蘇格拉底工具不擋路）
+- ❌ 反思不到位時 modal 攔截
 - ❌ 「您必須先完成卡 X 才能查看」這種命令式文案
+- ❌ 「退回卡 X」措辭（改用「回去把卡 X 想清楚再來」）
 
 ### 6.4 過度說教禁令
 
-- ❌ 失敗時跳出長篇教學「您應該理解，痛點驗證的本質是...」
+- ❌ 反思不到位時跳出長篇教學「您應該理解，痛點驗證的本質是...」
 - ❌ 連結到外部論文 / 學術資源
-- 替代：給 1-2 句具體建議 + 一個動作按鈕（回卡 X / 留下繼續編輯）
+- 替代：給 1-2 句蘇格拉底問句 + 一個動作按鈕（建議性回頭 / 留下繼續編輯）
 
 ---
 
@@ -346,17 +384,16 @@ const FAILURE_ROUTE_TEMPLATES: Record<string, FailureRoute> = {
 
 ### 7.1 即時檢查
 
-- 元件 mount 時執行 `validateExitGate(cardNumber, card)`
+- 元件 mount 時執行 `validateReflection(cardNumber, card)`
 - PainCard 變更時（透過 Zustand subscribe）重新執行驗證
-- Validation 結果存入元件 state，觸發 UI 更新
+- Reflection 結果存入元件 state，觸發 UI 更新
 
-### 7.2 next_button 點擊
+### 7.2 next_button 點擊（v2.1：永遠 enabled）
 
 ```typescript
 async function handleNextClick(): Promise<void> {
-  // 雙重檢查（防止 race condition）
-  const result = validateExitGate(cardNumber, card);
-  if (!result.passed) return;  // disabled 應該不會觸發，但保險
+  // v2.1：next_button 永遠 enabled。不檢查 reflection 結果——使用者寫得不夠仍能前進。
+  // 反思提示已經在 UI 上顯示，由使用者自己決定是否要回頭。
 
   // 寫入 PainCard
   await updatePainCard({
@@ -365,7 +402,7 @@ async function handleNextClick(): Promise<void> {
   });
 
   // 顯示 Toast（克制版）
-  toast.success(`已通過卡 ${cardNumber}，進入卡 ${cardNumber + 1}`, {
+  toast.success(`繼續到卡 ${cardNumber + 1}`, {
     duration: 2000,  // 2 秒消失
   });
 
@@ -377,36 +414,34 @@ async function handleNextClick(): Promise<void> {
 ### 7.3 retreat_link 點擊
 
 - 「先存檔離開」：路由到 `/learn/worksheet`（入口頁）
-- 「回卡 X 補資訊」：路由到對應卡片，預填既有資料（編輯模式）
+- 「回卡 X 想想看」：路由到對應卡片，預填既有資料（編輯模式）；文案中性，不用「補」、「退回」措辭
 
-### 7.4 警告通過時的兩階段確認
+### 7.4 thinking 狀態的提醒（不再有兩階段確認）
 
-`warning` 狀態下，next_button 文案改為「仍要繼續 →」，點擊後：
-1. 第一次點擊：顯示確認 dialog「AI 提到了解法建議，仍要繼續嗎？回去重跑可能會更好」
-2. 確認後才路由
+`thinking` 狀態下不需要 modal 攔截，也不需要「仍要繼續」確認 dialog。`socratic_hint` 區塊已經把訊息傳達給使用者；使用者決定要不要點 retreat_link 還是 next_button。
 
-不使用 `confirm()` native dialog，而是 inline 的 amber 確認區塊（避免破壞 UX）。
+> **v2.1 設計變更：** 移除原 `warning` 狀態的兩階段確認 dialog。蘇格拉底工具不打斷使用者；它只放下提示牌。
 
 ---
 
 ## 8. 元件 API
 
 ```typescript
-type ExitGateCheckProps = {
+type ReflectionFooterProps = {
   /** 卡片號 (1-9) */
   cardNumber: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
 
   /** 當前 PainCard */
   card: PainCard;
 
-  /** 額外的驗證 metadata（如 AI 回覆警告） */
+  /** 額外的驗證 metadata（如 AI 偵測訊號） */
   metadata?: {
-    ai_response_warnings?: string[];
-    custom_warnings?: string[];
+    ai_response_signals?: string[];
+    custom_signals?: string[];
   };
 
-  /** 通過後的路由（預設下一張） */
-  onPass?: () => void | Promise<void>;
+  /** 點擊 next 後的路由（預設下一張） */
+  onAdvance?: () => void | Promise<void>;
 
   /** 「先存檔離開」的目標路由（預設入口頁） */
   retreatTarget?: string;
@@ -416,45 +451,47 @@ type ExitGateCheckProps = {
 };
 ```
 
+> **舊 API 重新命名：** `ExitGateCheckProps` → `ReflectionFooterProps`、`onPass` → `onAdvance`，避免 pass/fail 語意。
+
 ### 卡 9 的特殊處理
 
 當 `cardNumber === 9` 時：
 - next_button 文案改為「產出我的痛點身份證」
-- 通過後路由到 `/learn/worksheet/result`（不是 `/10`）
+- 點擊後路由到 `/learn/worksheet/result`（不是 `/10`）
 
 ---
 
-## 9. 文案模板
+## 9. 文案模板（v2.1 中性化）
 
-### 9.1 通過 (ready) 文案
+### 9.1 `ok` 狀態文案
 
 | 元素 | 文案 |
 | :--- | :--- |
-| gate_title | "✓ 過關檢查通過" |
-| next_button | "下一張卡片 →"（卡 9 例外：「產出我的痛點身份證」） |
+| header_title | "已寫到位" |
+| next_button | "繼續到下一張 →"（卡 9 例外：「產出我的痛點身份證」） |
 | retreat_link | "先存檔離開" |
 
-### 9.2 未通過 (locked) 文案
+### 9.2 `pending` 狀態文案
 
 | 元素 | 文案 |
 | :--- | :--- |
-| gate_title | "過關檢查" |
-| failure_hint title | "還缺什麼" |
-| failure_hint body | 依卡片 + 失敗原因動態填入 |
-| next_button | "下一張卡片 →"（disabled） |
-| next_button tooltip | "還缺：{失敗項目列表}" |
-| retreat_link | "先存檔離開" 或 "回卡 X 補資訊" |
+| header_title | "想想看" |
+| socratic_hint title | "蘇格拉底提示" |
+| socratic_hint body | 依卡片 + 反思項目動態填入 |
+| next_button | "繼續到下一張 →"（永遠 enabled，secondary 樣式） |
+| retreat_link | "先存檔離開" 或 "回去把卡 X 想清楚再來" |
 
-### 9.3 警告通過 (warning) 文案
+### 9.3 `thinking` 狀態文案
 
 | 元素 | 文案 |
 | :--- | :--- |
-| gate_title | "⚠️ 通過但有疑慮" |
-| failure_hint title | "建議" |
-| failure_hint body | 依警告類型動態填入 |
-| next_button | "仍要繼續 →"（amber 樣式） |
-| 第二步確認 | "AI 提到了解法建議，仍要繼續嗎？" |
-| retreat_link | "回去重跑" |
+| header_title | "想想看" |
+| socratic_hint title | "蘇格拉底提示" |
+| socratic_hint body | 依偵測訊號動態填入 |
+| next_button | "繼續到下一張 →"（amber secondary 樣式） |
+| retreat_link | "重新跑一次卡 X" |
+
+> **禁用文案（v2.1）：** 「過關」、「通過」、「未通過」、「失敗」、「退回」、「警告」、「擋住」、「仍要繼續」（暗示有阻擋）。
 
 ---
 
@@ -463,68 +500,61 @@ type ExitGateCheckProps = {
 ### 10.1 ARIA 標記
 
 ```html
-<section role="region" aria-labelledby="exit-gate-title" aria-live="polite">
-  <h2 id="exit-gate-title">過關檢查</h2>
+<section role="region" aria-labelledby="reflection-title" aria-live="polite">
+  <h2 id="reflection-title">想想看</h2>
 
-  <ul role="list" aria-label="過關條件清單">
-    <li aria-checked="true">
-      <span aria-hidden="true">✓</span>
+  <ul role="list" aria-label="反思檢核清單">
+    <li>
+      <span aria-hidden="true">•</span>
       寫的是原句，不是你的解釋
     </li>
-    <li aria-checked="false">
-      <span aria-hidden="true">✗</span>
-      場景描述太抽象
-      <span class="sr-only">未通過</span>
+    <li>
+      <span aria-hidden="true">◦</span>
+      場景描述還可以更具體
+      <span class="sr-only">還可以再想想</span>
     </li>
   </ul>
 
-  <div role="alert" aria-live="polite">
-    <strong>還缺什麼：</strong>
-    <p>場景太抽象。試試寫「2026-04-15 21:00...」</p>
+  <div role="status" aria-live="polite">
+    <strong>蘇格拉底提示：</strong>
+    <p>試試寫「2026-04-15 21:00...」這種具體時間 + 地點 + 動作。</p>
   </div>
 
-  <button
-    type="button"
-    aria-disabled="true"
-    aria-describedby="next-button-hint"
-  >
-    下一張卡片 →
-  </button>
-  <p id="next-button-hint" class="sr-only">還缺：場景描述。先補完再點下一張。</p>
+  <button type="button">繼續到下一張 →</button>
 </section>
 ```
 
 ### 10.2 鍵盤操作
 
 - Tab 進入順序：retreat_link → next_button
-- next_button disabled 時仍可被 Tab 聚焦（讓使用者知道有此按鈕，並透過 aria-describedby 朗讀缺什麼）
-- Enter 觸發 next_button（僅在 enabled 狀態）
+- next_button **永遠 enabled**（v2.1：蘇格拉底工具不擋路）
+- Enter 觸發 next_button
 
 ### 10.3 螢幕閱讀器體驗
 
-- 過關狀態變化時 aria-live 朗讀「過關檢查通過」或「還缺：XXX」
-- 警告狀態用 `role="alert"` 主動朗讀
-- 失敗 hint 文字完整朗讀，不依賴顏色
+- 狀態變化時 aria-live 朗讀「已寫到位」或「想想看：XXX」
+- thinking 狀態用 `role="status"` 主動朗讀（不用 `role="alert"`——這不是錯誤，是反思）
+- 反思提示文字完整朗讀，不依賴顏色
 
 ---
 
-## 11. Acceptance Criteria
+## 11. Acceptance Criteria（v2.1）
 
-- [ ] 三種狀態 (locked / ready / warning) 視覺正確區分
-- [ ] checklist 顯示所有過關條件，視覺清楚
-- [ ] failure_hint 文案正確依失敗類型動態顯示
-- [ ] next_button 在 locked 狀態下 disabled，hover 顯示具體缺什麼
-- [ ] next_button 在 warning 狀態下顯示 amber + 二段確認
+- [ ] 三種狀態 (`pending` / `thinking` / `ok`) 視覺正確區分，使用共用 `ReflectionHint` 元件
+- [ ] reflection list 顯示所有反思檢核，視覺中性（無 ✗ 紅、無 ✓ 綠）
+- [ ] socratic_hint 文案正確依反思項目動態顯示
+- [ ] **next_button 永遠 enabled**——任何狀態下都可前進
 - [ ] retreat_link 永遠可點，導向入口頁或建議卡片
-- [ ] 沒有出現「失敗」「扣分」「過期」等焦慮文案
+- [ ] 沒有出現「失敗」「扣分」「過期」「過關」「未過關」「退回」等措辭
 - [ ] 沒有 streak / 倒數計時器
-- [ ] 沒有紅色 ✗（用灰色或 amber）
-- [ ] 通過後 PainCard.current_step 正確更新
-- [ ] 通過後路由到下一張卡片
-- [ ] 卡 9 通過後路由到 `/result`
+- [ ] 沒有紅色 ✗ 或綠色 ✓（用中性 bullet `•` / `◦` / `⊙`）
+- [ ] 沒有任何 0-25 分、5 維度評分、Pain Quality Score 顯示
+- [ ] 點擊後 PainCard.current_step 正確更新
+- [ ] 路由到下一張卡片
+- [ ] 卡 9 點擊後路由到 `/result`
 - [ ] 鍵盤可達所有按鈕
-- [ ] aria-live / role="alert" 正確朗讀狀態變化
-- [ ] 文案完全符合 brand voice（沒有 FOMO / 比較 / 評判）
+- [ ] aria-live / role="status" 正確朗讀狀態變化（不用 role="alert"）
+- [ ] 文案完全符合 brand voice（沒有 FOMO / 比較 / 評判 / pass-fail）
 
 ---
 
@@ -533,3 +563,4 @@ type ExitGateCheckProps = {
 | 版本 | 日期 | 變更 |
 | :--- | :--- | :--- |
 | 1.0 | 2026-05-01 | 首版；定義三態、validation 邏輯、失敗路由文案、反模式禁令 |
+| 2.1 | 2026-05-02 | 蘇格拉底大一統：(1) 元件改名 ExitGateCheck → ReflectionHintFooter；(2) 三態改為 pending / thinking / ok（取代 locked / warning / ready）；(3) next_button 永遠 enabled，移除 disabled 與兩階段確認；(4) `validateExitGate` → `validateReflection`，回傳 `kind: "ok" \| "hint" \| "thinking"` 取代 `passed: boolean`；(5) UI 移除紅 ✗ / 綠 ✓，改用中性 bullet；(6) 文案中性化（「過關 / 退回」→「想想看 / 回去把卡 X 想清楚再來」）；(7) 新增共用元件 `ReflectionHint.tsx` |

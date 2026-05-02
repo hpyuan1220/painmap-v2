@@ -1,8 +1,10 @@
-# Verdict Export 元件規格
+# Verdict Export 元件規格（v2.1）
 
 > 卡 10「痛點身份證」匯出元件。
-> 整合前 9 張卡片的精華，產出三種格式的痛點身份證：Markdown / JSON / PDF。
+> 整合前 9 張卡片的精華，產出**單一格式**的痛點身份證：Markdown / JSON / PDF（v2.1 已移除 mode 切換）。
 > 提供「下一步去哪」CTA，引導使用者進入訪談、PainMap App、或重新開始。
+>
+> **v2.1 重大變更：** 移除 teaching mode / production mode 雙模式切換；移除 `verdict.scores` 5 維度評分輸出；身份證內容對所有使用者一致。
 
 ---
 
@@ -10,14 +12,16 @@
 
 - **位置**：`/learn/worksheet/result` 頁面的核心元件
 - **責任**：
-  1. 整合 PainCard 9 個欄位的精華資料，組合成「痛點身份證」格式
-  2. 提供三種匯出格式：Markdown / JSON / PDF
+  1. 整合 PainCard 9 個欄位的精華資料，組合成單一「痛點身份證」格式
+  2. 提供三種匯出格式：Markdown / JSON / PDF（**單一內容**，無 teaching/production 切換）
   3. 提供預覽（在頁面上即時顯示身份證的內容）
   4. 提供「下一步去哪」CTA：訪談 / 進階版 / 換題目 / 我再想想
   5. 顯示隱私聲明
 - **不負責**：
   - ❌ 不負責 PainCard 資料的計算或變換（資料來自卡 9 完成後的 PainCard 物件）
   - ❌ 不負責雲端儲存（M1 階段全部本地）
+  - ❌ 不負責 mode 切換（v2.1 已移除）
+  - ❌ 不負責 5 維度評分顯示（v2.1 已從資料層刪除）
 
 ---
 
@@ -98,11 +102,10 @@ function slugify(text: string): string {
 
 ## 兩件事不能同時要
 
-**矛盾類型**：{contradiction.triz_label}
-
 - A 端（他想要這個）：{contradiction.side_a}
 - B 端（他也想要這個）：{contradiction.side_b}
 - **通常會犧牲**：{sacrificed_label}
+- **為什麼放掉那邊**：{contradiction.sacrificed_reason}
 
 ## AI 找到的證據
 
@@ -172,33 +175,23 @@ function slugify(text: string): string {
 | :--- | :--- | :--- |
 | `{created_at}` | `card.created_at` | "未記錄" |
 | `{updated_at}` | `card.updated_at` | 同上 |
-| `{contradiction.triz_label}` | 依 `triz_id` 對應 | — |
 | `{sacrificed_label}` | "A 端" 或 "B 端" | — |
+| `{contradiction.sacrificed_reason}` | 使用者親筆原因（v2.1 新增） | — |
 | `{contact_known_text}` | "已認識：{name}" 或 "怎麼找：{contact_info}" | — |
 | `{judgment_label}` | "真痛點" / "假痛點" / "待訪談" | — |
 | `{next_action_label}` | "排訪談" / "補證據" / "換題目" | — |
 
-### 3.3 教學模式 vs 生產模式
+### 3.3 單一輸出格式（v2.1 移除模式切換）
 
-依據 `data_model.md` 的規則：
-- **教學模式（M1 預設）**：可顯示 5 維度評分作為內部反思鏡子
-- **生產模式（M2+ 切換）**：絕對不顯示 0-25 score
-
-教學模式下 Markdown 可加入：
-
-```markdown
-## 教學參考：5 維度評分
-
-> 此區塊僅供你個人反思，**不對外輸出**。
-
-- 人群具體度：{verdict.scores.people_specificity} / 5
-- 發生頻率：{verdict.scores.frequency} / 5
-- 痛苦強度：{verdict.scores.intensity} / 5
-- 現有解法不滿：{verdict.scores.workaround_dissatisfaction} / 5
-- 證據可信度：{verdict.scores.evidence_credibility} / 5
-```
-
-由 feature flag `PAINMAP_TEACHING_MODE` 控制。
+> v2.1 之前本節描述「教學模式 vs 生產模式」雙模式切換，教學模式下會在 Markdown 加入 5 維度評分區塊（人群具體度 / 頻率 / 強度 / 不滿 / 證據可信度）。**v2.1 把整個雙模式機制移除**：
+>
+> - 資料層 `verdict.scores` / `verdict.total_score` 已從 `PainCard` schema 刪除
+> - `displayMode` Zustand store 已刪除
+> - URL `?mode=` 參數已移除
+> - feature flag `PAINMAP_TEACHING_MODE` 已移除
+> - Markdown / PDF / JSON 三種格式產出**完全相同的內容**，沒有 mode 條件分支
+>
+> 移除原因：5 維度評分是「鏡子」而非「結果」，但鏡子本身會被誤用為綠燈。判斷力訓練改由「使用者親筆寫 100 字理由 + 最有把握的證據 + 最沒把握的地方」承載。詳見 `docs/design/painmap_pain_thinking_system.md §0.5`。
 
 ---
 
@@ -307,8 +300,9 @@ function slugify(text: string): string {
 ### 5.4 不在 PDF 中顯示
 
 - ❌ 個人聯絡方式（people.list[].contact）— PDF 用於分享，避免外洩
-- ❌ 5 維度分數（即使教學模式下 markdown 顯示，PDF 永遠不顯示）
 - ❌ 創建用的 metadata（card.id, schema_version 等）
+
+> v2.1 之前此處列了「5 維度分數」作為排除項。v2.1 後資料層整個沒有 scores 欄位，自然不存在此問題。
 
 ---
 
@@ -468,15 +462,12 @@ function slugify(text: string): string {
 
 ---
 
-## 9. 元件 API
+## 9. 元件 API（v2.1）
 
 ```typescript
 type VerdictExportProps = {
   /** 已完成的 PainCard（必須 current_step >= 10） */
   card: PainCard;
-
-  /** 是否為教學模式（顯示 5 維度評分） */
-  teachingMode?: boolean;
 
   /** 「進入 PainMap App」回調 */
   onEnterPainMapApp?: (card: PainCard) => void;
@@ -488,6 +479,8 @@ type VerdictExportProps = {
   onDeleteCard?: (cardId: string) => void;
 };
 ```
+
+> v2.1 移除：`teachingMode?: boolean`。沒有模式可切——所有使用者看到同一份身份證。
 
 ---
 
@@ -520,11 +513,12 @@ type VerdictExportProps = {
 - ❌ 「不下載就會丟失資料」FOMO
 - 資料永久保存在 LocalStorage，使用者隨時可回來
 
-### 10.5 評分對外輸出禁令
+### 10.5 評分輸出禁令（v2.1 強化）
 
-- ❌ PDF / 公開分享格式中包含「Pain Quality Score 23/25」
-- 5 維度分數僅供使用者個人反思，不對外
-- JSON 中包含 score（為了 PainMap App import），但 Markdown / PDF 預設不顯示（除非 teachingMode）
+- ❌ 任何輸出格式（Markdown / JSON / PDF）中出現 0-25 分、5 維度評分、Pain Quality Score
+- ❌ 任何形式的「品質排名」「品質徽章」
+- ❌ 任何 mode toggle UI（teaching / production / 教學版 / 產出版）
+- v2.1 之後資料層整個沒有 scores 欄位；任何 export 出現分數 = 程式碼 bug，需立即修正
 
 ---
 
@@ -664,8 +658,9 @@ function handleEnterPainMapApp(card: PainCard): void {
 - [ ] 沒有出現「分享到社群」按鈕
 - [ ] 沒有出現「升級解鎖」誘導
 - [ ] 沒有 confetti / 過度慶祝動畫
-- [ ] PDF 不包含 5 維度分數
-- [ ] 教學模式 (teachingMode=true) 時 Markdown 才顯示分數
+- [ ] PDF / Markdown / JSON 三種格式均不包含 5 維度分數（v2.1 已從資料層刪除）
+- [ ] **沒有** mode toggle UI（teaching / production）
+- [ ] **沒有** `teachingMode` prop / `?mode=` URL 參數
 - [ ] 鍵盤可達所有按鈕
 - [ ] aria-tablist / role="tab" / role="tabpanel" 正確標記
 - [ ] 進入 PainMap App 的 schema 轉換正確（透過 adapter）
@@ -677,3 +672,4 @@ function handleEnterPainMapApp(card: PainCard): void {
 | 版本 | 日期 | 變更 |
 | :--- | :--- | :--- |
 | 1.0 | 2026-05-01 | 首版；定義三格式匯出、檔名規則、Markdown 模板、CTA 三分支、隱私聲明 |
+| 2.1 | 2026-05-02 | 蘇格拉底大一統：(1) 移除 teaching mode / production mode 雙模式切換；(2) 移除 `teachingMode` prop、`?mode=` URL 參數、`PAINMAP_TEACHING_MODE` feature flag；(3) Markdown 中的「5 維度評分」教學區塊整段刪除（資料層已刪除 `verdict.scores`）；(4) Markdown 模板中 `{contradiction.triz_label}` 變數刪除（資料層已刪除）；(5) 新增 `{contradiction.sacrificed_reason}` 變數（v2.1 新欄位）；(6) 三種格式產出**完全相同的內容**，沒有 mode 條件分支 |

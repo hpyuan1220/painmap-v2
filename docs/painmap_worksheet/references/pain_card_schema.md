@@ -5,7 +5,13 @@
 > - Validation Rules
 > - 範例資料
 >
-> 真相源：`product/data_model.md`
+> 真相源：`product/data_model.md`（v2.0）
+
+---
+
+## v2.0 — Socratic 大一統
+
+> 此 schema 對應 `data_model.md` v2.0。**已從 v1.0 移除**：`verdict.scores`、`verdict.total_score`、`Score` type、`contradiction.triz_id`、`contradiction.triz_label`、`TrizId` / `TrizLabel` types、教學/生產模式輸出限制。**新增**：`contradiction.sacrificed_reason`。
 
 ---
 
@@ -14,7 +20,7 @@
 ```json
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://painmap.com/schemas/paincard/v1.json",
+  "$id": "https://painmap.com/schemas/paincard/v2.json",
   "title": "PainCard",
   "type": "object",
   "required": [
@@ -25,7 +31,7 @@
   ],
   "properties": {
     "id": { "type": "string", "format": "uuid" },
-    "schema_version": { "const": "1.0" },
+    "schema_version": { "const": "2.0" },
     "status": {
       "enum": ["draft", "in_progress", "structured", "pending_interview", "archived_fake"]
     },
@@ -76,30 +82,22 @@
     },
     "contradiction": {
       "type": "object",
-      "required": ["triz_id", "side_a", "side_b", "sacrificed"],
+      "required": ["side_a", "side_b", "sacrificed", "sacrificed_reason"],
       "properties": {
-        "triz_id": { "enum": [1, 2, 3, 4, 5, 6] },
-        "side_a": { "type": "string", "minLength": 1 },
-        "side_b": { "type": "string", "minLength": 1 },
-        "sacrificed": { "enum": ["a", "b"] }
+        "side_a": { "type": "string", "minLength": 10 },
+        "side_b": { "type": "string", "minLength": 10 },
+        "sacrificed": { "enum": ["a", "b"] },
+        "sacrificed_reason": { "type": "string", "minLength": 1 }
       }
     },
     "verdict": {
       "type": "object",
-      "required": ["scores", "judgment", "reason_100w", "next_action"],
+      "required": ["judgment", "reason_100w", "most_confident_evidence", "least_confident", "next_action"],
       "properties": {
-        "scores": {
-          "type": "object",
-          "required": ["people_specificity", "frequency", "intensity", "workaround_dissatisfaction", "evidence_credibility"],
-          "additionalProperties": false,
-          "patternProperties": {
-            "^(people_specificity|frequency|intensity|workaround_dissatisfaction|evidence_credibility)$": {
-              "type": "integer", "minimum": 1, "maximum": 5
-            }
-          }
-        },
         "judgment": { "enum": ["true_pain", "fake_pain", "pending_interview"] },
         "reason_100w": { "type": "string", "minLength": 100 },
+        "most_confident_evidence": { "type": "string", "minLength": 15 },
+        "least_confident": { "type": "string", "minLength": 15 },
         "next_action": { "enum": ["interview", "more_evidence", "change_topic"] }
       }
     }
@@ -109,41 +107,55 @@
 
 ---
 
+## v1 → v2 欄位對照
+
+| v1.0 欄位 | v2.0 狀態 | 說明 |
+| :--- | :--- | :--- |
+| `contradiction.triz_id` | **移除** | TRIZ 6 分類學整個拿掉 |
+| `contradiction.triz_label` | **移除** | 同上 |
+| `contradiction.sacrificed_reason` | **新增** | 使用者自陳「為什麼這邊被犧牲」（≥1 句）|
+| `verdict.scores` | **移除** | 5 維度 × 1-5 評分整塊拿掉 |
+| `verdict.total_score` | **移除** | 0-25 總分拿掉 |
+| `Score` type | **移除** | 沒有分數欄位就不需要 |
+| `TrizId` / `TrizLabel` types | **移除** | 沒有 TRIZ 就不需要 |
+| `schema_version` | `"1.0"` → `"2.0"` | bump |
+
+> **沒有 migration**：v2.0 偵測到舊 v1.0 資料時直接拋棄；persist key 從 `painmap-worksheet-v1` 改成 `painmap-worksheet-v2` 雙保險。
+
+---
+
 ## Validation Rules（補充 JSON Schema 無法表達的規則）
 
-### Rule 1: 連續性 (Sequential Gate)
+### Rule 1: 連續性 (Sequential Reflection)
 
 | Rule | 說明 |
 | :--- | :--- |
 | R1.1 | `current_step` 不可跳號 — 必須按 1 → 2 → ... → 9 → 10 順序 |
-| R1.2 | 進入 step N 時，step 1..N-1 必須全部過關（exit gate passed） |
+| R1.2 | 進入 step N 時，step 1..N-1 反思條件**建議**達成（但不強制擋住）|
 | R1.3 | 例外：使用者可「回退」到先前 step 修改，但 step N+1 起的資料須清空（或標記為 stale） |
 
 ### Rule 2: 內容反偵測 (Anti-fake Validators)
 
+> 真實性護欄回傳 `{ kind: "ok" | "hint", message?: string }`，**從不說 "fail"**。
+
 | Rule | 說明 | 觸發行為 |
 | :--- | :--- | :--- |
-| R2.1 | `complaint.verbatim` 不可包含「我覺得」「應該需要」等分析性詞 | 過關擋住 + 提示「這是你的解釋，不是原句」 |
-| R2.2 | `people.list[*].name` 不可為「老師 A / 同學 B」等代稱 | 過關擋住 + 提示「請填真名」 |
-| R2.3 | `stuck_formula.user_draft` 兩個空格須具體（不可為「卡在效率不好」這類空話） | warning（不擋過關） |
-| R2.4 | `workaround.tool_name` 不可為「沒人解過」「會自己想辦法」 | 過關擋住 |
-| R2.5 | `contradiction.triz_id` 一次只能選 1（不可複選） | UI 限制 |
-| R2.6 | `ai_evidence.raw_response` 若包含「建議製作 App / 你應該開發」等字串 → `no_solution_check_passed = false` | 提示重新跑 prompt |
+| R2.1 | `complaint.verbatim` 不可包含「我覺得」「應該需要」等分析性詞 | hint：「這是你的解釋，不是原句」 |
+| R2.2 | `people.list[*].name` 不可為「老師 A / 同學 B」等代稱 | hint：「請填真名」 |
+| R2.3 | `stuck_formula` 須具體（不可為「卡在效率不好」這類空話） | hint（不擋）|
+| R2.4 | `workaround.tool_name` 不可為「沒人解過」「會自己想辦法」 | hint |
+| R2.5 | `contradiction.side_a` / `side_b` 須 ≥10 字且具體 | hint |
+| R2.6 | `contradiction.sacrificed_reason` 須至少 1 句完整話 | hint |
+| R2.7 | `ai_evidence.raw_response` 若包含「建議製作 App / 你應該開發」等字串 → `no_solution_check_passed = false` | 提示重新跑 prompt |
 
 ### Rule 3: 跨欄位一致性
 
 | Rule | 說明 |
 | :--- | :--- |
 | R3.1 | `interview_plan.targets[].persona` 應與 `ai_evidence.eight_answers.q8_interview_targets` 列出的 5 種人有交集 |
-| R3.2 | `verdict.scores.people_specificity` 高分（≥4）需與 `people.list` 完整度匹配 |
-| R3.3 | `verdict.judgment === 'true_pain'` 時，`verdict.scores.evidence_credibility` 應 ≥ 3 |
+| R3.2 | `verdict.judgment === 'true_pain'` 時，`interview_plan.targets.length >= 1` 且 `most_confident_evidence` 應引用具體卡片觀察 |
 
-### Rule 4: 生產模式輸出限制
-
-| Rule | 說明 |
-| :--- | :--- |
-| R4.1 | API 對外回傳 PainCard 時，`verdict.scores` 與 `verdict.total_score` 必須過濾掉（除非 `mode=teaching`） |
-| R4.2 | 公開分享連結（社群、Atlas）禁止顯示分數（只顯示 `judgment` + `reason_100w`） |
+> **v2.0 移除**：v1 的 R4「生產模式輸出限制」整段刪除——沒有分數欄位就不需要 production filter。對外 API / 公開分享連結直接輸出完整 PainCard。
 
 ---
 
@@ -151,12 +163,12 @@
 
 ### 範例 1：林老師（補習班家長 LINE 案例）
 
-對應 worksheet 範例。完整 PainCard：
+對應 worksheet 範例。完整 PainCard（v2.0）：
 
 ```json
 {
   "id": "550e8400-e29b-41d4-a716-446655440000",
-  "schema_version": "1.0",
+  "schema_version": "2.0",
   "status": "structured",
   "created_at": "2026-04-15T21:00:00+08:00",
   "updated_at": "2026-04-15T23:30:00+08:00",
@@ -180,7 +192,6 @@
   },
 
   "stuck_formula": {
-    "user_draft": "我每次要寫 30 則家長回報，都會卡在資料散在週間 7 次小考、要寫得具體、不能傷家長感情。",
     "ai_polished": "我每次要在週末寫 30 則家長回報訊息，都會卡在『資料散在週間 7 次小考、要寫得具體、不能傷家長感情』這 3 件事同時要顧。",
     "ai_clarifying_questions": [
       "「具體」跟「不傷感情」哪個現在最頭痛？",
@@ -208,11 +219,10 @@
   },
 
   "contradiction": {
-    "triz_id": 2,
-    "triz_label": "想客製化但又想規模化",
     "side_a": "家長要看見「我的孩子」被個別關照（具體事件、語氣有溫度）",
     "side_b": "老師一週只有 2–3 小時可寫 30 則（每則 < 6 分鐘）",
-    "sacrificed": "a"
+    "sacrificed": "a",
+    "sacrificed_reason": "因為時間是硬限制，個人化只能讓步——他週六晚上沒辦法多生出 3 小時，於是家長收到的是罐頭訊息，一看就知道沒在用心。"
   },
 
   "ai_evidence": {
@@ -227,7 +237,7 @@
       "q5_public_evidence": "Dcard 補教版、Mobile01 親子討論、PTT TeachersClub、補教協會問卷",
       "q6_jtbd": "週末把整週的學生狀況打包成 30 個有溫度的個別回報，讓家長覺得被認真對待",
       "q7_possible_fake_pains": "可能不是『寫信很痛』而是『不想做家長溝通本身』；可能補習班規模太小才有這問題（≤30 人才相對痛）",
-      "q8_interview_targets": "1. 中小型補習班數學老師（3 題：你週末花多久寫？最痛的是哪一段？你試過什麼工具放棄了）2. 安親班輔導老師 3. 私立國中導師 4. 才藝班老師 5. 小型音樂教室老師"
+      "q8_interview_targets": "1. 中小型補習班數學老師 2. 安親班輔導老師 3. 私立國中導師 4. 才藝班老師 5. 小型音樂教室老師"
     },
     "no_solution_check_passed": true
   },
@@ -250,7 +260,8 @@
       "biggest_diff": "AI 提到「補習班規模 ≤30 人」這個切點，我沒想到",
       "ai_added": "Dcard 補教版證據連結 + JTBD 描述",
       "guess_unsupported": "我以為「不喜歡跟家長溝通」是主因，但 AI 證據顯示老師其實在意，只是工具不對"
-    }
+    },
+    "phase_a_completed_at": "2026-04-15T22:30:00+08:00"
   },
 
   "interview_plan": {
@@ -278,16 +289,8 @@
   },
 
   "verdict": {
-    "scores": {
-      "people_specificity": 5,
-      "frequency": 5,
-      "intensity": 4,
-      "workaround_dissatisfaction": 5,
-      "evidence_credibility": 4
-    },
-    "total_score": 23,
     "judgment": "true_pain",
-    "reason_100w": "親眼觀察 5.5 小時、有 3 個有名字的真人、現有 workaround（Notion/ChatGPT/助教）都被嘗試後放棄，且不滿理由具體可查證。AI 證據在 Dcard 補教版找到至少 8 篇相關討論，JTBD 清晰（週末打包整週溝通），矛盾本質是『個人化 vs 規模化』經典命題。最有把握的證據是真人從 21:00 寫到 02:30 的具體行為觀察。最沒把握的是樣本是否偏中小型補習班、≥50 人補習班是否同樣痛。下一步排訪談 2 位確認是否同類型痛點。",
+    "reason_100w": "親眼觀察 5.5 小時、有 3 個有名字的真人、現有 workaround（Notion/ChatGPT/助教）都被嘗試後放棄，且不滿理由具體可查證。AI 證據在 Dcard 補教版找到至少 8 篇相關討論，JTBD 清晰（週末打包整週溝通），取捨本質是『個人化 vs 規模化』經典命題。最有把握的證據是真人從 21:00 寫到 02:30 的具體行為觀察。最沒把握的是樣本是否偏中小型補習班、≥50 人補習班是否同樣痛。下一步排訪談 2 位確認是否同類型痛點。",
     "most_confident_evidence": "親眼觀察林老師從 21:00 寫到 02:30 的具體行為",
     "least_confident": "≥50 人規模補習班是否同樣痛（樣本偏中小型）",
     "next_action": "interview"
@@ -307,4 +310,5 @@
 
 | 版本 | 日期 | 變更 |
 | :--- | :--- | :--- |
+| 2.0 | 2026-05-02 | Socratic 大一統：移除 `verdict.scores`、`verdict.total_score`、`contradiction.triz_id`/`triz_label`、`Score`/`TrizId`/`TrizLabel` types、Rule 4 生產模式輸出限制；新增 `contradiction.sacrificed_reason` |
 | 1.0 | 2026-05-01 | 首版；對應 data_model.md v1.0 |

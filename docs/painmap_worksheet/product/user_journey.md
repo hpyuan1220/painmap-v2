@@ -1,9 +1,15 @@
-# PainMap Worksheet — 使用者旅程地圖 (User Journey Map)
+# PainMap Worksheet — 使用者旅程地圖 (User Journey Map) v2.0
 
-> **版本**：v1.0 — 2026-05-01
-> **配套文件**：`PRD.md`、`data_model.md`、`motivation_design.md`、`stage1_to_stage2_handoff.md`
-> **內容真相源**：`docs/workshop/painpoint_beginner_worksheet.md` v1.0
+> **版本**：v2.0 — 2026-05-02
+> **配套文件**：`PRD.md`、`data_model.md` v2.0、`motivation_design.md`、`stage1_to_stage2_handoff.md` v2.0
+> **內容真相源**：`docs/workshop/painpoint_beginner_worksheet.md` v2.0
 > **設計原則**：每張卡片都是 `PainCard` 物件的一個欄位，不是 9 份獨立資料。
+>
+> **v2.0 變更摘要**：
+> - 卡 5 旅程改寫：使用者用自己的話寫 side_a / side_b / sacrificed / sacrificed_reason，不再從 6 矛盾挑 1 個
+> - 卡 9 旅程改寫：5 個 Socratic 反思問句純螢幕提示（不寫資料）+ 書面判斷
+> - 移除「教學模式分數」「生產模式 status only」相關旅程描述
+> - 文案中性化：「過關 / 退回」→「想想看 / 回去把卡 X 想清楚再來」
 
 ---
 
@@ -11,7 +17,7 @@
 
 ```
 ┌──────────────────────────────────────────────────────────────────────┐
-│   入口            ──→  9 張卡片（線性 + 過關條件）  ──→  痛點身份證 │
+│   入口            ──→  9 張卡片（線性 + 反思問題）  ──→  痛點身份證 │
 │   /worksheet            /worksheet/01..09                /result     │
 │                                                                       │
 │   情緒曲線：                                                          │
@@ -39,7 +45,7 @@
 | 入口頁 `/learn/worksheet` | 想知道「這要花我多久 / 適不適合我」 | 顯示「30–90 分鐘、不需要懂 AI、9 張卡片填空」三句話定位 |
 | 點擊「開始填寫」 | 願意花時間試試 | 1. 檢查 LocalStorage 是否有未完成 PainCard<br>2. 有 → 提示「上次填到卡 N，是否繼續？」<br>3. 無 → 建立新 PainCard，跳轉 `/worksheet/01` |
 
-**Exit gate**：無（任何人都可以開始）
+**反思提示**：無（任何人都可以開始）
 
 **情緒**：好奇 / 略帶懷疑（「這跟之前看過的 idea 評分工具有什麼不同？」）
 
@@ -64,7 +70,7 @@
    - 至少 1 個有名字的人（不是「現代人」「上班族」）
 4. 點擊「下一張卡 →」
 
-**Exit gate**
+**反思提示**
 
 - [ ] `verbatim` 非空且 ≥ 10 字
 - [ ] `source_name` 非空（不允許「自己」「朋友」這類稱謂；P1 階段加 NLP 檢測）
@@ -93,7 +99,7 @@
 3. 即時驗證：3 筆 `name` / `contact` / `relation` 全非空
 4. 點擊「下一張卡 →」
 
-**Exit gate**
+**反思提示**
 
 - [ ] `people.list.length === 3`
 - [ ] 每筆 `name` / `contact` / `relation` 非空
@@ -126,12 +132,12 @@
 5. 確認句型 + 勾選 `confirmed = true`
 6. 點擊「下一張卡 →」
 
-**Exit gate**
+**反思提示**
 
 - [ ] `user_draft` 非空
 - [ ] `confirmed === true`（可選擇直接用 user_draft，不一定要用 ai_polished）
 
-**Failure routing**：句子裡的兩個空格不夠具體（如「卡在效率不好」）→ 退回卡 1，再去找主人翁聊一次
+**Failure routing**：句子裡的兩個空格不夠具體（如「卡在效率不好」）→ 回去把卡 1 想清楚再來，再去找主人翁聊一次
 
 **情緒**：釋懷（「原來我可以這樣表達我的痛」）
 
@@ -155,12 +161,12 @@
 4. 回填 `user_dissatisfactions`（≥ 3 個具體不滿理由）
 5. 點擊「下一張卡 →」
 
-**Exit gate**
+**反思提示**
 
 - [ ] `tool_name` 非空（具體名字，不是「沒人解過」）
 - [ ] `user_dissatisfactions.length >= 3`
 
-**Failure routing**：未通過 → 「這個人可能還沒真正在意這個問題（沒在花時間 / 花錢解）」→ 退回卡 1
+**Failure routing**：未通過 → 「這個人可能還沒真正在意這個問題（沒在花時間 / 花錢解）」→ 回去把卡 1 想清楚再來
 
 **情緒**：緊張（「我要再去找主人翁問一次嗎？」）
 
@@ -168,36 +174,35 @@
 
 ---
 
-### Phase 5 — TRIZ 矛盾選擇（卡 5）
+### Phase 5 — 兩件事不能同時要（卡 5｜v2.0 蘇格拉底版）
 
 | 階段 | 內容 |
 | :--- | :--- |
 | 路徑 | `/learn/worksheet/05` |
-| 對應欄位 | `contradiction.{triz_id, triz_label, side_a, side_b, sacrificed}` |
-| AI 介入 | ✅ AI 從 6 種矛盾中挑 1 個 |
+| 對應欄位 | `contradiction.{side_a, side_b, sacrificed, sacrificed_reason}`（v2.0：無 triz_id / triz_label）|
+| AI 介入 | ✅ AI 協助使用者用自己的話寫兩端 + 為什麼犧牲 |
 
-**User flow**
+**User flow**（v2.0 改寫）
 
-1. 進場：看到「兩件事不能同時要」六選一清單 + 說明
-2. 使用者先閱讀 6 種矛盾，**先自己猜**（內部反思，不強制填）
-3. 點擊「複製 prompt 到 ChatGPT」→ AI 提案最像的 1 個（不可複選）
-4. 對照 AI 提案 vs 自己猜的，選擇最終答案
-5. 填 `side_a` / `side_b` / `sacrificed`
-6. 點擊「下一張卡 →」
+1. 進場：看到「兩件事不能同時要」蘇格拉底引導句（「他想要 ___，但又同時想要 ___，他放不下哪邊？為什麼？」）
+2. 點擊「複製 prompt 到 ChatGPT」→ AI 協助用主人翁的話寫 A、B 兩端 + 為什麼那邊會被犧牲（**不**從固定 6 種挑、**不**給編號）
+3. 貼回 AI 回應 → 點「解析」→ 自動帶入 4 欄位（同時跑 anti-taxonomy 檢查）
+4. 編輯 / 確認：填 `side_a` / `side_b` / `sacrificed` / **`sacrificed_reason`**（v2.0 新欄位）
+5. 點擊「下一張卡 →」
 
-**Exit gate**
+**反思提示**（v2.0）
 
-- [ ] `triz_id` 已選（1–6 任一）
-- [ ] `side_a` / `side_b` 非空且具體
+- [ ] `side_a` / `side_b` 非空且具體（≥ 10 字）
 - [ ] `sacrificed` 已選（'a' or 'b'）
+- [ ] `sacrificed_reason` 寫了 1-2 句完整描述（≥ 15 字）
 
-**Failure routing**：使用者覺得 6 個都不像 → AI 會回應「不像，請退回卡 3」→ 自動跳轉卡 3
+**回頭重想路徑**：使用者覺得兩端拆不出來 → AI 會回應「卡關句還沒拆清楚，建議回去把卡 3 想清楚再來」→ 中性 link（不強制跳轉）
 
-**情緒**：開竅（「原來我面對的是這種矛盾」）
+**情緒**：開竅（「原來我面對的是這種取捨，原來那邊會被犧牲是因為時間 / 利益 / 心理」）
 
-**Aha moment 機率**：MEDIUM — 部分使用者會在這一卡突然看清痛點本質
+**Aha moment 機率**：MEDIUM-HIGH — 寫「為什麼會被犧牲」常常是這套訓練最開竅的時刻
 
-**設計回應**：6 個矛盾以條列式呈現，不要用 quiz 式互動（避免遊戲化）。每個矛盾旁有「這代表什麼？」tooltip 附具體案例
+**設計回應**：4 個 textarea / radio 並排，不使用 6 矛盾 quiz 式互動（避免分類學偽裝）
 
 ---
 
@@ -220,7 +225,7 @@
 7. 勾選 `no_solution_check_passed`（AI 沒進入「設計產品」模式）
 8. 點擊「下一張卡 →」
 
-**Exit gate**
+**反思提示**
 
 - [ ] `ai_tool` 已選 + `ai_tool_reason` 非空
 - [ ] `eight_answers` 8 題全非空
@@ -257,13 +262,13 @@
 7. **第四階段（對照差異）**：填 `deltas.{biggest_diff, ai_added, guess_unsupported}`
 8. 點擊「下一張卡 →」
 
-**Exit gate**
+**反思提示**
 
 - [ ] `guesses` 4 欄非空
 - [ ] 4 個 `ai_checkpoints_passed` 全 true
 - [ ] `deltas` 3 欄非空
 
-**Failure routing**：4 個檢查點任一沒過 → 退回卡 6 補資訊
+**Failure routing**：4 個檢查點任一沒過 → 回去把卡 6 想清楚再來 補資訊
 
 **情緒**：反思 / 開竅（「我猜的跟 AI 答的差很多，原來我之前自以為懂」）
 
@@ -293,13 +298,13 @@
 5. **可選**：點「複製模擬訪談 prompt」→ AI 扮演受訪者（熱身）
 6. 點擊「下一張卡 →」
 
-**Exit gate**
+**反思提示**
 
 - [ ] `targets.length >= 1`
 - [ ] `questions.length === 3`
 - [ ] `interview_taboos_understood === true`
 
-**Failure routing**：使用者列不出訪談對象 → 退回卡 2「你還沒接觸這群人」
+**Failure routing**：使用者列不出訪談對象 → 回去把卡 2 想清楚再來「你還沒接觸這群人」
 
 **情緒**：行動感（「我有具體下一步了」）
 
@@ -307,41 +312,44 @@
 
 ---
 
-### Phase 9 — 真假判斷（卡 9）
+### Phase 9 — 真假判斷（卡 9｜v2.0 極簡版）
 
 | 階段 | 內容 |
 | :--- | :--- |
-| 路徑 | `/learn/worksheet/09` |
-| 對應欄位 | `verdict.{scores, total_score, judgment, reason_100w, most_confident_evidence, least_confident, next_action}` |
-| AI 介入 | ❌ 完全禁用（這是你的判斷）|
+| 路徑 | `/learn/worksheet/09`（**無 `?mode=` 參數**） |
+| 對應欄位 | `verdict.{judgment, reason_100w, most_confident_evidence, least_confident, next_action}`（v2.0：無 scores / total_score）|
+| AI 介入 | ❌ 完全永久禁用（這是你的判斷）|
 
-**User flow**
+**User flow**（v2.0 改寫）
 
 1. 進場：看到「這張是終點」+ 警告「AI 不能幫你判斷」
-2. **第一步**：5 維度打分（教學模式顯示，生產模式隱藏）
-3. **第二步**：閱讀「分數帶解讀」（20–25 排訪談 / 15–19 縮小範圍 / ≤14 換題）
-4. **第三步**：書面回答 `judgment`（真痛點 / 假痛點 / 待訪談）
-5. **第四步**：寫 `reason_100w`（≥ 100 字）
-6. **第五步**：填 `most_confident_evidence` / `least_confident`
-7. **第六步**：選 `next_action`（訪談 / 補證據 / 換題目）
-8. 點擊「產出痛點身份證 →」
+2. **Socratic 反思區**：閱讀 5 個 Socratic 反思問句（純螢幕提示，**不對應任何 textarea**）：
+   - 你能說出 3 個有名字的人嗎？
+   - 你看到他每週遇到幾次？是猜的還是有人告訴你？
+   - 他付出最多的是時間、錢、心力還是關係？
+   - 他現在解法最讓他不爽的點，能用他的話寫出來嗎？
+   - 最有把握的證據 vs 最薄弱的環節分別是什麼？
+3. **書面判斷區**：寫 `judgment`（真痛點 / 假痛點 / 待訪談）
+4. 寫 `reason_100w`（≥ 100 字）
+5. 寫 `most_confident_evidence` / `least_confident`（各 ≥ 15 字）
+6. 選 `next_action`（訪談 / 補證據 / 換題目）
+7. 點擊「產出痛點身份證 →」
 
-**Exit gate**
+**反思提示**（v2.0）
 
-- [ ] `scores` 5 維度全填
 - [ ] `judgment` 已選
 - [ ] `reason_100w.length >= 100`
-- [ ] `most_confident_evidence` / `least_confident` 非空
+- [ ] `most_confident_evidence` / `least_confident` 非空（各 ≥ 15 字）
 - [ ] `next_action` 已選
 
-**Failure routing**：書面理由 < 100 字 → 提示「再補一些細節，這是這份填空簿的唯一交付物」
+**Failure routing**：書面理由 < 100 字 → 中性提示「再補一些細節，這是這份填空簿的唯一交付物」（不擋過）
 
 **情緒**：完成感 / 反思（「我終於有書面判斷了，無論是真是假，都是學習」）
 
 **設計回應**：
-- 強調「分數是鏡子，不是答案」（持續顯示這句話）
-- 即便判斷為「假痛點」，也給正向回饋：「恭喜你省下 3 個月走錯路的時間」
-- 教學模式顯示總分 / 25，生產模式只顯示 status
+- 5 個 Socratic 反思問句**純螢幕顯示**，不寫進資料（避免 over-engineer 變成另一套 score）
+- **無分數 UI / 無模式切換 / 無分數帶解讀**（v2.0：schema 內已無分數）
+- 即便判斷為「假痛點」，也給正向回饋：「你省下 3 個月走錯路的時間」
 
 ---
 
@@ -367,7 +375,7 @@
    - **假痛點**：「換題目重新填一輪」+「我已經學到判斷力」
 5. 結束流程或回到 Dashboard（M2+ 範圍）
 
-**Exit gate**：無（已是終點）
+**反思提示**：無（已是終點）
 
 **情緒**：完成
 
@@ -380,14 +388,14 @@
 ```
 [卡 1 fail] ─→ 留在卡 1，提示「找一個真人聊再回來」
 [卡 2 fail] ─→ 留在卡 2，提示「去這群人聚集的地方混 1–2 週」
-[卡 3 fail] ─→ 退回卡 1，提示「沒問清楚，再去問」
-[卡 4 fail] ─→ 退回卡 1，提示「這個人沒在花時間花錢解」
-[卡 5 fail] ─→ 退回卡 3，提示「拆得不夠細」
+[卡 3 fail] ─→ 回去把卡 1 想清楚再來，提示「沒問清楚，再去問」
+[卡 4 fail] ─→ 回去把卡 1 想清楚再來，提示「這個人沒在花時間花錢解」
+[卡 5 fail] ─→ 回去把卡 3 想清楚再來，提示「拆得不夠細」
 [卡 6 fail] ─→ 補卡 1–5 細節再跑（不退卡，重新跑 prompt）
               └─ 子情境 A：AI 推銷解法 → 強化 prompt 規則
               └─ 子情境 B：AI 答得空泛 → 補上更多卡 1–5 細節
-[卡 7 fail] ─→ 退回卡 6，AI 給的不夠具體
-[卡 8 fail] ─→ 退回卡 2，「你還沒接觸這群人」
+[卡 7 fail] ─→ 回去把卡 6 想清楚再來，AI 給的不夠具體
+[卡 8 fail] ─→ 回去把卡 2 想清楚再來，「你還沒接觸這群人」
 [卡 9 fail] ─→ 留在卡 9（書面理由不足）
               └─ 真假判斷無法定 → 自動標 `pending_interview`
 ```
@@ -437,7 +445,7 @@
 | 2 | — | ❌ 無 | — |
 | 3 | Prompt #1 | 句型校對 prompt（自動填入卡 1+2） | 複製 → 外部跑 → 貼回 |
 | 4 | Prompt #2 | 5 個 workaround 提案 prompt（自動填入卡 3） | 複製 → 外部跑 → 貼回 → 拿去問主人翁 |
-| 5 | Prompt #3 | TRIZ 矛盾六選一 prompt | 複製 → 外部跑 → 貼回 |
+| 5 | Prompt #3 | 取捨自陳協助 prompt（v2.0：協助使用者用自己的話寫 side_a / side_b / sacrificed_reason）| 複製 → 外部跑 → 貼回 |
 | 6 | Prompt #4 | 8 題證據蒐集 prompt（自動填入卡 1–5） | 複製 → 外部跑 → 貼回 raw_response |
 | 7 | Prompt #5 | 痛點判斷表整理 prompt | **必須先寫猜測再使用** |
 | 8 | Prompt #6 | 模擬訪談 prompt（可選） | 複製 → 外部跑 → 貼回（熱身用）|
@@ -543,6 +551,7 @@
 | 版本 | 日期 | 變更 | 負責人 |
 | :--- | :--- | :--- | :--- |
 | v1.0 | 2026-05-01 | 首版；對應 worksheet v1.0、data_model v1.0 | Sunny |
+| v2.0 | 2026-05-02 | 蘇格拉底式大一統重構：Phase 5 改寫為蘇格拉底式取捨自陳（無 triz_id）；Phase 9 改寫為極簡判斷頁（無 5 維度評分、無模式切換）；移除「教學模式 / 生產模式」「分數帶解讀」相關旅程描述；通篇文案中性化「過關 → 反思問題」「退回 → 回去把卡 X 想清楚再來」 | Sunny |
 
 ---
 

@@ -54,8 +54,8 @@ React 18 + TypeScript + Tailwind + Zustand + React Hook Form + Zod。LocalStorag
 
 1. **反 solution mode**：本卡 AI 模擬 prompt 含「不要美化、不要奉承 / 不要假裝會付錢買 App」guard
 2. **書面優先**：3 題訪談題 + 訪談規則 checkbox 必填
-3. **過關條件透明**：至少 1 位有名字 / 3 題非推銷 / 知道規則
-4. **失敗回退**：連 1 位都填不出 contact_info → 提示退回卡 2
+3. **反思問題透明**：至少 1 位有名字 / 3 題非推銷 / 知道規則
+4. **失敗回退**：連 1 位都填不出 contact_info → 提示回去把卡 2 想清楚再來
 
 ---
 
@@ -196,8 +196,8 @@ React 18 + TypeScript + Tailwind + Zustand + React Hook Form + Zod。LocalStorag
   - check_2: 「3 題訪談題（不是推銷題）」/ 自動勾選（依 questions 3 題達 minLength + 推銷檢查通過或手動覆寫）
   - check_3: 「知道訪談時不要做什麼」/ 自動勾選（依 `interview_taboos_understood`）
 - `cta_next` (Button Primary Large): "進入卡 9：真假判斷 →" → `/learn/worksheet/09`
-- `cta_back_to_card2` (Button Ghost, optional, **特殊路由**): "← 退回卡 2（你還沒接觸這群人）" → `/learn/worksheet/02`
-  - **特殊狀態**：若使用者連 1 位都填不出 contact_info → cta_back_to_card2 變 primary，引導退回卡 2
+- `cta_back_to_card2` (Button Ghost, optional, **特殊路由**): "← 回去把卡 2 想清楚再來（你還沒接觸這群人）" → `/learn/worksheet/02`
+  - **特殊狀態**：若使用者連 1 位都填不出 contact_info → cta_back_to_card2 變 primary，引導回去把卡 2 想清楚再來
 
 ---
 
@@ -260,7 +260,7 @@ React 18 + TypeScript + Tailwind + Zustand + React Hook Form + Zod。LocalStorag
 
 ### [EXIT GATE]
 
-#### 過關條件
+#### 反思問題
 
 | # | 條件 | 自動判定 | 失敗訊息 |
 | :- | :--- | :--- | :--- |
@@ -270,7 +270,7 @@ React 18 + TypeScript + Tailwind + Zustand + React Hook Form + Zod。LocalStorag
 
 #### 失敗路由
 
-- 條件 1 未過（連 1 位 contact_info 都填不出來）→ 提示「退回卡 2，你還沒接觸這群人」
+- 條件 1 未過（連 1 位 contact_info 都填不出來）→ 提示「回去把卡 2 想清楚再來，你還沒接觸這群人」
 - 條件 2 未過（推銷題太多）→ 留在當頁，提供範例題庫
 - 條件 3 未過 → 留在當頁，引導去看 rules_table
 
@@ -389,7 +389,7 @@ React 18 + TypeScript + Tailwind + Zustand + React Hook Form + Zod。LocalStorag
 - [ ] **AI 模擬 prompt 必含「不要美化、不要奉承 / 不要假裝會付錢買 App」**
 - [ ] exit_gate 3 個 check 全通過後 cta_next 解鎖
 - [ ] 過關後 PainCard.current_step 寫入 9
-- [ ] 條件 1 未過時，cta_back_to_card2 變 primary，引導退回卡 2
+- [ ] 條件 1 未過時，cta_back_to_card2 變 primary，引導回去把卡 2 想清楚再來
 - [ ] 鍵盤 Tab 順序正確
 - [ ] 無障礙：rules_table 用語意化 `<table>` + scope 屬性
 - [ ] RWD 三斷點正確，rules_table 在 Mobile 變堆疊

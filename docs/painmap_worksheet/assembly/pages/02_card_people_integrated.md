@@ -73,8 +73,8 @@ React 18 + TypeScript + Tailwind CSS + Zustand + React Hook Form + Zod。LocalSt
 
 1. **AI 完全禁用**（worksheet 鐵律：合成 persona = 不會付錢的虛構人物）
 2. **書面優先**：3 位真人的真名、聯絡方式、關係必須具體可驗證
-3. **過關條件透明**：3 個都有真名 + 至少 1 位今天能聯絡到
-4. **失敗回退**：過不了 → 退回卡 1 / 暫存先去找人，不用「失敗」字眼
+3. **反思問題透明**：3 個都有真名 + 至少 1 位今天能聯絡到
+4. **失敗回退**：過不了 → 回去把卡 1 想清楚再來 / 暫存先去找人，不用「失敗」字眼
 
 ---
 
@@ -101,7 +101,7 @@ React 18 + TypeScript + Tailwind CSS + Zustand + React Hook Form + Zod。LocalSt
 4. **input_form** — 1 個 background + 3 組 person 輸入
 5. **example_reference** — 林老師範例（3 位補教老師）
 6. **anti_fake_check** — R2.2（不是「老師 A」代稱）+ contactable today 勾選
-7. **exit_gate_footer** — 過關條件 + 失敗 ≥ 3 次顯示 fallback_action_card
+7. **exit_gate_footer** — 反思問題 + 失敗 ≥ 3 次顯示 fallback_action_card
 
 ---
 
@@ -209,7 +209,7 @@ PersonGroupRepeater 固定 3 組，**不可增刪**（schema `list.length === 3`
    - **d**: 失敗 ≥ 3 次 → 額外顯示 `fallback_action_card`
    - **e**: 全通過 → PATCH `current_step = 3` → 導向 `/learn/worksheet/03?id={uuid}`
 
-#### 退回卡 1 同步
+#### 回去把卡 1 想清楚再來 同步
 
 點「回到卡 1 修改」：
 - 提示 modal：「修改卡 1 後，本卡（卡 2）的資料會保留，但建議你重新檢查 3 位人選是否還合適。確認嗎？」
@@ -251,7 +251,7 @@ PersonGroupRepeater 固定 3 組，**不可增刪**（schema `list.length === 3`
 
 ### [EXIT GATE]
 
-#### 過關條件
+#### 反思問題
 
 | # | 條件 | 判定 |
 | :- | :--- | :--- |
@@ -304,7 +304,7 @@ PersonGroupRepeater 固定 3 組，**不可增刪**（schema `list.length === 3`
 
 #### 副驅動力：#2 Development & Accomplishment
 
-- exit_gate_footer 過關條件清晰 — 完成 3 位真人 = 達成里程碑（**不發徽章、不顯示分數**）
+- exit_gate_footer 反思問題清晰 — 完成 3 位真人 = 達成里程碑（**不發徽章、不顯示分數**）
 
 #### 副驅動力：#1 Epic Meaning
 

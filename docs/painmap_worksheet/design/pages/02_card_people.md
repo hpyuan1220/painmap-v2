@@ -43,7 +43,7 @@
    - section_purpose: 即時檢核 R2.2（不是「老師 A」代稱）+「contactable today」確認題
 7. **exit_gate_footer**
    - section_type: action_footer
-   - section_purpose: 過關條件 + 「儲存並進入卡 3」；過不了顯示退回卡 1 路徑
+   - section_purpose: 反思問題 + 「儲存並進入卡 3」；過不了顯示回去把卡 1 想清楚再來 路徑
 
 ---
 
@@ -215,7 +215,7 @@
    - 步驟 d：失敗 ≥ 3 次 → 額外顯示 fallback_action_card 引導退場
    - 步驟 e：全通過 → 更新 `current_step = 3` → 導向卡 3
 
-### 退回卡 1 的資料同步
+### 回去把卡 1 想清楚再來 的資料同步
 
 如使用者點擊「回到卡 1 修改」：
 - 提示 modal：「修改卡 1 後，本卡（卡 2）的資料會保留，但建議你重新檢查 3 位人選是否還合適。確認嗎？」
@@ -245,9 +245,9 @@
 
 ## [EXIT GATE]
 
-> **過關條件 100% 對應 worksheet「🚦 過關條件」段落（卡片 2）**
+> **反思問題 100% 對應 worksheet「🚦 反思問題」段落（卡片 2）**
 
-### 過關條件
+### 反思問題
 
 | # | 條件 | 資料層判定 | UI 反饋 |
 | :- | :--- | :--- | :--- |
@@ -319,7 +319,7 @@
 
 - **#2 Development & Accomplishment（成就感）— 副驅動力**
   - 設計手法：
-    - exit_gate_footer 過關條件清晰 — 完成 3 位真人 = 達成里程碑（但不發徽章、不顯示分數）
+    - exit_gate_footer 反思問題清晰 — 完成 3 位真人 = 達成里程碑（但不發徽章、不顯示分數）
     - 卡 1 → 卡 2 的 stepper 進度視覺化（但用 step indicator 非 score）
 - **#1 Epic Meaning（史詩感）— 副驅動力**
   - 設計手法：
@@ -334,7 +334,7 @@
 | input_form 3 組 person | #5 真人連結 | 強迫使用者面對「我認識誰」這個社交事實 |
 | anti_fake_check | #3 即時反饋 | 即時提示品質 |
 | fallback_action_card | #1 + #5 | 「先去混 1-2 週」是社群參與的 epic 框架 |
-| exit_gate_footer | #2 過關條件 | 透明可見，不需推測 |
+| exit_gate_footer | #2 反思問題 | 透明可見，不需推測 |
 
 ### 反模式警告（黑帽禁用清單）
 

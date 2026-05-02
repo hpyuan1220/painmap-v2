@@ -58,7 +58,7 @@ React 18 + TypeScript + Tailwind + Zustand + React Hook Form + Zod。LocalStorag
 2. **創造性沒有對錯**：4 欄沒有「正確答案」校驗，使用者怎麼猜都通過 Phase A
 3. **反饋來自對比，不來自評分**：解鎖後給的不是「你猜得對 / 錯」，而是「你和 AI 的差異是什麼」
 4. **Phase A readonly after unlock**：避免使用者看到 AI 後回頭修改猜測（破壞訓練本意）
-5. **失敗回退**：退回卡 6 → 清空卡 7 所有資料（避免污染重來）
+5. **失敗回退**：回去把卡 6 想清楚再來 → 清空卡 7 所有資料（避免污染重來）
 
 ---
 
@@ -221,7 +221,7 @@ React 18 + TypeScript + Tailwind + Zustand + React Hook Form + Zod。LocalStorag
   - check_3: 「3 個 deltas 都填寫完整」（每個 ≥ minLength 20）
   - check_4: 「有貼上 AI 痛點判斷表」（≥ 100 字）
 - `cta_next` (Button Primary Large): "進入卡 8：真人訪談規劃 →" → `/learn/worksheet/08`
-- `cta_back_to_card6` (Button Ghost, optional): "← 退回卡 6 補資訊"
+- `cta_back_to_card6` (Button Ghost, optional): "← 回去把卡 6 想清楚再來 補資訊"
 - `help_link` (TextLink, optional): "我不知道怎麼填" → 開啟側邊 Drawer
 
 ---
@@ -245,7 +245,7 @@ React 18 + TypeScript + Tailwind + Zustand + React Hook Form + Zod。LocalStorag
 - **強制條件**：4 欄 textarea 全部 ≥ minLength（10 字）才解鎖
 - **不可繞過**：即使 LocalStorage 直接改 `self_guess.guesses.*`，Phase B 仍鎖（因為解鎖判定在前端 state，不純依資料）
 - **不可回頭修改 Phase A**：解鎖 Phase B 後，Phase A 變 readonly。理由：避免使用者看到 AI 後回去修改猜測
-- **例外**：使用者可從 stepper 退回卡 6，但會清空卡 7 所有資料 + 顯示確認 modal「退回會清空卡 7 進度，確定？」
+- **例外**：使用者可從 stepper 回去把卡 6 想清楚再來，但會清空卡 7 所有資料 + 顯示確認 modal「退回會清空卡 7 進度，確定？」
 
 #### 自動儲存策略
 
@@ -291,7 +291,7 @@ React 18 + TypeScript + Tailwind + Zustand + React Hook Form + Zod。LocalStorag
 
 ### [EXIT GATE]
 
-#### 過關條件
+#### 反思問題
 
 | # | 條件 | 自動判定 | 失敗訊息 |
 | :- | :--- | :--- | :--- |
@@ -303,8 +303,8 @@ React 18 + TypeScript + Tailwind + Zustand + React Hook Form + Zod。LocalStorag
 #### 失敗路由
 
 - 任一 checkpoint 未通過 → 留在當頁，顯示第二輪 prompt 引導
-- 多個 checkpoint 未通過 + AI 回覆過於空泛 → 提示「退回卡 6 補更多細節」
-- **退回卡 6 時清空卡 7 所有 self_guess 資料**（避免污染重來）
+- 多個 checkpoint 未通過 + AI 回覆過於空泛 → 提示「回去把卡 6 想清楚再來 補更多細節」
+- **回去把卡 6 想清楚再來 時清空卡 7 所有 self_guess 資料**（避免污染重來）
 
 ---
 
@@ -424,7 +424,7 @@ React 18 + TypeScript + Tailwind + Zustand + React Hook Form + Zod。LocalStorag
 - [ ] pain_judgment_table textarea 接受 ≥ 100 字輸入 + autosave
 - [ ] 3 個 deltas 欄位達 minLength 20 後 exit_gate check 自動勾選
 - [ ] exit_gate 4 個 check 全通過後 cta_next 解鎖
-- [ ] 從 stepper 退回卡 6 → 顯示確認 modal「退回會清空卡 7 進度」+ 確認後清空
+- [ ] 從 stepper 回去把卡 6 想清楚再來 → 顯示確認 modal「退回會清空卡 7 進度」+ 確認後清空
 - [ ] LocalStorage 直接修改 `self_guess.guesses.*` 不能繞過 Phase B 鎖（前端 state 額外驗證）
 - [ ] 鍵盤 Tab 順序：Phase A → unlock button → Phase B
 - [ ] 無障礙：locked_preview blur 不影響螢幕閱讀器（aria-hidden + 提示文字）

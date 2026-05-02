@@ -44,7 +44,7 @@
    - section_purpose: 顯示 worksheet 林老師範例（AI 整理後 + 3 個追問）
 8. **exit_gate_footer**
    - section_type: action_footer
-   - section_purpose: 過關條件 + 「儲存並進入卡 4」
+   - section_purpose: 反思問題 + 「儲存並進入卡 4」
 
 ---
 
@@ -150,11 +150,11 @@
 - **layout**: 區塊 + 確認 checkbox
 - **elements**:
   - step_label: H2 / required / "Step 4：你能回答 AI 列的問題嗎？"
-  - body: Body MD / required / "AI 列的「需要再問清楚」如果你**能回答**或**已預約找主人翁問**，就勾選確認。如果都答不出來 → 退回卡 1，去找主人翁再聊一次。"
+  - body: Body MD / required / "AI 列的「需要再問清楚」如果你**能回答**或**已預約找主人翁問**，就勾選確認。如果都答不出來 → 回去把卡 1 想清楚再來，去找主人翁再聊一次。"
   - checkbox: Checkbox / required
     - label: Body MD / "我能回答上面的問題（或已預約找主人翁問）"
     - data_field: `stuck_formula.confirmed`
-  - retreat_action: Link / optional / "我答不出來，退回卡 1 再聊一次" / -> `/learn/worksheet/01?id={uuid}` （提示卡 3 資料會保留）
+  - retreat_action: Link / optional / "我答不出來，回去把卡 1 想清楚再來 再聊一次" / -> `/learn/worksheet/01?id={uuid}` （提示卡 3 資料會保留）
 - **states**: unchecked / checked / loading
 - **copy_constraints**: body 最多 80 字
 
@@ -246,9 +246,9 @@ ${painCard.people.background}
 
 ## [EXIT GATE]
 
-> **過關條件 100% 對應 worksheet「🚦 過關條件」段落（卡片 3）**
+> **反思問題 100% 對應 worksheet「🚦 反思問題」段落（卡片 3）**
 
-### 過關條件
+### 反思問題
 
 | # | 條件 | 資料層判定 | UI 反饋 |
 | :- | :--- | :--- | :--- |
@@ -261,17 +261,17 @@ ${painCard.people.background}
 | 失敗情境 | 路由 | 友善文案 |
 | :--- | :--- | :--- |
 | `user_draft` 含抽象詞（R2.3） | warning（不擋）+ 提示具體化 | 「『效率不好』太抽象了。具體是什麼動作 / 步驟卡住？例：『翻 7 次成績單拼湊資料』勝過『流程不順』。」 |
-| `confirmed` 未勾選 | 停留卡 3 + 高亮 confirmation_check | 「請確認你能回答 AI 列的問題（或已預約找主人翁問）。如果都答不出來 → 退回卡 1。」 |
+| `confirmed` 未勾選 | 停留卡 3 + 高亮 confirmation_check | 「請確認你能回答 AI 列的問題（或已預約找主人翁問）。如果都答不出來 → 回去把卡 1 想清楚再來。」 |
 | `user_draft` 太短 | 停留卡 3 + 高亮 user_draft 欄位 | 「請至少寫一個完整的句型句。看 worksheet 林老師範例。」 |
 
 ### 退回工作流
 
 > 卡 3 過不了 → 退回**卡 1**
 
-理由（引用 worksheet）：「過不了 → 退回卡片 1，去找主人翁再聊一次。」
+理由（引用 worksheet）：「過不了 → 回去把卡 1 想清楚再來，去找主人翁再聊一次。」
 
 實作：
-- confirmation_check 區塊提供「我答不出來，退回卡 1 再聊一次」link
+- confirmation_check 區塊提供「我答不出來，回去把卡 1 想清楚再來 再聊一次」link
 - 點擊後導向卡 1，但 LocalStorage 中卡 3 已填的 user_draft 保留（避免重做）
 - 修改卡 1 後，卡 3 標記為 stale（提示使用者重新對照新原句）
 
@@ -400,7 +400,7 @@ ${painCard.people.background}
 - [ ] field_user_draft 觸發 R2.3 抽象詞 warning（「效率不好」「沒效率」「流程不順」「不方便」）
 - [ ] field_ai_clarifying_questions 用 TagInput 介面，每行一個問題
 - [ ] confirmation_check checkbox 必須勾選才能 enable CTA
-- [ ] retreat_action 「答不出來退回卡 1」link 正確導向，且 LocalStorage 卡 3 資料保留
+- [ ] retreat_action 「答不出來回去把卡 1 想清楚再來」link 正確導向，且 LocalStorage 卡 3 資料保留
 - [ ] CTA 過關後 PATCH `current_step = 4` → 導向 `/learn/worksheet/04?id={uuid}`
 - [ ] missing_data 狀態（卡 1/2 未完成）正確顯示 disabled
 - [ ] example_reference 引用 worksheet 林老師範例

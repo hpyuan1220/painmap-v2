@@ -19,10 +19,11 @@
 ## 📐 Iron Laws（鐵律）
 
 1. **共用 PainMap brand system**（不重做設計系統）
-2. **不違反 brand 禁令**：分數、星等、排行榜、徽章、FOMO 永久禁用
+2. **不違反 brand 禁令**：分數、星等、排行榜、徽章、FOMO 永久禁用；資料層完全沒有分數欄位
 3. **Octalysis 只取白帽**：#1 Epic Meaning / #2 Accomplishment / #3 Creativity / #5 Social；黑帽 #6/#7/#8 永久封鎖
-4. **9 張卡片是同一個資料物件**（PainCard）的 9 個欄位，不是 9 個獨立資料
+4. **9 張卡片是同一個資料物件**（PainCard v2.0）的 9 個欄位，不是 9 個獨立資料
 5. **MVP 範圍**：LocalStorage + 複製 prompt 到外部 ChatGPT；不做雲端帳號、不串站內 LLM API
+6. **單一蘇格拉底流程**：沒有教學 / 生產雙模式；所有反思以開放式書寫呈現，不打分數
 
 ---
 
@@ -49,7 +50,7 @@ docs/painmap_worksheet/
 │   │   ├── 02_card_people.md          ← 卡 2: 三個有名字的人
 │   │   ├── 03_card_stuck_formula.md   ← 卡 3: 卡關公式
 │   │   ├── 04_card_workaround.md      ← 卡 4: 現在怎麼解
-│   │   ├── 05_card_contradiction.md   ← 卡 5: 矛盾選擇 (TRIZ)
+│   │   ├── 05_card_contradiction.md   ← 卡 5: 兩件事不能同時要（取捨自陳）
 │   │   ├── 06_card_ai_evidence.md     ← 卡 6: AI 證據蒐集
 │   │   ├── 07_card_self_guess.md      ← 卡 7: 自己先猜 + 讀 AI
 │   │   ├── 08_card_interview_plan.md  ← 卡 8: 真人訪談規劃
@@ -70,17 +71,15 @@ docs/painmap_worksheet/
 │   └── ai_proxy_spec.md               ← AI 整合規格（複製 vs 站內）
 │
 ├── references/                         ← E. 參考層
-│   ├── pain_card_schema.md            ← Pain Card schema 詳版
-│   ├── ai_prompt_library.md           ← 7 段內建 AI prompts
-│   ├── exit_gates_matrix.md           ← 9 卡過關條件 + 失敗路由
-│   ├── triz_contradictions.md         ← TRIZ 六矛盾配方
+│   ├── pain_card_schema.md            ← Pain Card schema 詳版（v2.0）
+│   ├── ai_prompt_library.md           ← 6 段內建 AI prompts（卡 5 純自陳，無 prompt）
+│   ├── exit_gates_matrix.md           ← 9 卡反思條件
 │   ├── octalysis_white_hat_principles.md  ← 白帽應用規則
 │   └── anti_gamification_guardrails.md ← 黑帽禁令清單
 │
 ├── guides/                             ← F. 指南層
 │   ├── implementation_guide.md        ← 實作 SOP
-│   ├── quality_checklist.md           ← QA 檢核
-│   └── teaching_vs_production_mode.md ← 教學 / 生產模式切換
+│   └── quality_checklist.md           ← QA 檢核
 │
 └── tests/                              ← G. 測試層
     ├── e2e_scenarios.md               ← 端對端測試劇本
@@ -112,7 +111,7 @@ docs/painmap_worksheet/
 
 ### 路徑 D：我要驗證實作品質（QA / 測試工程師）
 1. 讀 [`tests/e2e_scenarios.md`](tests/e2e_scenarios.md) — 端對端劇本
-2. 讀 [`tests/exit_gate_test_cases.md`](tests/exit_gate_test_cases.md) — 過關條件測試
+2. 讀 [`tests/exit_gate_test_cases.md`](tests/exit_gate_test_cases.md) — 反思條件測試
 3. 讀 [`tests/ai_prompt_test_cases.md`](tests/ai_prompt_test_cases.md) — AI prompt 測試
 
 ---
@@ -133,4 +132,5 @@ docs/painmap_worksheet/
 
 | 版本 | 日期 | 變更 | 負責人 |
 | :--- | :--- | :--- | :--- |
+| v2.0 | 2026-05-02 | Socratic 大一統重構：移除 `verdict.scores` / `total_score` / 教學-生產雙模式 / TRIZ 6 矛盾分類；新增 `contradiction.sacrificed_reason`；刪除 `guides/teaching_vs_production_mode.md`、`references/triz_contradictions.md` | Sunny |
 | v1.0 | 2026-05-01 | 首版發布；43 個 spec 文件建立 | Sunny |

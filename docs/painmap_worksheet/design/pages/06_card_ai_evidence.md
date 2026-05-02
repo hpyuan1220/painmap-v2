@@ -45,7 +45,7 @@
    - section_purpose: 自動偵測 raw_response 是否進入「設計產品」模式；若是則顯示 fallback prompt
 7. **exit_gate**
    - section_type: exit_gate
-   - section_purpose: 過關條件三項勾選 + 「進入卡 7」CTA
+   - section_purpose: 反思問題三項勾選 + 「進入卡 7」CTA
 
 ---
 
@@ -258,7 +258,7 @@
     - check_3: Checklist Item / 「raw_response 已完整保存」/ 自動勾選（依 raw_response.length >= 200）
   - completion_status: Body MD / required / 動態顯示「✓ 3/3 已通過，可進入卡 7」或「還差 N 項」
   - cta_next: Button Primary Large / required / 「進入卡 7：自己先猜 + 讀 AI →」/ -> `/learn/worksheet/07`
-  - cta_back: Button Ghost / optional / 「← 退回卡 5 補資訊」/ -> `/learn/worksheet/05`
+  - cta_back: Button Ghost / optional / 「← 回去把卡 5 想清楚再來 補資訊」/ -> `/learn/worksheet/05`
   - help_link: TextLink Secondary / optional / 「我不知道怎麼填」/ 開啟側邊 Drawer 顯示 worksheet 卡 6 完整說明
 - **states**:
   - default: 3 個 check 都未勾選，cta_next disabled（灰化）
@@ -326,7 +326,7 @@
 
 ## [EXIT GATE]
 
-### 過關條件（必須全部通過）
+### 反思問題（必須全部通過）
 
 | # | 條件 | 自動判定邏輯 | 失敗訊息 |
 | :- | :--- | :--- | :--- |
@@ -338,7 +338,7 @@
 
 - 任一條件未過 → 留在當頁，顯示具體缺什麼
 - 反推銷偵測命中 → 提供 fallback prompt + 手動覆寫
-- **絕不退回卡 1-5**（與卡 7 不同；卡 6 的 fail 是「補資訊重跑」，不是「重新發想」）
+- **絕不回去把卡 1 想清楚再來-5**（與卡 7 不同；卡 6 的 fail 是「補資訊重跑」，不是「重新發想」）
 
 ### 狀態機影響
 
