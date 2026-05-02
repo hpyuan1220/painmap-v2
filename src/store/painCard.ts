@@ -174,6 +174,15 @@ type PainCardStore = {
   reset: () => void;
   /** 取得當前 PainCard 完整快照（用於匯出） */
   exportSnapshot: () => PainCard;
+  /**
+   * 原子化提交：同時寫入 status + current_step（卡 9 過關用）。
+   * 內部對整個 card 做快照，任一步驟失敗就回滾，不留下 status 已改但 step 未進的不一致狀態。
+   * 回傳 { ok: true } 或 { ok: false, error }。
+   */
+  commitVerdict: (input: {
+    status: PainCardStatus;
+    nextStep: CurrentStep;
+  }) => { ok: true } | { ok: false; error: string };
 };
 
 export const usePainCardStore = create<PainCardStore>()(
