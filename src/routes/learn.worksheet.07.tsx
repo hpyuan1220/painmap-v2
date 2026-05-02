@@ -350,6 +350,14 @@ function CardSevenPage() {
               <p className="text-[11.5px] text-text-muted">
                 {sg.pain_judgment_table.trim().length} 字（最少 {TABLE_MIN}）
               </p>
+              {sg.pain_judgment_table.trim().length > 0 && (
+                <div className="mt-3">
+                  <p className="text-[12px] font-semibold text-text-secondary mb-1.5">預覽（Markdown 渲染）</p>
+                  <div className="bg-muted-bg p-4 max-h-96 overflow-auto rounded-md border border-border">
+                    <MarkdownView>{sg.pain_judgment_table}</MarkdownView>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Deltas */}
