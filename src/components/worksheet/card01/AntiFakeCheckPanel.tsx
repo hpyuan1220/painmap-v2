@@ -19,13 +19,13 @@ type Item = {
 function statusIcon(status: CheckStatus) {
   if (status === "pass")
     return (
-      <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-status-success-bg text-status-success">
+      <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-status-success">
         <Check className="h-3 w-3" strokeWidth={2.5} aria-label="通過" />
       </span>
     );
   if (status === "warning")
     return (
-      <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-status-warning-bg text-status-warning">
+      <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-status-warning">
         <AlertTriangle className="h-3 w-3" aria-label="需要修正" />
       </span>
     );

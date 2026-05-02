@@ -223,15 +223,15 @@ ${stuck}
           }
           intro={
             <>
-              這張卡分 4 步走：① 你先憑訪談寫一個版本 → ② AI 補 5 個常見 workaround → ③
-              讀 AI 回應，把 5 個 workaround 逐項鍵入（必填，不可跳過） → ④ 帶著 AI
+              這張卡分 4 步走：① 你先憑訪談寫一個版本 → ② AI 補 5 個常見 workaround → ③ 讀 AI
+              回應，把 5 個 workaround 逐項鍵入（必填，不可跳過） → ④ 帶著 AI
               清單再去問主人翁，把他「不滿在哪」的 3 個具體理由帶回來。
             </>
           }
         />
 
         {stuckMissing && (
-          <div className="flex items-start gap-2.5 rounded-md border border-status-warning/40 bg-status-warning-bg px-3.5 py-3 text-[13.5px] leading-[1.6] text-text-primary">
+          <div className="flex items-start gap-2.5 rounded-md border border-status-warning/40 px-3.5 py-3 text-[13.5px] leading-[1.6] text-text-primary">
             <AlertCircle className="h-4 w-4 text-status-warning shrink-0 mt-0.5" aria-hidden />
             <span>還沒填卡 3「卡關公式」，下方 prompt 會缺變數。建議先回卡 3 完成。</span>
           </div>
@@ -302,7 +302,8 @@ ${stuck}
             </h2>
             <p className="mt-2 text-[14px] text-text-secondary leading-[1.65]">
               複製下方 prompt → 貼到 ChatGPT / Claude / Perplexity / Gemini → 把 AI
-              的回應貼回左側方框（僅供你檢視，不會被自動處理）。讀完後到下方 Step 3 把 5 個逐項輸入。
+              的回應貼回左側方框（僅供你檢視，不會被自動處理）。讀完後到下方 Step 3 把 5
+              個逐項輸入。
             </p>
           </div>
 
@@ -316,12 +317,9 @@ ${stuck}
           {solutionModeHits.length > 0 && (
             <div
               role="status"
-              className="flex items-start gap-2.5 rounded-md border border-status-warning/40 bg-status-warning-bg px-3.5 py-3 text-[13px] leading-[1.6] text-text-primary"
+              className="flex items-start gap-2.5 rounded-md border border-status-warning/40 px-3.5 py-3 text-[13px] leading-[1.6] text-text-primary"
             >
-              <AlertCircle
-                className="h-4 w-4 text-status-warning shrink-0 mt-0.5"
-                aria-hidden
-              />
+              <AlertCircle className="h-4 w-4 text-status-warning shrink-0 mt-0.5" aria-hidden />
               <span>
                 AI 回應裡偵測到「{solutionModeHits.join("、")}
                 」這類「叫你做產品」的話 — 這階段只看「他現在怎麼解」，請忽略這類建議。
@@ -374,12 +372,12 @@ ${stuck}
 
           <div
             role="alert"
-            className="flex items-start gap-3 rounded-md border border-accent-electric/40 bg-accent-electric-subtle/40 p-4"
+            className="flex items-start gap-3 rounded-md border border-text-primary/40 bg-surface-active/40 p-4"
           >
-            <AlertCircle className="h-5 w-5 text-accent-electric shrink-0 mt-0.5" aria-hidden />
+            <AlertCircle className="h-5 w-5 text-text-primary shrink-0 mt-0.5" aria-hidden />
             <div className="text-[14.5px] leading-[1.65] text-text-primary">
-              <span className="font-semibold">這一步是真實性的關鍵。</span>把 AI 列的 5 個 workaround
-              拿去問主人翁：「這幾個你有用過嗎？哪個最像你的狀況？」然後
+              <span className="font-semibold">這一步是真實性的關鍵。</span>把 AI 列的 5 個
+              workaround 拿去問主人翁：「這幾個你有用過嗎？哪個最像你的狀況？」然後
               <span className="font-semibold">寫下他不滿意現有方法的具體理由（≥ 3 個）</span>。
               這一步可能要花幾天等主人翁回覆 — 頁面會自動儲存。
             </div>

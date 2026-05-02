@@ -45,7 +45,7 @@ export function ThemeToggle({ className, variant = "icon" }: Props) {
         onClick={cycle}
         aria-label={mounted ? nextLabelMap[choice] : "Toggle theme"}
         className={cn(
-          "group inline-flex h-9 items-center gap-2 rounded-md border border-border-hairline bg-canvas-raised/60 px-3 text-text-secondary transition-all hover:bg-surface-hover hover:border-border-default hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-electric focus-visible:ring-offset-2 focus-visible:ring-offset-canvas-base",
+          "group inline-flex h-9 items-center gap-2 rounded-md border border-border-hairline bg-canvas-raised/60 px-3 text-text-secondary transition-all hover:bg-surface-hover hover:border-border-default hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-text-primary focus-visible:ring-offset-2 focus-visible:ring-offset-canvas-base",
           className,
         )}
       >
@@ -66,7 +66,7 @@ export function ThemeToggle({ className, variant = "icon" }: Props) {
         mounted ? `${labelMap[choice]} · click to ${nextLabelMap[choice].toLowerCase()}` : "Theme"
       }
       className={cn(
-        "relative inline-flex h-9 w-9 items-center justify-center rounded-md border border-border-hairline bg-canvas-raised/60 text-text-secondary transition-all hover:bg-surface-hover hover:border-border-default hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-electric focus-visible:ring-offset-2 focus-visible:ring-offset-canvas-base",
+        "relative inline-flex h-9 w-9 items-center justify-center rounded-md border border-border-hairline bg-canvas-raised/60 text-text-secondary transition-all hover:bg-surface-hover hover:border-border-default hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-text-primary focus-visible:ring-offset-2 focus-visible:ring-offset-canvas-base",
         className,
       )}
     >
@@ -74,7 +74,7 @@ export function ThemeToggle({ className, variant = "icon" }: Props) {
       {choice === "system" && (
         <span
           aria-hidden
-          className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full bg-accent-electric shadow-[0_0_6px_var(--accent-glow-strong)]"
+          className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full bg-text-primary"
         />
       )}
     </button>

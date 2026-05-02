@@ -14,7 +14,7 @@ export function NextStepCta() {
 
   const wrapClass = cn(
     "relative isolate overflow-hidden max-w-4xl mx-auto rounded-lg p-8 sm:p-10 border bg-canvas-raised",
-    j === "true_pain" && "border-accent-electric/40 glow-accent-sm",
+    j === "true_pain" && "border-text-primary/40",
     j === "pending_interview" && "border-status-warning/30",
     j === "fake_pain" && "border-border-default",
     !j && "border-border-hairline",
@@ -31,16 +31,6 @@ export function NextStepCta() {
 
   return (
     <section className={wrapClass}>
-      {j === "true_pain" && (
-        <div
-          aria-hidden
-          className="absolute inset-0 -z-10 opacity-50"
-          style={{
-            background:
-              "radial-gradient(ellipse 600px 200px at 50% 0%, var(--accent-glow-mid), transparent 70%)",
-          }}
-        />
-      )}
       <Eyebrow variant="dotted">{eyebrowText}</Eyebrow>
       <h2 className="mt-4 font-display text-2xl font-semibold tracking-[-0.02em] text-text-primary mb-5">
         那麼，接下來呢？
@@ -53,7 +43,7 @@ export function NextStepCta() {
           卡 9 的真假判斷還沒寫，
           <Link
             to="/learn/worksheet/09"
-            className="text-accent-electric hover:text-accent-electric-hover underline underline-offset-2"
+            className="text-text-primary hover:text-text-primary underline underline-offset-2"
           >
             回去寫一下
           </Link>
@@ -73,7 +63,7 @@ function PrimaryButton({
   to?: string;
 }) {
   const cls =
-    "inline-flex h-11 items-center justify-center gap-2 rounded-md bg-accent-electric px-5 text-[14px] font-medium text-text-primary transition-all hover:bg-accent-electric-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-electric focus-visible:ring-offset-2 focus-visible:ring-offset-canvas-raised";
+    "inline-flex h-11 items-center justify-center gap-2 rounded-md bg-text-primary px-5 text-[14px] font-medium text-text-primary transition-all hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-text-primary focus-visible:ring-offset-2 focus-visible:ring-offset-canvas-raised";
   if (href)
     return (
       <a href={href} rel="noopener" className={cls}>
@@ -99,7 +89,7 @@ function GhostButton({
   onClick?: () => void;
 }) {
   const cls =
-    "inline-flex h-11 items-center justify-center gap-2 rounded-md border border-border-default bg-transparent px-5 text-[14px] font-medium text-text-primary transition-colors hover:bg-surface-hover hover:border-border-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-electric focus-visible:ring-offset-2 focus-visible:ring-offset-canvas-raised";
+    "inline-flex h-11 items-center justify-center gap-2 rounded-md border border-border-default bg-transparent px-5 text-[14px] font-medium text-text-primary transition-colors hover:bg-surface-hover hover:border-border-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-text-primary focus-visible:ring-offset-2 focus-visible:ring-offset-canvas-raised";
   if (to)
     return (
       <Link to={to as "/learn/worksheet/08"} className={cls}>
@@ -127,7 +117,7 @@ function TruePainVariant() {
       </div>
       <Link
         to="/learn/worksheet/01"
-        className="inline-block mt-4 font-mono text-[11px] uppercase tracking-[0.06em] text-text-tertiary hover:text-accent-electric transition-colors"
+        className="inline-block mt-4 font-mono text-[11px] uppercase tracking-[0.06em] text-text-tertiary hover:text-text-primary transition-colors"
       >
         ← 我想從頭再讀一次
       </Link>

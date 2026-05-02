@@ -49,10 +49,7 @@ export function ExpectationCalibrationSection() {
         <div className="grid md:grid-cols-2 gap-px bg-border-hairline border border-border-hairline rounded-lg overflow-hidden">
           {/* Will learn */}
           <div className="relative bg-canvas-base p-8 md:p-10">
-            <div
-              aria-hidden
-              className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-status-success to-transparent opacity-40"
-            />
+            <div aria-hidden className="absolute inset-x-0 top-0 h-px bg-border-hairline" />
             <Eyebrow className="mb-6 text-status-success">
               <Check className="h-3 w-3" /> Inside scope
             </Eyebrow>
@@ -62,7 +59,7 @@ export function ExpectationCalibrationSection() {
             <ul className="space-y-4">
               {WILL_LEARN.map((item) => (
                 <li key={item} className="flex items-start gap-3">
-                  <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-status-success-bg text-status-success">
+                  <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-status-success">
                     <Check className="h-3 w-3" strokeWidth={2.5} />
                   </span>
                   <span className="text-[15px] leading-[1.65] text-text-primary">{item}</span>

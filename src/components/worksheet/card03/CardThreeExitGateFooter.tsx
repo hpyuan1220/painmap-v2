@@ -34,7 +34,7 @@ export function CardThreeExitGateFooter({
       : undefined;
 
   return (
-    <div className="sticky bottom-0 left-0 right-0 z-20 border-t border-border bg-surface/95 backdrop-blur-sm">
+    <div className="sticky bottom-0 left-0 right-0 z-20 border-t border-border bg-surface">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 space-y-3">
         <h3 className="text-sm font-semibold text-text-primary">反思問題</h3>
         <ul className="flex flex-col gap-2">

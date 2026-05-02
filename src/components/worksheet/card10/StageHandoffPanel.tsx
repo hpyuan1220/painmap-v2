@@ -22,12 +22,12 @@ export function StageHandoffPanel() {
 
       <div className="mt-6 space-y-3">
         {/* Stage 1 — completed */}
-        <div className="rounded-md border border-status-success/30 bg-status-success-bg/30 p-5">
+        <div className="rounded-md border border-status-success/30 p-5">
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <h3 className="font-display text-base font-semibold tracking-[-0.01em] text-text-primary">
               階段一：判斷力訓練（這份）
             </h3>
-            <span className="inline-flex items-center gap-1.5 rounded-md border border-status-success/40 bg-status-success-bg px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.06em] text-status-success">
+            <span className="inline-flex items-center gap-1.5 rounded-md border border-status-success/40 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.06em] text-status-success">
               <CheckCircle2 className="h-3 w-3" />
               你已完成
             </span>
@@ -49,7 +49,7 @@ export function StageHandoffPanel() {
                   階段二：商業驗證（後續）
                 </h3>
                 {j === "true_pain" && (
-                  <span className="inline-flex items-center gap-1.5 rounded-md border border-status-warning/40 bg-status-warning-bg px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.06em] text-status-warning">
+                  <span className="inline-flex items-center gap-1.5 rounded-md border border-status-warning/40 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.06em] text-status-warning">
                     待開始
                   </span>
                 )}
@@ -77,7 +77,7 @@ export function StageHandoffPanel() {
         )}
 
         <aside className="text-[13px] text-text-secondary border border-border-hairline bg-canvas-base/40 rounded-md p-4 mt-3 leading-[1.65]">
-          <p className="font-mono text-[10px] uppercase tracking-[0.08em] text-accent-electric mb-1.5">
+          <p className="font-mono text-[10px] uppercase tracking-[0.08em] text-text-primary mb-1.5">
             Why two stages
           </p>
           為什麼分階段？因為「痛點是不是真的」和「能不能賺錢」是兩個不同問題。 階段一沒過 →

@@ -13,7 +13,7 @@ export function CompletionHeader() {
   const statusBadge = (() => {
     if (card.status === "structured" || j === "true_pain") {
       return (
-        <span className="inline-flex items-center gap-1.5 rounded-md border border-status-success/40 bg-status-success-bg px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.06em] text-status-success">
+        <span className="inline-flex items-center gap-1.5 rounded-md border border-status-success/40 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.06em] text-status-success">
           <CheckCircle2 className="h-3 w-3" />
           Verified pain
         </span>
@@ -21,7 +21,7 @@ export function CompletionHeader() {
     }
     if (j === "pending_interview") {
       return (
-        <span className="inline-flex items-center gap-1.5 rounded-md border border-status-warning/40 bg-status-warning-bg px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.06em] text-status-warning">
+        <span className="inline-flex items-center gap-1.5 rounded-md border border-status-warning/40 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.06em] text-status-warning">
           <Clock className="h-3 w-3" />
           Pending interview
         </span>
@@ -40,14 +40,6 @@ export function CompletionHeader() {
 
   return (
     <header className="relative isolate overflow-hidden rounded-lg border border-border-hairline bg-canvas-raised">
-      <div
-        aria-hidden
-        className="absolute inset-0 -z-10 opacity-50"
-        style={{
-          background:
-            "radial-gradient(ellipse 600px 300px at 50% 0%, var(--accent-glow-mid), transparent 70%)",
-        }}
-      />
       <div aria-hidden className="absolute inset-0 -z-10 bg-dot-dim opacity-40" />
 
       <div className="px-7 sm:px-12 py-10 sm:py-14 max-w-4xl mx-auto">
@@ -55,9 +47,7 @@ export function CompletionHeader() {
 
         <h1 className="mt-5 font-display text-3xl sm:text-4xl lg:text-5xl font-bold leading-[1.05] tracking-[-0.03em] text-text-primary">
           你寫完了 —<br />
-          <span className="bg-gradient-to-r from-text-primary via-accent-electric to-text-primary bg-clip-text text-transparent">
-            這是你的痛點身份證。
-          </span>
+          這是你的痛點身份證。
         </h1>
 
         <p className="mt-5 text-base sm:text-lg leading-[1.65] text-text-secondary max-w-2xl">

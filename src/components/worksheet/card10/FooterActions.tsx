@@ -174,7 +174,7 @@ function ActionButton({
       className={
         "group relative bg-canvas-raised p-4 text-left transition-colors flex flex-col gap-1.5 focus-visible:outline-none focus-visible:bg-surface-hover focus-visible:z-10 " +
         (destructive
-          ? "text-status-danger hover:bg-status-danger-bg/30"
+          ? "text-status-danger hover:bg-surface-hover"
           : "text-text-primary hover:bg-surface-hover")
       }
     >

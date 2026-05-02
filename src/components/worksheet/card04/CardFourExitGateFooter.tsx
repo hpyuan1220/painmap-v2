@@ -55,7 +55,7 @@ export function CardFourExitGateFooter({
   const showRetreat = forbiddenTriggered || (failureCount >= 3 && !canAdvance);
 
   return (
-    <div className="sticky bottom-0 left-0 right-0 z-20 border-t border-border-hairline bg-canvas-base/90 backdrop-blur-md">
+    <div className="sticky bottom-0 left-0 right-0 z-20 border-t border-border-hairline bg-canvas-base">
       <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 py-5 space-y-3">
         <h3 className="text-sm font-semibold text-text-primary">反思問題</h3>
         <ul className="flex flex-col gap-2">
@@ -92,7 +92,7 @@ export function CardFourExitGateFooter({
         {blockedMessage && !showRetreat && (
           <div
             role="alert"
-            className="flex items-start gap-2.5 rounded-md border border-status-warning/40 bg-status-warning-bg px-3.5 py-3 text-[13.5px] leading-[1.6] text-text-primary"
+            className="flex items-start gap-2.5 rounded-md border border-status-warning/40 px-3.5 py-3 text-[13.5px] leading-[1.6] text-text-primary"
           >
             <AlertTriangle className="h-4 w-4 text-status-warning shrink-0 mt-0.5" aria-hidden />
             <span>{blockedMessage}</span>
@@ -100,9 +100,9 @@ export function CardFourExitGateFooter({
         )}
 
         {showRetreat && (
-          <div className="rounded-md border border-accent-electric/40 bg-accent-electric-subtle/40 p-4">
+          <div className="rounded-md border border-text-primary/40 bg-surface-active/40 p-4">
             <div className="flex items-start gap-3">
-              <RotateCcw className="h-5 w-5 text-accent-electric shrink-0 mt-0.5" aria-hidden />
+              <RotateCcw className="h-5 w-5 text-text-primary shrink-0 mt-0.5" aria-hidden />
               <div className="min-w-0">
                 <h3 className="text-[15px] font-semibold tracking-[-0.01em] text-text-primary leading-[1.4]">
                   這個人可能還沒真正在意這個問題
@@ -114,7 +114,7 @@ export function CardFourExitGateFooter({
                 <button
                   type="button"
                   onClick={onRetreat}
-                  className="mt-3 inline-flex h-9 items-center gap-1.5 rounded-md border border-border-default bg-transparent px-3.5 text-[13px] font-medium text-text-primary hover:bg-surface-hover hover:border-border-strong transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-electric"
+                  className="mt-3 inline-flex h-9 items-center gap-1.5 rounded-md border border-border-default bg-transparent px-3.5 text-[13px] font-medium text-text-primary hover:bg-surface-hover hover:border-border-strong transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-text-primary"
                 >
                   回去把卡 1 想清楚再來，找另一個更痛的人
                 </button>
@@ -140,9 +140,9 @@ export function CardFourExitGateFooter({
               className={cn(
                 "inline-flex items-center justify-center gap-2 rounded-md h-11 px-6 text-[14px] font-medium",
                 "transition-all duration-200",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-electric focus-visible:ring-offset-2 focus-visible:ring-offset-canvas-base",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-text-primary focus-visible:ring-offset-2 focus-visible:ring-offset-canvas-base",
                 canAdvance
-                  ? "bg-accent-electric text-text-primary hover:bg-accent-electric-hover glow-accent-sm"
+                  ? "bg-text-primary text-text-primary hover:bg-surface-hover"
                   : "border border-border-hairline bg-surface-elevated text-text-tertiary cursor-not-allowed",
               )}
             >

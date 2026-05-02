@@ -25,7 +25,7 @@ export function HeroSection() {
   return (
     <section
       aria-labelledby="hero-headline"
-      className="relative isolate overflow-hidden bg-canvas-base bg-spotlight-top"
+      className="relative isolate overflow-hidden bg-canvas-base"
     >
       {/* Dot grid texture overlay */}
       <div aria-hidden className="absolute inset-0 bg-dot-dim opacity-50" />
@@ -45,9 +45,7 @@ export function HeroSection() {
               className="mt-6 font-display text-[44px] sm:text-6xl lg:text-[80px] xl:text-[96px] font-bold leading-[0.96] tracking-[-0.04em] text-text-primary animate-grok-fade-up"
               style={{ animationDelay: "120ms" }}
             >
-              <span className="bg-gradient-to-r from-text-primary via-accent-electric to-text-primary bg-clip-text text-transparent">
-                痛點 ID card
-              </span>
+              痛點 ID card
             </h1>
 
             <p
@@ -65,7 +63,7 @@ export function HeroSection() {
               <button
                 type="button"
                 onClick={handleStart}
-                className="group inline-flex h-12 items-center justify-center gap-2 rounded-md bg-text-primary px-6 text-[15px] font-medium text-text-inverse transition-all duration-200 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-electric focus-visible:ring-offset-2 focus-visible:ring-offset-canvas-base"
+                className="group inline-flex h-12 items-center justify-center gap-2 rounded-md bg-text-primary px-6 text-[15px] font-medium text-text-inverse transition-all duration-200 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-text-primary focus-visible:ring-offset-2 focus-visible:ring-offset-canvas-base"
               >
                 從第一張卡開始整理痛點
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
@@ -80,7 +78,7 @@ export function HeroSection() {
                   // 設定 hash 觸發 modal 自動開啟（Section 內 useEffect 監聽）
                   window.location.hash = "example-paincard-open";
                 }}
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-md border border-border-default bg-transparent px-6 text-[15px] font-medium text-text-primary transition-colors duration-200 hover:bg-surface-hover hover:border-border-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-electric focus-visible:ring-offset-2 focus-visible:ring-offset-canvas-base"
+                className="inline-flex h-12 items-center justify-center gap-2 rounded-md border border-border-default bg-transparent px-6 text-[15px] font-medium text-text-primary transition-colors duration-200 hover:bg-surface-hover hover:border-border-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-text-primary focus-visible:ring-offset-2 focus-visible:ring-offset-canvas-base"
               >
                 查看範例 ID card
               </a>

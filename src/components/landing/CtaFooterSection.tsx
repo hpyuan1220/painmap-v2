@@ -21,7 +21,7 @@ export function CtaFooterSection() {
       className="relative isolate overflow-hidden border-t border-border-hairline bg-canvas-sunken"
     >
       {/* Layered glow */}
-      <div aria-hidden className="absolute inset-0 bg-spotlight-dual opacity-80" />
+      <div aria-hidden className="absolute inset-0 opacity-80" />
       <div aria-hidden className="absolute inset-0 bg-dot-default opacity-30" />
 
       <div className="relative mx-auto max-w-3xl px-5 sm:px-8 lg:px-12 py-24 md:py-40 text-center">
@@ -35,9 +35,7 @@ export function CtaFooterSection() {
         >
           你不需要先懂什麼，
           <br />
-          <span className="bg-gradient-to-r from-text-primary via-accent-electric to-text-primary bg-clip-text text-transparent">
-            就可以開始。
-          </span>
+          就可以開始。
         </h2>
 
         <p className="mt-7 text-base sm:text-lg leading-[1.65] text-text-secondary max-w-xl mx-auto">
@@ -49,7 +47,7 @@ export function CtaFooterSection() {
           <button
             type="button"
             onClick={handleStart}
-            className="group relative inline-flex h-14 items-center justify-center gap-2 rounded-md bg-accent-electric px-8 text-base font-medium text-text-primary transition-all duration-200 hover:bg-accent-electric-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-electric focus-visible:ring-offset-2 focus-visible:ring-offset-canvas-base glow-accent-md"
+            className="group relative inline-flex h-14 items-center justify-center gap-2 rounded-md bg-text-primary px-8 text-base font-medium text-text-primary transition-all duration-200 hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-text-primary focus-visible:ring-offset-2 focus-visible:ring-offset-canvas-base"
           >
             從第一張卡開始
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />

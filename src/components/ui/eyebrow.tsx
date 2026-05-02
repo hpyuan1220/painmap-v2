@@ -39,10 +39,7 @@ export function Eyebrow({
       )}
     >
       {variant === "dotted" && (
-        <span
-          aria-hidden
-          className="h-1.5 w-1.5 rounded-full bg-accent-electric shadow-[0_0_8px_var(--accent-glow-strong)]"
-        />
+        <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-text-primary" />
       )}
       {variant === "numbered" && padded && <span className="text-text-secondary">{padded}</span>}
       <span className="whitespace-nowrap">{children}</span>

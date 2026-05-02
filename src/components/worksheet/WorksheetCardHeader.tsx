@@ -30,17 +30,17 @@ type Props = {
 const aiBadgeMap: Record<AiStatus, { label: string; cls: string; Icon: typeof ShieldOff }> = {
   disabled: {
     label: "AI 禁用",
-    cls: "border-status-warning/40 bg-status-warning-bg text-status-warning",
+    cls: "border-status-warning/40 text-status-warning",
     Icon: ShieldOff,
   },
   enabled: {
     label: "AI 可選用",
-    cls: "border-accent-electric/40 bg-accent-electric-subtle text-accent-electric",
+    cls: "border-text-primary/40 bg-surface-active text-text-primary",
     Icon: Sparkles,
   },
   required: {
     label: "AI 必須使用",
-    cls: "border-accent-electric/40 bg-accent-electric-subtle text-accent-electric",
+    cls: "border-text-primary/40 bg-surface-active text-text-primary",
     Icon: Sparkles,
   },
 };
@@ -80,8 +80,8 @@ export function WorksheetCardHeader({
       </h1>
 
       {rule && (
-        <div className="mt-7 flex items-start gap-3 rounded-md border border-accent-electric/30 bg-accent-electric-subtle/40 p-4">
-          <Info className="h-4 w-4 text-accent-electric shrink-0 mt-0.5" aria-hidden />
+        <div className="mt-7 flex items-start gap-3 rounded-md border border-text-primary/30 bg-surface-active/40 p-4">
+          <Info className="h-4 w-4 text-text-primary shrink-0 mt-0.5" aria-hidden />
           <div className="text-[14.5px] leading-[1.65] text-text-primary">{rule}</div>
         </div>
       )}

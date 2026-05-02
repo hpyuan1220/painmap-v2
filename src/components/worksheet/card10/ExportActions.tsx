@@ -126,10 +126,10 @@ export function ExportActions() {
 
       {/* 訪綱單獨匯出（卡 8 stage 3 完成才出現） */}
       {guideReady && (
-        <aside className="rounded-lg border border-status-success/30 bg-status-success-bg/30 p-5">
+        <aside className="rounded-lg border border-status-success/30 p-5">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div className="flex items-start gap-3 min-w-0">
-              <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-status-success-bg text-status-success">
+              <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-status-success">
                 <ClipboardList className="h-4 w-4" />
               </span>
               <div className="min-w-0">
@@ -161,7 +161,7 @@ export function ExportActions() {
       {/* 隱私聲明 — 強制顯示，不可關閉 */}
       <aside className="rounded-lg border border-border-hairline bg-canvas-raised p-5">
         <div className="flex items-center gap-2 mb-3">
-          <span className="inline-flex h-6 w-6 items-center justify-center rounded-md bg-status-success-bg text-status-success">
+          <span className="inline-flex h-6 w-6 items-center justify-center rounded-md text-status-success">
             <Lock className="h-3 w-3" />
           </span>
           <h3 className="font-display text-base font-semibold tracking-[-0.01em] text-text-primary">
@@ -215,7 +215,7 @@ function ExportTile({
       className="group relative flex flex-col items-start gap-3 bg-canvas-raised p-6 text-left transition-colors hover:bg-surface-hover disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:bg-surface-hover focus-visible:z-10"
     >
       <div className="flex w-full items-center justify-between">
-        <span className="inline-flex h-10 w-10 items-center justify-center rounded-md bg-accent-electric-subtle text-accent-electric ring-1 ring-accent-electric/20 transition-all group-hover:ring-accent-electric/40">
+        <span className="inline-flex h-10 w-10 items-center justify-center rounded-md bg-surface-active text-text-primary ring-1 ring-text-primary/20 transition-all group-hover:ring-text-primary/40">
           <Icon className={spin ? "h-5 w-5 animate-spin" : "h-5 w-5"} strokeWidth={1.5} />
         </span>
         <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-text-tertiary">
@@ -228,7 +228,7 @@ function ExportTile({
         </p>
         <p className="mt-1 text-[12.5px] text-text-tertiary leading-[1.55]">{subtitle}</p>
       </div>
-      <span className="mt-1 inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.08em] text-accent-electric opacity-0 group-hover:opacity-100 transition-opacity">
+      <span className="mt-1 inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.08em] text-text-primary opacity-0 group-hover:opacity-100 transition-opacity">
         <Download className="h-3 w-3" /> Download
       </span>
     </button>

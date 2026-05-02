@@ -143,7 +143,7 @@ export function VerdictAuditDialog() {
           type="button"
           disabled={!reasonReady}
           aria-label="請 AI 紅隊檢查我的判斷（參考用，不影響繼續）"
-          className="inline-flex h-9 items-center gap-1.5 rounded-md border border-border-default bg-transparent px-3 text-[12.5px] text-text-secondary hover:bg-surface-hover hover:border-border-strong hover:text-text-primary transition-colors disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-electric focus-visible:ring-offset-2 focus-visible:ring-offset-canvas-base"
+          className="inline-flex h-9 items-center gap-1.5 rounded-md border border-border-default bg-transparent px-3 text-[12.5px] text-text-secondary hover:bg-surface-hover hover:border-border-strong hover:text-text-primary transition-colors disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-text-primary focus-visible:ring-offset-2 focus-visible:ring-offset-canvas-base"
         >
           <ShieldAlert className="h-3.5 w-3.5" aria-hidden />
           <span>請 AI 紅隊檢查（參考用）</span>
@@ -178,7 +178,7 @@ export function VerdictAuditDialog() {
             <button
               type="button"
               onClick={runAudit}
-              className="w-full inline-flex h-10 items-center justify-center gap-2 rounded-md bg-accent-electric px-4 text-[13.5px] font-medium text-text-primary hover:bg-accent-electric-hover transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-electric focus-visible:ring-offset-2 focus-visible:ring-offset-canvas-overlay"
+              className="w-full inline-flex h-10 items-center justify-center gap-2 rounded-md bg-text-primary px-4 text-[13.5px] font-medium text-text-primary hover:bg-surface-hover transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-text-primary focus-visible:ring-offset-2 focus-visible:ring-offset-canvas-overlay"
             >
               開始檢查
             </button>
@@ -195,8 +195,8 @@ export function VerdictAuditDialog() {
             <div
               className={
                 state.verdict === "pass"
-                  ? "rounded-md border border-status-success/40 bg-status-success-bg/40 p-4"
-                  : "rounded-md border border-status-warning/40 bg-status-warning-bg/40 p-4"
+                  ? "rounded-md border border-status-success/40 p-4"
+                  : "rounded-md border border-status-warning/40 p-4"
               }
             >
               <div className="flex items-start gap-2">
@@ -216,9 +216,7 @@ export function VerdictAuditDialog() {
                     {state.verdict === "pass" ? "對齊良好" : "可再對齊一下"}
                     {state.source === "cache" && " · 引用上次結果"}
                   </p>
-                  <p className="text-[13.5px] leading-[1.65] text-text-primary">
-                    {state.reason}
-                  </p>
+                  <p className="text-[13.5px] leading-[1.65] text-text-primary">{state.reason}</p>
                 </div>
               </div>
             </div>

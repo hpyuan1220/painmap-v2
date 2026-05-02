@@ -97,32 +97,21 @@ function StageBlock({ badge, product, output, time, skills, active }: StageProps
     <article
       className={
         active
-          ? "relative rounded-lg border border-accent-electric/40 bg-canvas-raised p-7 md:p-8 overflow-hidden"
+          ? "relative rounded-lg border border-text-primary/40 bg-canvas-raised p-7 md:p-8 overflow-hidden"
           : "relative rounded-lg border border-border-hairline bg-canvas-raised/40 p-7 md:p-8"
       }
     >
-      {active && (
-        <div
-          aria-hidden
-          className="absolute inset-0 -z-10 opacity-40"
-          style={{
-            background:
-              "radial-gradient(ellipse 400px 200px at 50% 0%, var(--accent-glow-mid), transparent 70%)",
-          }}
-        />
-      )}
-
       <div
         className={
           active
-            ? "inline-flex items-center gap-2 rounded-md border border-accent-electric/40 bg-accent-electric-subtle px-2.5 py-1 mb-5"
+            ? "inline-flex items-center gap-2 rounded-md border border-text-primary/40 bg-surface-active px-2.5 py-1 mb-5"
             : "inline-flex items-center gap-2 rounded-md border border-border-hairline bg-surface-elevated px-2.5 py-1 mb-5"
         }
       >
         <span
           className={
             active
-              ? "h-1.5 w-1.5 rounded-full bg-accent-electric shadow-[0_0_8px_var(--accent-glow-strong)]"
+              ? "h-1.5 w-1.5 rounded-full bg-text-primary"
               : "h-1.5 w-1.5 rounded-full bg-text-tertiary"
           }
         />
@@ -145,7 +134,7 @@ function StageBlock({ badge, product, output, time, skills, active }: StageProps
         <ul className="space-y-2">
           {skills.map((s) => (
             <li key={s} className="flex gap-2.5 text-[13px] leading-[1.6] text-text-primary">
-              <span aria-hidden className="text-accent-electric shrink-0 mt-0.5">
+              <span aria-hidden className="text-text-primary shrink-0 mt-0.5">
                 →
               </span>
               <span>{s}</span>

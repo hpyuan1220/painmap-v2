@@ -42,7 +42,7 @@ export function InterviewGuidePreview({ content, card }: Props) {
   }
 
   return (
-    <section className="rounded-md border border-status-success/30 bg-status-success-bg/40 p-5">
+    <section className="rounded-md border border-status-success/30 p-5">
       <header className="flex flex-wrap items-center justify-between gap-3 mb-3">
         <div className="flex items-center gap-2 min-w-0">
           <FileText className="h-4 w-4 text-status-success shrink-0" aria-hidden />

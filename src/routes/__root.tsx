@@ -5,7 +5,7 @@ import appCss from "../styles.css?url";
 
 function NotFoundComponent() {
   return (
-    <div className="relative flex min-h-screen flex-col items-center justify-center bg-canvas-base px-4 bg-spotlight-center">
+    <div className="relative flex min-h-screen flex-col items-center justify-center bg-canvas-base px-4">
       <div className="relative max-w-md text-center">
         <p className="eyebrow mb-6">● ERROR / NOT_FOUND</p>
         <h1 className="font-mono text-7xl font-bold tracking-tight text-text-primary tabular-nums">
@@ -18,7 +18,7 @@ function NotFoundComponent() {
         <div className="mt-10 flex justify-center gap-3">
           <Link
             to="/"
-            className="inline-flex h-10 items-center justify-center rounded-md bg-text-primary px-5 text-sm font-medium text-text-inverse transition-colors hover:bg-text-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-electric/40"
+            className="inline-flex h-10 items-center justify-center rounded-md bg-text-primary px-5 text-sm font-medium text-text-inverse transition-colors hover:bg-text-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-text-primary/40"
           >
             回首頁
           </Link>

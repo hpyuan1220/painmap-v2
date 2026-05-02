@@ -76,7 +76,7 @@ export function ThreeStepTeachingSection() {
             >
               {/* Icon + step marker */}
               <div className="flex items-start justify-between mb-8">
-                <span className="inline-flex h-12 w-12 items-center justify-center rounded-md bg-accent-electric-subtle text-accent-electric ring-1 ring-accent-electric/20">
+                <span className="inline-flex h-12 w-12 items-center justify-center rounded-md bg-surface-active text-text-primary ring-1 ring-text-primary/20">
                   <Icon className="h-6 w-6" strokeWidth={1.5} />
                 </span>
                 <span className="font-mono text-xs uppercase tracking-[0.08em] text-text-tertiary">

@@ -30,18 +30,14 @@ function fieldClasses(opts: { warning?: boolean; error?: boolean; highlight?: bo
     "w-full rounded-md border bg-canvas-raised px-3.5 text-[15px] leading-[1.55] text-text-primary",
     "placeholder:text-text-tertiary",
     "transition-all duration-200",
-    "focus:outline-none focus:border-accent-electric focus:shadow-[0_0_0_2px_var(--accent-glow-mid)]",
+    "focus:outline-none focus:border-text-primary focus:outline focus:outline-2 focus:outline-text-primary focus:outline-offset-1",
     !opts.warning &&
       !opts.error &&
       !opts.highlight &&
       "border-border-default hover:border-border-strong",
-    opts.highlight &&
-      !opts.error &&
-      !opts.warning &&
-      "border-accent-electric shadow-[0_0_0_2px_var(--accent-glow-soft)]",
+    opts.highlight && !opts.error && !opts.warning && "border-text-primary",
     opts.warning && !opts.error && "border-status-warning",
-    opts.error &&
-      "border-status-danger shadow-[0_0_0_2px_color-mix(in_oklch,var(--status-danger)_30%,transparent)]",
+    opts.error && "border-status-danger",
   );
 }
 
@@ -53,7 +49,7 @@ function FieldLabel({ id, label, required }: { id: string; label: string; requir
     >
       {label}
       {required && (
-        <span aria-hidden className="text-accent-electric ml-1">
+        <span aria-hidden className="text-text-primary ml-1">
           *
         </span>
       )}

@@ -88,7 +88,7 @@ export function StartOrResumeSection() {
   return (
     <SectionFade
       ariaLabelledBy="start-resume-title"
-      className="relative border-t border-border-hairline bg-canvas-base bg-spotlight-center"
+      className="relative border-t border-border-hairline bg-canvas-base"
     >
       <div className="mx-auto max-w-5xl px-5 sm:px-8 lg:px-12 py-20 md:py-32">
         <div className="text-center mb-12">
@@ -112,15 +112,7 @@ export function StartOrResumeSection() {
           )}
         >
           {/* Start card — primary highlight */}
-          <article className="group relative rounded-lg border border-accent-electric/40 bg-canvas-raised p-7 md:p-8 flex flex-col overflow-hidden transition-all duration-300 hover:border-accent-electric hover:glow-accent-sm">
-            <div
-              aria-hidden
-              className="absolute inset-0 -z-10 opacity-50"
-              style={{
-                background:
-                  "radial-gradient(ellipse 300px 200px at 100% 0%, var(--accent-glow-mid), transparent 70%)",
-              }}
-            />
+          <article className="group relative rounded-lg border border-text-primary/40 bg-canvas-raised p-7 md:p-8 flex flex-col overflow-hidden transition-colors duration-200 hover:border-text-primary">
             <Eyebrow variant="dotted" className="mb-4">
               New session
             </Eyebrow>
@@ -137,7 +129,7 @@ export function StartOrResumeSection() {
             <button
               type="button"
               onClick={handleStart}
-              className="mt-6 inline-flex h-11 items-center justify-center gap-2 rounded-md bg-accent-electric px-5 text-[14px] font-medium text-text-primary transition-all duration-200 hover:bg-accent-electric-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-electric focus-visible:ring-offset-2 focus-visible:ring-offset-canvas-base"
+              className="mt-6 inline-flex h-11 items-center justify-center gap-2 rounded-md bg-text-primary px-5 text-[14px] font-medium text-text-primary transition-all duration-200 hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-text-primary focus-visible:ring-offset-2 focus-visible:ring-offset-canvas-base"
             >
               開始第一張卡
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
@@ -165,7 +157,7 @@ export function StartOrResumeSection() {
                 <button
                   type="button"
                   onClick={handleResume}
-                  className="flex-1 inline-flex h-11 items-center justify-center gap-2 rounded-md bg-text-primary px-5 text-[14px] font-medium text-text-inverse transition-colors duration-200 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-electric focus-visible:ring-offset-2 focus-visible:ring-offset-canvas-base"
+                  className="flex-1 inline-flex h-11 items-center justify-center gap-2 rounded-md bg-text-primary px-5 text-[14px] font-medium text-text-inverse transition-colors duration-200 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-text-primary focus-visible:ring-offset-2 focus-visible:ring-offset-canvas-base"
                 >
                   從這裡接著寫
                   <ArrowRight className="h-4 w-4" />
@@ -175,7 +167,7 @@ export function StartOrResumeSection() {
                   <AlertDialogTrigger asChild>
                     <button
                       type="button"
-                      className="inline-flex h-11 items-center justify-center gap-1.5 rounded-md border border-border-default bg-transparent px-4 text-[13px] text-text-tertiary hover:text-text-primary hover:border-border-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-electric focus-visible:ring-offset-2 focus-visible:ring-offset-canvas-base transition-colors"
+                      className="inline-flex h-11 items-center justify-center gap-1.5 rounded-md border border-border-default bg-transparent px-4 text-[13px] text-text-tertiary hover:text-text-primary hover:border-border-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-text-primary focus-visible:ring-offset-2 focus-visible:ring-offset-canvas-base transition-colors"
                     >
                       <RotateCcw className="h-3.5 w-3.5" />
                       捨棄重來

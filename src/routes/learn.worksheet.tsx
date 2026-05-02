@@ -12,15 +12,6 @@ export const Route = createFileRoute("/learn/worksheet")({
 function WorksheetLayout() {
   return (
     <div className="relative min-h-screen flex flex-col bg-canvas-base text-text-primary">
-      {/* Subtle ambient glow */}
-      <div
-        aria-hidden
-        className="pointer-events-none fixed inset-0 z-0 opacity-50"
-        style={{
-          background:
-            "radial-gradient(ellipse 600px 400px at 0% 0%, var(--accent-glow-soft), transparent 60%)",
-        }}
-      />
       <div className="relative z-10 flex flex-col flex-1">
         <Header />
         <CardProgressStepper />
@@ -50,7 +41,7 @@ function Header() {
   }, [updatedAt]);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border-hairline bg-canvas-base/80 backdrop-blur-md">
+    <header className="sticky top-0 z-40 border-b border-border-hairline bg-canvas-base">
       <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 h-16 flex items-center justify-between">
         <Link
           to="/"
@@ -58,7 +49,7 @@ function Header() {
         >
           <span
             aria-hidden
-            className="inline-flex h-6 w-6 items-center justify-center rounded-md bg-accent-electric text-text-primary text-[10px] font-bold glow-accent-sm"
+            className="inline-flex h-6 w-6 items-center justify-center rounded-md bg-text-primary text-text-primary text-[10px] font-bold"
           >
             ◆
           </span>

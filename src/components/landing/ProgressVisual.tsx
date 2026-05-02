@@ -33,7 +33,7 @@ export function ProgressVisual() {
         >
           <span
             aria-hidden
-            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-accent-electric-subtle text-accent-electric ring-1 ring-accent-electric/20 transition-all group-hover:ring-accent-electric/40"
+            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-surface-active text-text-primary ring-1 ring-text-primary/20 transition-all group-hover:ring-text-primary/40"
           >
             <Icon className="h-5 w-5" strokeWidth={1.5} />
           </span>

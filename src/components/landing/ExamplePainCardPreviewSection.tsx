@@ -161,22 +161,14 @@ export function ExamplePainCardPreviewSection() {
               <DialogTrigger asChild>
                 <button
                   type="button"
-                  className="group relative w-full text-left rounded-lg border border-border-hairline bg-canvas-raised p-8 md:p-10 transition-all duration-300 hover:border-border-default hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-electric focus-visible:ring-offset-2 focus-visible:ring-offset-canvas-base"
+                  className="group relative w-full text-left rounded-lg border border-border-hairline bg-canvas-raised p-8 md:p-10 transition-all duration-300 hover:border-border-default hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-text-primary focus-visible:ring-offset-2 focus-visible:ring-offset-canvas-base"
                 >
-                  <div
-                    aria-hidden
-                    className="absolute -inset-px rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                    style={{
-                      background:
-                        "radial-gradient(ellipse 400px 200px at 0% 0%, var(--accent-glow-soft), transparent 60%)",
-                    }}
-                  />
-
                   <div className="relative flex items-center justify-between mb-7">
                     <Eyebrow variant="numbered" index={9}>
                       Pain ID · LIN-2026-03-15
                     </Eyebrow>
-                    <span className="inline-flex items-center gap-1.5 rounded-md border border-status-success/40 bg-status-success-bg px-2.5 py-1 text-[11px] font-mono uppercase tracking-[0.06em] text-status-success">
+                    {/* VerifiedTag — 不顯示分數 */}
+                    <span className="inline-flex items-center gap-1.5 rounded-md border border-status-success/40 px-2.5 py-1 text-[11px] font-mono uppercase tracking-[0.06em] text-status-success">
                       <CheckCircle2 className="h-3 w-3" />
                       Verified Pain
                     </span>
@@ -202,7 +194,7 @@ export function ExamplePainCardPreviewSection() {
 
                   <div className="relative mt-8 pt-6 border-t border-border-subtle flex items-center justify-between">
                     <span className="text-[12px] text-text-tertiary">點擊查看完整 9 張卡與欄位對應</span>
-                    <span className="inline-flex items-center gap-1.5 text-[12px] font-medium text-accent-electric group-hover:text-accent-electric-hover">
+                    <span className="inline-flex items-center gap-1.5 text-[12px] font-medium text-text-primary group-hover:text-text-primary">
                       Open
                       <ExternalLink className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
                     </span>
@@ -238,21 +230,21 @@ export function ExamplePainCardPreviewSection() {
                               className={cn(
                                 "w-full text-left rounded-md px-3 py-2.5 text-[13px] transition-colors flex items-center gap-2.5 group",
                                 isActive
-                                  ? "bg-canvas-raised border border-accent-electric/40 text-text-primary"
+                                  ? "bg-canvas-raised border border-text-primary/40 text-text-primary"
                                   : "border border-transparent text-text-secondary hover:bg-surface-hover hover:text-text-primary",
                               )}
                             >
                               <span
                                 className={cn(
                                   "font-mono text-[10px] uppercase tracking-[0.08em] shrink-0",
-                                  isActive ? "text-accent-electric" : "text-text-tertiary",
+                                  isActive ? "text-text-primary" : "text-text-tertiary",
                                 )}
                               >
                                 {String(c.step).padStart(2, "0")}
                               </span>
                               <span className="flex-1 truncate font-medium">{c.title}</span>
                               {isActive && (
-                                <ChevronRight className="h-3.5 w-3.5 text-accent-electric shrink-0" />
+                                <ChevronRight className="h-3.5 w-3.5 text-text-primary shrink-0" />
                               )}
                             </button>
                           </li>
@@ -268,7 +260,7 @@ export function ExamplePainCardPreviewSection() {
                         Card {String(active.step).padStart(2, "0")} / 09
                       </span>
                       <span className="h-1 w-1 rounded-full bg-border-default" />
-                      <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-accent-electric">
+                      <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-text-primary">
                         {active.field}
                       </span>
                     </div>
@@ -342,7 +334,7 @@ export function ExamplePainCardPreviewSection() {
 
 function Explainer({ eyebrow, title, body }: { eyebrow: string; title: string; body: string }) {
   return (
-    <div className="border-l-2 border-border-hairline pl-5 hover:border-accent-electric transition-colors duration-300">
+    <div className="border-l-2 border-border-hairline pl-5 hover:border-text-primary transition-colors duration-300">
       <Eyebrow className="mb-2">{eyebrow}</Eyebrow>
       <h3 className="text-base font-semibold text-text-primary mb-1.5">{title}</h3>
       <p className="text-[14px] leading-[1.7] text-text-secondary">{body}</p>

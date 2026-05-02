@@ -1,10 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  ReflectionHint,
-  type ReflectionHintState,
-} from "@/components/worksheet/ReflectionHint";
+import { ReflectionHint, type ReflectionHintState } from "@/components/worksheet/ReflectionHint";
 import { usePersistedToggle } from "@/hooks/usePersistedToggle";
 import type { Judgment } from "@/types/painCard";
 
@@ -131,8 +128,7 @@ export function CardNineExitGateFooter({
   }, [expanded]);
 
   function handleToggleClick(e: React.MouseEvent | React.KeyboardEvent) {
-    const isKeyboard =
-      "detail" in e && (e as React.MouseEvent).detail === 0;
+    const isKeyboard = "detail" in e && (e as React.MouseEvent).detail === 0;
     if (isKeyboard && !expanded) keyboardOpenRef.current = true;
     setExpanded((v) => !v);
   }
@@ -186,7 +182,7 @@ export function CardNineExitGateFooter({
   }, [judgmentChosen, reasonPassed, nextActionChosen]);
 
   return (
-    <div className="sticky bottom-0 left-0 right-0 z-10 border-t border-border bg-surface/95 backdrop-blur-sm shadow-[0_-4px_12px_-6px_rgba(0,0,0,0.08)]">
+    <div className="sticky bottom-0 left-0 right-0 z-10 border-t border-border bg-surface shadow-[0_-4px_12px_-6px_rgba(0,0,0,0.08)]">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 py-2.5 sm:py-3 space-y-2 sm:space-y-2.5">
         {/* 摺疊 header */}
         <div ref={headerRef} className="flex items-center gap-2">
@@ -214,9 +210,7 @@ export function CardNineExitGateFooter({
             <span className="shrink-0 text-text-muted" aria-hidden>
               {expanded ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
             </span>
-            <span className="sr-only">
-              {expanded ? "收合反思問題(Esc)" : "展開反思問題"}
-            </span>
+            <span className="sr-only">{expanded ? "收合反思問題(Esc)" : "展開反思問題"}</span>
           </button>
           {!allDone && (
             <button

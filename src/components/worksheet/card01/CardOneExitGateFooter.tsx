@@ -36,7 +36,7 @@ export function CardOneExitGateFooter({
         : undefined;
 
   return (
-    <div className="sticky bottom-0 left-0 right-0 z-20 border-t border-border-hairline bg-canvas-base/90 backdrop-blur-md">
+    <div className="sticky bottom-0 left-0 right-0 z-20 border-t border-border-hairline bg-canvas-base">
       <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 py-5 space-y-3">
         <h3 className="text-sm font-semibold text-text-primary">反思問題</h3>
         {/* Reflection hints (Socratic, not pass/fail) */}
@@ -60,7 +60,7 @@ export function CardOneExitGateFooter({
         {blockedMessage && (
           <div
             role="alert"
-            className="flex items-start gap-2.5 rounded-md border border-status-warning/40 bg-status-warning-bg px-3.5 py-3 text-[13.5px] leading-[1.6] text-text-primary"
+            className="flex items-start gap-2.5 rounded-md border border-status-warning/40 px-3.5 py-3 text-[13.5px] leading-[1.6] text-text-primary"
           >
             <AlertTriangle className="h-4 w-4 text-status-warning shrink-0 mt-0.5" aria-hidden />
             <span>{blockedMessage}</span>
@@ -84,9 +84,9 @@ export function CardOneExitGateFooter({
               className={cn(
                 "inline-flex items-center justify-center gap-2 rounded-md h-11 px-6 text-[14px] font-medium",
                 "transition-all duration-200",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-electric focus-visible:ring-offset-2 focus-visible:ring-offset-canvas-base",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-text-primary focus-visible:ring-offset-2 focus-visible:ring-offset-canvas-base",
                 canAdvance
-                  ? "bg-accent-electric text-text-primary hover:bg-accent-electric-hover glow-accent-sm"
+                  ? "bg-text-primary text-text-primary hover:bg-surface-hover"
                   : "border border-border-hairline bg-surface-elevated text-text-tertiary cursor-not-allowed",
               )}
             >

@@ -121,11 +121,11 @@ function ExampleChip({ example }: { example: ReflectionExample }) {
       title={example.text}
       className={cn(
         "group inline-flex max-w-full items-center gap-1.5 rounded-md border px-2 py-1 text-left transition-colors",
-        "border-border-default bg-canvas-raised hover:border-accent-electric/50 hover:bg-surface-hover",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-electric/40",
+        "border-border-default bg-canvas-raised hover:border-text-primary/50 hover:bg-surface-hover",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-text-primary/40",
       )}
     >
-      <span className="font-mono text-[10px] uppercase tracking-[0.06em] text-accent-electric shrink-0">
+      <span className="font-mono text-[10px] uppercase tracking-[0.06em] text-text-primary shrink-0">
         {example.label}
       </span>
       <span className="truncate text-[11.5px] text-text-secondary group-hover:text-text-primary">

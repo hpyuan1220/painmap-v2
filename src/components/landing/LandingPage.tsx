@@ -15,10 +15,7 @@ export function LandingPage() {
   return (
     <main className="relative min-h-screen bg-canvas-base text-text-primary overflow-hidden">
       {/* Ambient page glow — anchored to top-left & bottom-right */}
-      <div
-        aria-hidden
-        className="pointer-events-none fixed inset-0 z-0 opacity-60 bg-spotlight-dual"
-      />
+      <div aria-hidden className="pointer-events-none fixed inset-0 z-0 opacity-60" />
 
       {/* Floating theme toggle (top-right) */}
       <div className="fixed top-5 right-5 z-50">

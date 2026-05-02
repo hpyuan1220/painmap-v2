@@ -21,7 +21,6 @@ const CONTACT_EXAMPLES: ReflectionExample[] = [
   { label: "場合", text: "下週三晚上補習班接小孩時間,直接問 2-3 位家長" },
 ];
 
-
 type Props = {
   hasContact: boolean;
   questionsAllFilled: boolean;
@@ -53,7 +52,12 @@ export function CardEightExitGateFooter({
   const allPassed = hasContact && questionsAllFilled && taboosUnderstood;
 
   // 4 個反思問題裡有幾個還沒過 → 用在 collapsed summary
-  const reflections = [hasContact && questionsAllFilled, questionsAllFilled, taboosUnderstood, hasContact];
+  const reflections = [
+    hasContact && questionsAllFilled,
+    questionsAllFilled,
+    taboosUnderstood,
+    hasContact,
+  ];
   const remaining = reflections.filter((p) => !p).length;
 
   // 預設摺疊,避免反思內容遮擋主畫面;有 blockedMessage 時自動展開;狀態持久化
@@ -76,8 +80,7 @@ export function CardEightExitGateFooter({
 
   function handleToggleClick(e: React.MouseEvent | React.KeyboardEvent) {
     // detail === 0 表示鍵盤觸發(Enter/Space) → 標記讓焦點進 panel
-    const isKeyboard =
-      "detail" in e && (e as React.MouseEvent).detail === 0;
+    const isKeyboard = "detail" in e && (e as React.MouseEvent).detail === 0;
     if (isKeyboard && !expanded) keyboardOpenRef.current = true;
     setExpanded((v) => !v);
   }
@@ -140,7 +143,7 @@ export function CardEightExitGateFooter({
   }, [hasContact, questionsAllFilled, taboosUnderstood]);
 
   return (
-    <div className="sticky bottom-0 left-0 right-0 z-10 border-t border-border bg-surface/95 backdrop-blur-sm shadow-[0_-4px_12px_-6px_rgba(0,0,0,0.08)]">
+    <div className="sticky bottom-0 left-0 right-0 z-10 border-t border-border bg-surface shadow-[0_-4px_12px_-6px_rgba(0,0,0,0.08)]">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 py-3 space-y-2.5">
         {/* 摺疊 header — 永遠顯示,壓縮高度 */}
         <div className="flex items-center gap-2">
@@ -168,9 +171,7 @@ export function CardEightExitGateFooter({
             <span className="shrink-0 text-text-muted" aria-hidden>
               {expanded ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
             </span>
-            <span className="sr-only">
-              {expanded ? "收合反思問題(Esc)" : "展開反思問題"}
-            </span>
+            <span className="sr-only">{expanded ? "收合反思問題(Esc)" : "展開反思問題"}</span>
           </button>
           {!allPassed && (
             <button

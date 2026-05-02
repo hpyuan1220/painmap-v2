@@ -33,27 +33,31 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * PainMap Design System v2.0 — Grok-inspired Dark-First
+ * PainMap Design System v3.0 — Grok v1.2 Pure Monochrome
  *
- * Design philosophy:
- * - Pure black canvas with grayscale elevation (no shadows in dark mode)
- * - Electric blue accent (#5B8DEF) replaces warm amber for primary action
- * - Hairline borders (1px) and tight radii (max 8px)
- * - Glow effects replace box-shadows for elevation
- * - Geist typography with monospace eyebrow markers
+ * Calibrated to x.ai's actual extreme monochrome aesthetic. Purged from v2.0:
+ * - All neon accents (electric blue #5B8DEF, violet, cyan, amber)
+ * - All glow utilities and box-shadow halos
+ * - All gradient utilities (spotlight, aurora)
+ * - All colored status backgrounds
+ * - 8-color rainbow data viz palette
+ *
+ * v1.2 Discipline:
+ * - Pure black canvas + white text + 8-step grayscale only
+ * - Only accent = pure white (#FAFAFA), one element max per viewport
+ * - Hairline 1px borders for all subdivision
+ * - Status conveyed via icon + text only, never colored backgrounds
+ * - Data viz uses 8-step grayscale + line weight/style/markers for differentiation
+ * - Focus = pure outline, never glow
+ * - Hover = bg/border swap only, never translate/scale
  *
  * Token usage:
- * - canvas.* → page-level surfaces (bg-page, bg-surface-raised, bg-surface-overlay)
- * - surface.* → cards & blocks (bg-surface, bg-surface-hover, bg-surface-active)
- * - border.* → 1px hairlines (border-hairline default)
- * - text.* → text scale (text-text-primary, text-text-secondary, text-text-tertiary)
- * - accent.* → electric blue (bg-accent, text-accent)
- * - status.* → semantic (success/warning/danger/info)
- *
- * Backward-compat aliases preserved for existing components:
- * - bg-page = canvas.base, bg-surface = canvas.raised, bg-muted-bg = canvas.sunken
- * - text-primary = neutral text (was indigo, now electric)
- * - border = hairline
+ * - canvas.* → page-level surfaces
+ * - surface.* → cards & blocks
+ * - border.* → 1px hairlines
+ * - text.* → text scale (text-primary white = also accent)
+ * - status.* → icon-only desaturated (warning #C0A050, danger #D06060)
+ * - viz.* → 8-step grayscale (use line weight to differentiate series)
  */
 
 @theme inline {
@@ -72,6 +76,7 @@
   --spacing-section-md: 6rem;     /* 96px */
   --spacing-section-lg: 8rem;     /* 128px */
   --spacing-section-xl: 10rem;    /* 160px */
+  --spacing-section-2xl: 12rem;   /* 192px — variant A hero */
 
   /* ───── Color: Background / Foreground (shadcn compat) ───── */
   --color-background: var(--background);
@@ -99,26 +104,26 @@
   --color-popover: var(--canvas-overlay);
   --color-popover-foreground: var(--text-primary);
 
-  /* Primary = neutral text (Grok primary button = white on black) */
+  /* Primary = white (Grok primary button = white on black) */
   --color-primary: var(--text-primary);
   --color-primary-foreground: var(--canvas-base);
   --color-primary-light: var(--surface-elevated);
 
-  /* Secondary = electric subtle (was teal, now muted electric) */
-  --color-secondary: var(--accent-electric-subtle);
+  /* Secondary = neutral surface */
+  --color-secondary: var(--surface-active);
   --color-secondary-foreground: var(--text-primary);
 
-  /* Accent = Grok electric blue (was warm amber) */
-  --color-accent: var(--accent-electric);
-  --color-accent-foreground: var(--text-primary);
-  --color-accent-light: var(--accent-electric-subtle);
+  /* Accent = white (v1.2:唯一強調色 = 純白) */
+  --color-accent: var(--text-primary);
+  --color-accent-foreground: var(--canvas-base);
+  --color-accent-light: var(--surface-elevated);
 
-  /* Verified = status success */
-  --color-verified: var(--status-success);
+  /* Verified = white check (icon-only, no bg fill) */
+  --color-verified: var(--text-primary);
   --color-verified-foreground: var(--canvas-base);
-  --color-verified-light: var(--status-success-bg);
+  --color-verified-light: var(--surface);
 
-  /* Caution = status warning */
+  /* Caution = desaturated amber (icon-only, no bg fill) */
   --color-caution: var(--status-warning);
   --color-caution-foreground: var(--canvas-base);
 
@@ -133,15 +138,11 @@
   --color-text-disabled: var(--text-disabled);
   --color-text-inverse: var(--text-inverse);
 
-  /* ───── Color: Status semantic ───── */
+  /* ───── Color: Status semantic (icon-only, v1.2 §2.6) ───── */
   --color-status-info: var(--status-info);
-  --color-status-info-bg: var(--status-info-bg);
   --color-status-success: var(--status-success);
-  --color-status-success-bg: var(--status-success-bg);
   --color-status-warning: var(--status-warning);
-  --color-status-warning-bg: var(--status-warning-bg);
   --color-status-danger: var(--status-danger);
-  --color-status-danger-bg: var(--status-danger-bg);
 
   --color-destructive: var(--status-danger);
   --color-destructive-foreground: var(--text-primary);
@@ -153,18 +154,13 @@
   --color-border-default: var(--border-default);
   --color-border-strong: var(--border-strong);
   --color-border-focus: var(--border-focus);
-  --color-border-accent: var(--accent-electric);
+  --color-border-accent: var(--text-primary);      /* v1.2: accent border = white */
 
   --color-input: var(--border-default);
-  --color-ring: var(--accent-electric);
+  --color-ring: var(--text-primary);                /* v1.2: focus ring = white */
   --color-ring-offset-background: var(--canvas-base);
 
-  /* ───── Color: Accent electric variants ───── */
-  --color-accent-electric: var(--accent-electric);
-  --color-accent-electric-hover: var(--accent-electric-hover);
-  --color-accent-electric-subtle: var(--accent-electric-subtle);
-
-  /* ───── Color: Data viz palette ───── */
+  /* ───── Color: Data viz palette (v1.2 §2.7: 8-step grayscale only) ───── */
   --color-chart-1: var(--viz-1);
   --color-chart-2: var(--viz-2);
   --color-chart-3: var(--viz-3);
@@ -182,34 +178,36 @@
   /* ───── Color: Sidebar (shadcn) ───── */
   --color-sidebar: var(--canvas-raised);
   --color-sidebar-foreground: var(--text-primary);
-  --color-sidebar-primary: var(--accent-electric);
-  --color-sidebar-primary-foreground: var(--text-primary);
+  --color-sidebar-primary: var(--text-primary);
+  --color-sidebar-primary-foreground: var(--canvas-base);
   --color-sidebar-accent: var(--surface-hover);
   --color-sidebar-accent-foreground: var(--text-primary);
   --color-sidebar-border: var(--border-hairline);
-  --color-sidebar-ring: var(--accent-electric);
+  --color-sidebar-ring: var(--text-primary);
 
   /* ───── Typography ───── */
   --font-sans: "Geist", "Inter", "Noto Sans TC", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-mono: "Geist Mono", "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
   --font-display: "Geist", "Inter Display", -apple-system, sans-serif;
 
-  /* ───── Shadow (light-mode fallback only — dark mode uses glow) ───── */
+  /* ───── Shadow (light-mode only — dark mode has no shadows per v1.2) ───── */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06);
   --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.08);
 
-  /* ───── Glow (uses --accent-glow-* tokens, light/dark adaptive) ───── */
-  --shadow-glow-focus: 0 0 0 2px var(--accent-glow-strong);
-  --shadow-glow-sm: 0 0 16px var(--accent-glow-strong);
-  --shadow-glow-md: 0 0 32px var(--accent-glow-mid);
-  --shadow-glow-lg: 0 0 80px var(--accent-glow-soft);
-
-  /* ───── Animation ───── */
+  /* ───── Animation easings (v1.2 §9.2) ───── */
   --ease-standard: cubic-bezier(0.2, 0, 0.13, 1);
   --ease-out-grok: cubic-bezier(0, 0, 0.2, 1);
   --ease-in-grok: cubic-bezier(0.4, 0, 1, 1);
   --ease-snappy: cubic-bezier(0.5, 0, 0, 1);
+  --ease-linear: cubic-bezier(0, 0, 1, 1);
+
+  /* ───── Animation durations (v1.2 §9.1) ───── */
+  --duration-instant: 50ms;
+  --duration-fast: 120ms;
+  --duration-default: 180ms;
+  --duration-slow: 280ms;
+  --duration-crawl: 480ms;
 }
 
 /* ───────────────────────────────────────────────
@@ -217,7 +215,7 @@
  * Painmap is dark-first as of v2.0
  * ─────────────────────────────────────────────── */
 :root {
-  --radius: 0.5rem;     /* 8px default (was 0.625rem = 10px) */
+  --radius: 0.5rem;     /* 8px default */
 
   /* Canvas (灰階抬升) */
   --canvas-base: #000000;
@@ -242,51 +240,35 @@
   --border-strong: #3F3F3F;
   --border-focus: #FAFAFA;
 
-  /* Text */
+  /* Text (v1.2: text-primary = also accent) */
   --text-primary: #FAFAFA;
   --text-secondary: #A1A1AA;
   --text-tertiary: #71717A;
   --text-disabled: #52525B;
   --text-inverse: #0A0A0A;
 
-  /* Accent — electric blue */
-  --accent-electric: #5B8DEF;
-  --accent-electric-hover: #7BA5F5;
-  --accent-electric-active: #4070D0;
-  --accent-electric-subtle: #1A2540;
-  --accent-electric-glow: rgba(91, 141, 239, 0.35);
+  /* Status — desaturated, icon-only (v1.2 §2.6) */
+  --status-info: #FAFAFA;        /* white — info uses neutral */
+  --status-success: #FAFAFA;     /* white — success uses ✓ icon in primary */
+  --status-warning: #C0A050;     /* desaturated amber, ICON ONLY */
+  --status-danger: #D06060;      /* desaturated red, ICON ONLY */
 
-  /* Status semantic colors (dark mode) */
-  --status-info: #5B8DEF;
-  --status-info-bg: #1A2540;
-  --status-success: #4ADE80;
-  --status-success-bg: #0F2A1B;
-  --status-warning: #FBBF24;
-  --status-warning-bg: #2A1F0A;
-  --status-danger: #F87171;
-  --status-danger-bg: #2A0F0F;
-
-  /* Data viz */
-  --viz-1: #5B8DEF;
-  --viz-2: #8B5CF6;
-  --viz-3: #22D3EE;
-  --viz-4: #4ADE80;
-  --viz-5: #FBBF24;
-  --viz-6: #F87171;
-  --viz-7: #E879F9;
-  --viz-8: #94A3B8;
-
-  /* ───── Texture tokens (utility-aware, light/dark adaptive) ─────
-   * dot-grid color, spotlight inner glow, glow halo
-   * Adjusted in .light via override
+  /* Data viz (v1.2 §2.7: pure 8-step grayscale)
+   * Multi-series differentiation via line weight (1/1.5/2/2.5px),
+   * stroke style (solid/dashed/dotted), markers (circle/square/triangle/diamond)
    */
+  --viz-1: #FAFAFA;     /* brightest white */
+  --viz-2: #D4D4D8;     /* light gray */
+  --viz-3: #A1A1AA;     /* mid-light */
+  --viz-4: #71717A;     /* mid */
+  --viz-5: #52525B;     /* mid-dark */
+  --viz-6: #3F3F3F;     /* dark */
+  --viz-7: #1F1F1F;     /* darker */
+  --viz-8: #0A0A0A;     /* darkest */
+
+  /* Texture tokens (light/dark adaptive) */
   --dot-color-dim: #161616;
   --dot-color-default: #1F1F1F;
-  --spotlight-color: rgba(91, 141, 239, 0.12);
-  --spotlight-color-violet: rgba(139, 92, 246, 0.12);
-  --accent-glow-strong: rgba(91, 141, 239, 0.35);
-  --accent-glow-mid: rgba(91, 141, 239, 0.25);
-  --accent-glow-soft: rgba(91, 141, 239, 0.18);
 }
 
 /* ───────────────────────────────────────────────
@@ -310,35 +292,32 @@
   --border-strong: #A1A1AA;
   --border-focus: #0A0A0A;
 
+  /* Text (light mode: text-primary = black = accent) */
   --text-primary: #0A0A0A;
   --text-secondary: #52525B;
   --text-tertiary: #71717A;
   --text-disabled: #A1A1AA;
   --text-inverse: #FAFAFA;
 
-  --accent-electric: #2563EB;
-  --accent-electric-hover: #1D4ED8;
-  --accent-electric-active: #1E40AF;
-  --accent-electric-subtle: #DBEAFE;
-  --accent-electric-glow: rgba(37, 99, 235, 0.25);
+  /* Status — desaturated, icon-only */
+  --status-info: #0A0A0A;
+  --status-success: #0A0A0A;
+  --status-warning: #8A6E20;     /* darker amber for light bg */
+  --status-danger: #A03030;      /* darker red for light bg */
 
-  --status-info: #2563EB;
-  --status-info-bg: #DBEAFE;
-  --status-success: #16A34A;
-  --status-success-bg: #DCFCE7;
-  --status-warning: #D97706;
-  --status-warning-bg: #FEF3C7;
-  --status-danger: #DC2626;
-  --status-danger-bg: #FEE2E2;
+  /* Viz: 8-step grayscale inverse */
+  --viz-1: #0A0A0A;
+  --viz-2: #3F3F3F;
+  --viz-3: #52525B;
+  --viz-4: #71717A;
+  --viz-5: #A1A1AA;
+  --viz-6: #D4D4D8;
+  --viz-7: #E4E4E7;
+  --viz-8: #FAFAFA;
 
-  /* Texture overrides for light mode (lighter dots, subtler glow) */
+  /* Texture overrides for light mode */
   --dot-color-dim: #EAEAEA;
   --dot-color-default: #D4D4D8;
-  --spotlight-color: rgba(37, 99, 235, 0.06);
-  --spotlight-color-violet: rgba(139, 92, 246, 0.05);
-  --accent-glow-strong: rgba(37, 99, 235, 0.20);
-  --accent-glow-mid: rgba(37, 99, 235, 0.12);
-  --accent-glow-soft: rgba(37, 99, 235, 0.08);
 }
 
 /* ───────────────────────────────────────────────
@@ -363,27 +342,23 @@
   --text-tertiary: #71717A;
   --text-disabled: #52525B;
   --text-inverse: #0A0A0A;
-  --accent-electric: #5B8DEF;
-  --accent-electric-hover: #7BA5F5;
-  --accent-electric-active: #4070D0;
-  --accent-electric-subtle: #1A2540;
-  --accent-electric-glow: rgba(91, 141, 239, 0.35);
-  --status-info: #5B8DEF;
-  --status-info-bg: #1A2540;
-  --status-success: #4ADE80;
-  --status-success-bg: #0F2A1B;
-  --status-warning: #FBBF24;
-  --status-warning-bg: #2A1F0A;
-  --status-danger: #F87171;
-  --status-danger-bg: #2A0F0F;
+
+  --status-info: #FAFAFA;
+  --status-success: #FAFAFA;
+  --status-warning: #C0A050;
+  --status-danger: #D06060;
+
+  --viz-1: #FAFAFA;
+  --viz-2: #D4D4D8;
+  --viz-3: #A1A1AA;
+  --viz-4: #71717A;
+  --viz-5: #52525B;
+  --viz-6: #3F3F3F;
+  --viz-7: #1F1F1F;
+  --viz-8: #0A0A0A;
 
   --dot-color-dim: #161616;
   --dot-color-default: #1F1F1F;
-  --spotlight-color: rgba(91, 141, 239, 0.12);
-  --spotlight-color-violet: rgba(139, 92, 246, 0.12);
-  --accent-glow-strong: rgba(91, 141, 239, 0.35);
-  --accent-glow-mid: rgba(91, 141, 239, 0.25);
-  --accent-glow-soft: rgba(91, 141, 239, 0.18);
 }
 
 /* ───────────────────────────────────────────────
@@ -436,15 +411,15 @@
     letter-spacing: -0.02em;
   }
 
-  /* Focus-visible global ring (Grok glow.focus) */
+  /* Focus-visible global ring (v1.2: pure outline, no glow) */
   :focus-visible {
-    outline: none;
-    box-shadow: 0 0 0 2px var(--accent-electric-glow);
+    outline: 2px solid var(--text-primary);
+    outline-offset: 2px;
   }
 
-  /* Selection */
+  /* Selection (v1.2: neutral surface, no accent tint) */
   ::selection {
-    background: var(--accent-electric-subtle);
+    background: var(--surface-active);
     color: var(--text-primary);
   }
 
@@ -477,7 +452,7 @@
 }
 
 /* ───────────────────────────────────────────────
- * Utilities — Grok-specific
+ * Utilities — Grok v1.2 specific
  * ─────────────────────────────────────────────── */
 @layer utilities {
   /* Eyebrow text (Grok signature) */
@@ -499,7 +474,7 @@
     border-color: var(--border-subtle);
   }
 
-  /* Dot grid backgrounds (uses --dot-color-* tokens) */
+  /* Dot grid backgrounds (uses --dot-color-* tokens, allowed exception per v1.2 §10) */
   .bg-dot-dim {
     background-image: radial-gradient(circle at 1px 1px, var(--dot-color-dim) 1px, transparent 0);
     background-size: 24px 24px;
@@ -513,57 +488,21 @@
     background-size: 16px 16px;
   }
 
-  /* Spotlight (radial gradient, uses --spotlight-color tokens) */
-  .bg-spotlight-top {
-    background: radial-gradient(ellipse 80% 60% at 50% 0%, var(--spotlight-color), transparent 70%);
-  }
-  .bg-spotlight-center {
-    background: radial-gradient(ellipse 60% 60% at 50% 50%, var(--spotlight-color), transparent 70%);
-  }
-  .bg-spotlight-dual {
-    background:
-      radial-gradient(ellipse 50% 50% at 0% 0%, var(--spotlight-color), transparent 60%),
-      radial-gradient(ellipse 50% 50% at 100% 100%, var(--spotlight-color-violet), transparent 60%);
-  }
-
-  /* Noise overlay (subtle texture) */
-  .bg-noise::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    opacity: 0.03;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' /%3E%3C/svg%3E");
-    mix-blend-mode: overlay;
-  }
-
-  /* Glow utilities (uses --accent-glow-* tokens) */
-  .glow-focus {
-    box-shadow: 0 0 0 2px var(--accent-glow-strong);
-  }
-  .glow-accent-sm {
-    box-shadow: 0 0 16px var(--accent-glow-strong);
-  }
-  .glow-accent-md {
-    box-shadow: 0 0 32px var(--accent-glow-mid);
-  }
-  .glow-accent-lg {
-    box-shadow: 0 0 80px var(--accent-glow-soft);
-  }
-
   /* Section padding utilities */
   .section-sm { padding-top: 4rem; padding-bottom: 4rem; }
   .section-md { padding-top: 6rem; padding-bottom: 6rem; }
   .section-lg { padding-top: 8rem; padding-bottom: 8rem; }
   .section-xl { padding-top: 10rem; padding-bottom: 10rem; }
+  .section-2xl { padding-top: 12rem; padding-bottom: 12rem; }   /* variant A hero */
 
   @media (max-width: 768px) {
     .section-md { padding-top: 4rem; padding-bottom: 4rem; }
     .section-lg { padding-top: 6rem; padding-bottom: 6rem; }
     .section-xl { padding-top: 6rem; padding-bottom: 6rem; }
+    .section-2xl { padding-top: 8rem; padding-bottom: 8rem; }
   }
 
-  /* Grok-style fade-up animation */
+  /* Grok-style fade-up animation (v1.2 §9.3) */
   @keyframes grok-fade-up {
     from {
       opacity: 0;

@@ -210,10 +210,10 @@ function StageRow({
             className={cn(
               "inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md font-mono text-xs font-semibold",
               done
-                ? "bg-status-success-bg text-status-success ring-1 ring-status-success/30"
+                ? "text-status-success ring-1 ring-status-success/30"
                 : locked
                   ? "bg-surface-elevated text-text-tertiary"
-                  : "bg-accent-electric-subtle text-accent-electric ring-1 ring-accent-electric/20",
+                  : "bg-surface-active text-text-primary ring-1 ring-text-primary/20",
             )}
           >
             {locked ? <Lock className="h-3 w-3" /> : `0${stage}`}

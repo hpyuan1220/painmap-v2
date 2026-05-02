@@ -69,9 +69,9 @@ const bgMap: Record<SectionBg, string> = {
   "dot-dim": "bg-canvas-base bg-dot-dim",
   "dot-default": "bg-canvas-base bg-dot-default",
   "dot-dense": "bg-canvas-base bg-dot-dense",
-  "spotlight-top": "bg-canvas-base bg-spotlight-top",
-  "spotlight-center": "bg-canvas-base bg-spotlight-center",
-  "spotlight-dual": "bg-canvas-base bg-spotlight-dual",
+  "spotlight-top": "bg-canvas-base",
+  "spotlight-center": "bg-canvas-base",
+  "spotlight-dual": "bg-canvas-base",
 };
 
 const dividerMap: Record<SectionDivider, string> = {

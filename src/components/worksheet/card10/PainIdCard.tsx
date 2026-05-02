@@ -61,7 +61,7 @@ export function PainIdCard() {
   const judgmentBadge = (() => {
     if (j === "true_pain")
       return (
-        <span className="inline-flex items-center gap-1.5 rounded-md border border-status-success/40 bg-status-success-bg px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.06em] text-status-success">
+        <span className="inline-flex items-center gap-1.5 rounded-md border border-status-success/40 px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.06em] text-status-success">
           <CheckCircle2 className="h-3 w-3" /> True pain
         </span>
       );
@@ -73,7 +73,7 @@ export function PainIdCard() {
       );
     if (j === "pending_interview")
       return (
-        <span className="inline-flex items-center gap-1.5 rounded-md border border-status-warning/40 bg-status-warning-bg px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.06em] text-status-warning">
+        <span className="inline-flex items-center gap-1.5 rounded-md border border-status-warning/40 px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.06em] text-status-warning">
           <Clock className="h-3 w-3" /> Pending interview
         </span>
       );
@@ -87,18 +87,8 @@ export function PainIdCard() {
   return (
     <article
       id="pain-id-card-print"
-      className="relative isolate overflow-hidden max-w-4xl mx-auto rounded-lg border border-accent-electric/30 bg-canvas-raised glow-accent-sm"
+      className="relative isolate overflow-hidden max-w-4xl mx-auto rounded-lg border border-text-primary/30 bg-canvas-raised"
     >
-      {/* Subtle glow background */}
-      <div
-        aria-hidden
-        className="absolute inset-0 -z-10 opacity-40"
-        style={{
-          background:
-            "radial-gradient(ellipse 800px 400px at 50% 0%, var(--accent-glow-soft), transparent 70%)",
-        }}
-      />
-
       {/* Header bar */}
       <div className="border-b border-border-hairline bg-canvas-overlay/50 px-6 sm:px-10 py-5">
         <div className="flex items-center justify-between gap-3">
@@ -128,7 +118,7 @@ export function PainIdCard() {
 
         <FieldBlock label="場景" index={2}>
           {card.complaint.verbatim ? (
-            <blockquote className="border-l-2 border-accent-electric pl-4 italic text-text-secondary">
+            <blockquote className="border-l-2 border-text-primary pl-4 italic text-text-secondary">
               {card.complaint.verbatim.length > 200
                 ? card.complaint.verbatim.slice(0, 200) + "…"
                 : card.complaint.verbatim}
@@ -145,7 +135,7 @@ export function PainIdCard() {
             <ul className="space-y-1.5 text-text-secondary mt-2">
               {dis.map((d, i) => (
                 <li key={i} className="flex gap-2 text-[14px]">
-                  <span className="text-accent-electric shrink-0">→</span>
+                  <span className="text-text-primary shrink-0">→</span>
                   <span>{d}</span>
                 </li>
               ))}
@@ -170,7 +160,7 @@ export function PainIdCard() {
                 <button
                   type="button"
                   onClick={() => setTableExpanded((x) => !x)}
-                  className="inline-flex items-center gap-1 font-mono text-[11px] uppercase tracking-[0.06em] text-accent-electric hover:text-accent-electric-hover transition-colors"
+                  className="inline-flex items-center gap-1 font-mono text-[11px] uppercase tracking-[0.06em] text-text-primary hover:text-text-primary transition-colors"
                 >
                   {tableExpanded ? (
                     <>
@@ -237,7 +227,7 @@ export function PainIdCard() {
 
         <FieldBlock label="下一步" index={9}>
           {card.verdict.next_action ? (
-            <p className="font-medium text-accent-electric">
+            <p className="font-medium text-text-primary">
               → {NEXT_ACTION_LABEL[card.verdict.next_action]}
             </p>
           ) : (

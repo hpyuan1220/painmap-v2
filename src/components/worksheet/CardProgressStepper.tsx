@@ -72,7 +72,7 @@ export function CardProgressStepper() {
   return (
     <nav
       aria-label="痛點填空簿進度"
-      className="w-full border-b border-border-hairline bg-canvas-base/80 backdrop-blur-md"
+      className="w-full border-b border-border-hairline bg-canvas-base"
     >
       {/* Mobile: 折疊文字 */}
       <div className="md:hidden flex items-center justify-between px-5 py-3">
@@ -100,7 +100,7 @@ export function CardProgressStepper() {
                   className={cn(
                     "mt-2.5 font-mono text-[10px] uppercase tracking-[0.06em] truncate max-w-[72px]",
                     state === "completed" && "text-text-secondary",
-                    state === "current" && "text-accent-electric",
+                    state === "current" && "text-text-primary",
                     state === "locked" && "text-text-tertiary",
                   )}
                 >
@@ -111,7 +111,7 @@ export function CardProgressStepper() {
                 <div
                   className={cn(
                     "h-px flex-1 mt-3.5 mx-1 transition-colors",
-                    step < maxReached ? "bg-accent-electric/60" : "bg-border-hairline",
+                    step < maxReached ? "bg-text-primary/60" : "bg-border-hairline",
                   )}
                   aria-hidden
                 />
@@ -124,7 +124,7 @@ export function CardProgressStepper() {
           <div
             className={cn(
               "h-px w-6 mt-3.5 mr-1 transition-colors",
-              maxReached === 10 ? "bg-accent-electric/60" : "bg-border-hairline",
+              maxReached === 10 ? "bg-text-primary/60" : "bg-border-hairline",
             )}
             aria-hidden
           />
@@ -135,7 +135,7 @@ export function CardProgressStepper() {
               className={cn(
                 "h-7 w-7 rounded-full flex items-center justify-center text-[12px] font-medium transition-all duration-200",
                 resultState === "completed"
-                  ? "bg-accent-electric text-text-primary glow-accent-sm"
+                  ? "bg-text-primary text-text-primary"
                   : "border border-border-hairline bg-canvas-raised text-text-tertiary hover:border-border-default",
               )}
             >
@@ -179,7 +179,7 @@ const StepDot = memo(function StepDot({ step, state }: { step: CurrentStep; stat
         aria-label={`卡 ${step}（已完成）`}
         className={cn(
           baseClasses,
-          "border border-accent-electric/40 bg-accent-electric-subtle text-accent-electric hover:bg-accent-electric-subtle hover:border-accent-electric",
+          "border border-text-primary/40 bg-surface-active text-text-primary hover:bg-surface-active hover:border-text-primary",
         )}
       >
         <Check className="h-3 w-3" strokeWidth={2.5} aria-hidden />
@@ -193,7 +193,7 @@ const StepDot = memo(function StepDot({ step, state }: { step: CurrentStep; stat
       to={pathFor(step)}
       aria-current="step"
       aria-label={`卡 ${step}（進行中）`}
-      className={cn(baseClasses, "bg-accent-electric text-text-primary glow-accent-sm")}
+      className={cn(baseClasses, "bg-text-primary text-text-primary")}
     >
       {numberLabel}
     </Link>
