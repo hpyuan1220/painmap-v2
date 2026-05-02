@@ -213,7 +213,8 @@ export function backgroundCategoriesHit(text: string): Array<"age" | "occupation
   (
     Object.keys(BACKGROUND_CATEGORY_KEYWORDS) as Array<keyof typeof BACKGROUND_CATEGORY_KEYWORDS>
   ).forEach((k) => {
-    if (BACKGROUND_CATEGORY_KEYWORDS[k].some((w) => normalized.includes(w.toLowerCase()))) hit.push(k);
+    if (BACKGROUND_CATEGORY_KEYWORDS[k].some((w) => normalized.includes(w.toLowerCase())))
+      hit.push(k);
   });
   return hit;
 }

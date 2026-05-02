@@ -153,7 +153,8 @@ export function TargetsForm({
                   aria-describedby={`contact-${i}-counter`}
                   className={cn(
                     "min-h-[56px] transition-all",
-                    isHl && !contactOk &&
+                    isHl &&
+                      !contactOk &&
                       "border-secondary ring-2 ring-secondary/40 bg-secondary/5 animate-pulse",
                   )}
                 />
@@ -178,7 +179,8 @@ export function TargetsForm({
                       ) : (
                         <>
                           <span>
-                            還差 <span className="font-semibold text-secondary">{remaining}</span> 字可通過
+                            還差 <span className="font-semibold text-secondary">{remaining}</span>{" "}
+                            字可通過
                           </span>
                           <span className="text-text-muted">
                             （{len} / {CONTACT_MIN}）
@@ -253,9 +255,7 @@ export function TargetsForm({
                     onSelect={() => onAddFromTemplate(tpl)}
                     className="flex flex-col items-start gap-0.5 py-2 cursor-pointer"
                   >
-                    <span className="text-[13px] font-medium text-text-primary">
-                      {tpl.label}
-                    </span>
+                    <span className="text-[13px] font-medium text-text-primary">{tpl.label}</span>
                     <span className="text-[11.5px] text-text-secondary leading-snug">
                       {tpl.description}
                     </span>

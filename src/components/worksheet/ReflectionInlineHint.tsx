@@ -46,8 +46,8 @@ export function ReflectionInlineHint({
     <div className="mt-4 rounded-lg border border-secondary/30 bg-secondary/5 px-3 py-2.5">
       <div className="flex items-center justify-between gap-2 mb-1.5">
         <span className="text-[12.5px] font-medium text-text-primary">
-          {title}：還有{" "}
-          <span className="text-secondary font-semibold">{remaining.length}</span> 題沒過
+          {title}：還有 <span className="text-secondary font-semibold">{remaining.length}</span>{" "}
+          題沒過
         </span>
         <button
           type="button"

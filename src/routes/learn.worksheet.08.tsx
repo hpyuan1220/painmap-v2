@@ -91,7 +91,7 @@ function CardEightPage() {
     ]);
   };
 
-  const addTargetFromTemplate = (tpl: { data: typeof plan.targets[number] }) => {
+  const addTargetFromTemplate = (tpl: { data: (typeof plan.targets)[number] }) => {
     if (plan.targets.length >= TARGETS_MAX) return;
     const next = [...plan.targets, { ...tpl.data }];
     updateField("interview_plan.targets", next);
@@ -409,7 +409,10 @@ function CardEightPage() {
           title="反思問題"
           expandEventName="painmap:card8:expand-reflection"
           items={[
-            { label: "今晚就能傳訪談題給某個人", done: targetsEval.anyContact && questionsEval.allFilled },
+            {
+              label: "今晚就能傳訪談題給某個人",
+              done: targetsEval.anyContact && questionsEval.allFilled,
+            },
             { label: "問「上次怎麼做」而非引導用你的解法", done: questionsEval.allFilled },
             { label: "訪談時不要做的事我清楚了", done: tablePassed },
             { label: "我已經有能訪談的人", done: targetsEval.anyContact },

@@ -21,8 +21,7 @@ export const TARGET_TEMPLATES: TargetTemplate[] = [
     data: {
       persona: "中小型補習班 30-50 歲數學老師（在【城市】教【科目/年級】）",
       contact_known: true,
-      contact_info:
-        "林○○老師｜LINE ID: line_id_here｜0912-345-678｜我表妹的數學老師",
+      contact_info: "林○○老師｜LINE ID: line_id_here｜0912-345-678｜我表妹的數學老師",
       planned_time: "2026-05-10（六）19:00,在【補習班/咖啡廳名稱】聊 30 分鐘",
     },
   },
@@ -33,8 +32,7 @@ export const TARGET_TEMPLATES: TargetTemplate[] = [
     data: {
       persona: "50 人新創公司 HR 主管（負責【招募/績效/制度】）",
       contact_known: true,
-      contact_info:
-        "王○○（HR Lead）｜name@company.com｜上週 5/2 在【研討會名稱】交換名片",
+      contact_info: "王○○（HR Lead）｜name@company.com｜上週 5/2 在【研討會名稱】交換名片",
       planned_time: "下週三（5/13）14:00-14:30 線上 Google Meet",
     },
   },

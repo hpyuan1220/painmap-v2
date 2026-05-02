@@ -352,7 +352,9 @@ function CardSevenPage() {
               </p>
               {sg.pain_judgment_table.trim().length > 0 && (
                 <div className="mt-3">
-                  <p className="text-[12px] font-semibold text-text-secondary mb-1.5">預覽（Markdown 渲染）</p>
+                  <p className="text-[12px] font-semibold text-text-secondary mb-1.5">
+                    預覽（Markdown 渲染）
+                  </p>
                   <div className="bg-muted-bg p-4 max-h-96 overflow-auto rounded-md border border-border">
                     <MarkdownView>{sg.pain_judgment_table}</MarkdownView>
                   </div>

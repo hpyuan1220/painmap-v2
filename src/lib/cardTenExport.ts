@@ -46,11 +46,13 @@ export function slugify(text: string): string {
  * 保留中文，僅清理 \ / : * ? " < > | 與控制碼
  */
 function sanitizeFilename(name: string): string {
-  return name
-    .replace(/[\\/:*?"<>|\x00-\x1f]/g, "")
-    .replace(/\s+/g, " ")
-    .trim()
-    .slice(0, 120) || "untitled";
+  return (
+    name
+      .replace(/[\\/:*?"<>|\x00-\x1f]/g, "")
+      .replace(/\s+/g, " ")
+      .trim()
+      .slice(0, 120) || "untitled"
+  );
 }
 
 export function exportFilename(card: PainCard, ext: "md" | "json" | "pdf"): string {
@@ -196,7 +198,9 @@ export async function exportInterviewGuide(card: PainCard): Promise<void> {
   const filename = interviewGuideFilename(card, "pdf");
 
   // 動態載入 markdown 渲染（與 Card 7 / 8 同套：react-markdown + remark-gfm）
-  const [{ marked }] = await Promise.all([import("marked").catch(() => ({ marked: null as never }))]);
+  const [{ marked }] = await Promise.all([
+    import("marked").catch(() => ({ marked: null as never })),
+  ]);
 
   // 若 marked 未安裝則退回單純 <pre>；正常情況下使用 marked 渲染表格 / 清單
   let bodyHtml: string;
@@ -619,11 +623,7 @@ export async function exportInterviewGuide(card: PainCard): Promise<void> {
   }
 
   // ---- 備援 2：popup 被擋 → 下載 HTML 檔 + 拋出可讀錯誤 ----
-  downloadBlob(
-    filename.replace(/\.pdf$/, ".html"),
-    "text/html;charset=utf-8",
-    html,
-  );
+  downloadBlob(filename.replace(/\.pdf$/, ".html"), "text/html;charset=utf-8", html);
   throw new Error(
     "瀏覽器擋下了列印視窗。已改為下載 HTML 檔給你 — 打開後按 Ctrl/Cmd + P 即可另存為 PDF。若想用一鍵列印，請到網址列右側點「允許彈出視窗」後再試一次。",
   );
@@ -659,7 +659,11 @@ function printViaIframe(html: string, filename: string): Promise<void> {
       document.title = originalTitle;
       // 延遲移除 iframe：Safari 若在 print 對話框期間移除會中斷列印
       setTimeout(() => {
-        try { iframe.remove(); } catch { /* noop */ }
+        try {
+          iframe.remove();
+        } catch {
+          /* noop */
+        }
       }, 1000);
     };
 
@@ -670,7 +674,11 @@ function printViaIframe(html: string, filename: string): Promise<void> {
         if (!cw || !cd) throw new Error("iframe contentWindow missing");
 
         // 雙保險：iframe 內部 title + 主視窗 title 都對齊預期檔名
-        try { cd.title = printTitle; } catch { /* noop */ }
+        try {
+          cd.title = printTitle;
+        } catch {
+          /* noop */
+        }
         document.title = printTitle;
 
         setTimeout(() => {

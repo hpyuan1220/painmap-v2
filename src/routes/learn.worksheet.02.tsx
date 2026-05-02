@@ -337,7 +337,7 @@ function CardTwoPage() {
                 commitment={commitment}
                 onCommitmentChange={setCommitment}
                 backgroundStatus={backgroundStatus}
-                backgroundHint={bgVerdict === "warn" ? bgReason ?? undefined : undefined}
+                backgroundHint={bgVerdict === "warn" ? (bgReason ?? undefined) : undefined}
                 backgroundAnalyzing={bgAnalyzing && bgVerdict === null}
               />
             </div>
@@ -349,7 +349,7 @@ function CardTwoPage() {
               commitment={commitment}
               onCommitmentChange={setCommitment}
               backgroundStatus={backgroundStatus}
-              backgroundHint={bgVerdict === "warn" ? bgReason ?? undefined : undefined}
+              backgroundHint={bgVerdict === "warn" ? (bgReason ?? undefined) : undefined}
               backgroundAnalyzing={bgAnalyzing && bgVerdict === null}
             />
             <p className="mt-3 text-[11px] leading-[1.5] text-text-muted">
