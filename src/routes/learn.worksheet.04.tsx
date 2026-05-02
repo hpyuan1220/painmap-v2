@@ -14,7 +14,7 @@ import {
   findForbiddenToolKeywords,
   findAbstractDissatisfactionKeywords,
 } from "@/lib/cardFourValidators";
-import { parseAiAlternatives, detectSolutionModeWords } from "@/lib/cardFourAiParsers";
+import { detectSolutionModeWords } from "@/lib/cardFourAiParsers";
 import { judge, toCacheEntry } from "@/lib/llmJudge";
 import { useSavedAgo } from "@/hooks/useSavedAgo";
 import { usePainCardStore } from "@/store/painCard";
@@ -104,18 +104,9 @@ ${stuck}
   // 偵測 AI 回應中的「solution mode」禁詞 — 顯示 inline warning，不擋
   const solutionModeHits = useMemo(() => detectSolutionModeWords(aiResponse), [aiResponse]);
 
-  // 使用者貼回 AI response 後，自動解析填入 ai_alternatives（便利功能）
-  // 條件：尚未手動編輯過 tags（length === 0）且 AI 回應 ≥ 20 字
-  // 避免覆蓋使用者已整理的內容
-  useEffect(() => {
-    if (w.ai_alternatives.length > 0) return;
-    if (aiResponse.trim().length < 20) return;
-    const parsed = parseAiAlternatives(aiResponse);
-    if (parsed.length >= 2) {
-      setAlternatives(parsed.slice(0, 10));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [aiResponse]);
+  // 設計決策：不做 auto-parse — AI 輸出格式（bullet / 編號 / markdown / 段落）
+  // 變化太大，正則拆解總會留下垃圾項目（介紹語、結語、markdown 標記、拆碎的編號）。
+  // 強迫使用者手動把 5 個項目逐一鍵入 TagInputField — 多花 5 秒、無雜訊、與 Card 3 一致。
 
   const handleAdvance = async () => {
     setAttempted(true);
@@ -232,9 +223,9 @@ ${stuck}
           }
           intro={
             <>
-              這張卡分 4 步走：① 你先憑訪談寫一個版本 → ② AI 補 5 個常見 workaround → ③ 你把 AI
-              提案貼回（必填，不可跳過） → ④ 帶著 AI 清單再去問主人翁，把他「不滿在哪」的 3
-              個具體理由帶回來。
+              這張卡分 4 步走：① 你先憑訪談寫一個版本 → ② AI 補 5 個常見 workaround → ③
+              讀 AI 回應，把 5 個 workaround 逐項鍵入（必填，不可跳過） → ④ 帶著 AI
+              清單再去問主人翁，把他「不滿在哪」的 3 個具體理由帶回來。
             </>
           }
         />
@@ -311,7 +302,7 @@ ${stuck}
             </h2>
             <p className="mt-2 text-[14px] text-text-secondary leading-[1.65]">
               複製下方 prompt → 貼到 ChatGPT / Claude / Perplexity / Gemini → 把 AI
-              的回應整段貼回，會自動拆成下方 Step 3 的標籤。
+              的回應貼回左側方框（僅供你檢視，不會被自動處理）。讀完後到下方 Step 3 把 5 個逐項輸入。
             </p>
           </div>
 
@@ -350,10 +341,11 @@ ${stuck}
               Step · paste back
             </Eyebrow>
             <h2 className="mt-2 font-display text-xl font-semibold tracking-[-0.01em] text-text-primary">
-              把 AI 提案的 5 個貼回（自動解析）
+              把 AI 提案的 5 個逐項輸入
             </h2>
             <p className="mt-2 text-[14px] text-text-secondary leading-[1.65]">
-              Step 2 貼回 AI 整段回應後，下方 tag 會自動填入。可手動編輯、新增、刪除。
+              讀 Step 2 的 AI 回應，挑出 5 個 workaround 名稱，逐個鍵入下方（按 Enter 新增）。
+              手動的好處：你會邊輸入邊判斷哪些是合理的、哪些 AI 在亂講。
             </p>
           </div>
 
