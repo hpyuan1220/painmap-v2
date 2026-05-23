@@ -244,7 +244,13 @@ export type ResultBlock = {
 };
 
 // =====================================================================
-// LLM cache (carry forward — used by site-internal LLM judge)
+// LLM cache (reserved — for future site-internal LLM judge integration)
+//
+// The v2 codebase shipped a `judge()` helper that called an OpenAI Edge Function
+// for anonymous semantic checks (e.g. "is this verbatim a real complaint or
+// analysis?"). v3 removed those judge call sites because the L1 readiness
+// checks in cardValidators are now sufficient. The schema field stays so a
+// future re-introduction can write here without a migration.
 // =====================================================================
 
 export type LlmCacheEntry = {
