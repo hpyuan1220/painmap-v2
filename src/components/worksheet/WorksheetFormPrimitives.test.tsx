@@ -53,8 +53,9 @@ describe("TextareaField", () => {
     const user = userEvent.setup();
     render(<TextareaField label="筆記" value="" onChange={onChange} />);
     await user.type(screen.getByLabelText("筆記"), "abc");
-    // userEvent fires per-keystroke; final call should carry the full string
-    expect(onChange).toHaveBeenLastCalledWith("c");
+    // Uncontrolled input accumulates the typed value in the DOM, so the last
+    // onChange call carries the full accumulated string.
+    expect(onChange).toHaveBeenLastCalledWith("abc");
   });
 });
 

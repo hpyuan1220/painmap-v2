@@ -8,10 +8,16 @@
  * stays on the invitation tone defined in voice_and_tone.md.
  */
 
-import { type ReactNode } from "react";
+import { type ReactNode, useId } from "react";
 
 const inputClass =
   "w-full rounded-md border border-border-hairline bg-canvas-raised px-3 py-2.5 text-[15px] text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-text-primary";
+
+// Note: inputs use defaultValue (uncontrolled) instead of value (controlled).
+// The build-time React plugin injects both onInput and onChange on controlled
+// inputs, which double-fires the handler and disrupts keystroke flow on Vercel
+// and GitHub Pages SPA builds. Going uncontrolled with onInput lets the DOM
+// own the input value while still pushing every keystroke into the store.
 
 export function TextField({
   label,
@@ -26,19 +32,21 @@ export function TextField({
   onChange: (v: string) => void;
   type?: "text" | "date" | "datetime-local" | "tel" | "email" | "url";
 }) {
-  const id = `tf-${label}`;
+  const id = useId();
   return (
-    <label htmlFor={id} className="flex flex-col gap-1.5">
-      <span className="text-[13px] font-medium text-text-secondary">{label}</span>
+    <div className="flex flex-col gap-1.5">
+      <label htmlFor={id} className="text-[13px] font-medium text-text-secondary">
+        {label}
+      </label>
       <input
         id={id}
         type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
+        defaultValue={value}
+        onInput={(e) => onChange(e.currentTarget.value)}
         placeholder={hint}
         className={inputClass}
       />
-    </label>
+    </div>
   );
 }
 
@@ -55,19 +63,21 @@ export function TextareaField({
   onChange: (v: string) => void;
   rows?: number;
 }) {
-  const id = `ta-${label}`;
+  const id = useId();
   return (
-    <label htmlFor={id} className="flex flex-col gap-1.5">
-      <span className="text-[13px] font-medium text-text-secondary">{label}</span>
+    <div className="flex flex-col gap-1.5">
+      <label htmlFor={id} className="text-[13px] font-medium text-text-secondary">
+        {label}
+      </label>
       <textarea
         id={id}
         rows={rows}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
+        defaultValue={value}
+        onInput={(e) => onChange(e.currentTarget.value)}
         placeholder={hint}
         className={inputClass}
       />
-    </label>
+    </div>
   );
 }
 

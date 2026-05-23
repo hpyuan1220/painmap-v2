@@ -1,3 +1,4 @@
+import { useId } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 
 import { CardScaffold } from "@/components/worksheet/CardScaffold";
@@ -87,18 +88,23 @@ type FieldProps = {
 };
 
 function Field({ label, hint, value, onChange, textarea, rows = 2 }: FieldProps) {
-  const id = `f-${label}`;
+  // Use uncontrolled input with defaultValue + onInput to sidestep a build-time
+  // transform that injects both onInput and onChange handlers on controlled
+  // inputs, which disrupts keystroke flow in production.
+  const id = useId();
   const className =
     "w-full rounded-md border border-border-hairline bg-canvas-raised px-3 py-2.5 text-[15px] text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-text-primary";
   return (
-    <label htmlFor={id} className="flex flex-col gap-1.5">
-      <span className="text-[13px] font-medium text-text-secondary">{label}</span>
+    <div className="flex flex-col gap-1.5">
+      <label htmlFor={id} className="text-[13px] font-medium text-text-secondary">
+        {label}
+      </label>
       {textarea ? (
         <textarea
           id={id}
           rows={rows}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
+          defaultValue={value}
+          onInput={(e) => onChange(e.currentTarget.value)}
           placeholder={hint}
           className={className}
         />
@@ -106,12 +112,12 @@ function Field({ label, hint, value, onChange, textarea, rows = 2 }: FieldProps)
         <input
           id={id}
           type="text"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
+          defaultValue={value}
+          onInput={(e) => onChange(e.currentTarget.value)}
           placeholder={hint}
           className={className}
         />
       )}
-    </label>
+    </div>
   );
 }

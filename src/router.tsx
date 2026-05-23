@@ -68,10 +68,12 @@ export const getRouter = () => {
     scrollRestoration: true,
     defaultPreloadStaleTime: 0,
     defaultErrorComponent: DefaultErrorComponent,
-    // Grok v1.2 §10b — wrap navigations in document.startViewTransition()
-    // when supported (Chromium 2026). Browser auto-fallback to instant
-    // navigation on Safari / Firefox. CSS in styles.css governs timing.
-    defaultViewTransition: true,
+    // Grok v1.2 §10b — view transitions were enabled to wrap navigations in
+    // document.startViewTransition(). Disabled in v3 CSR builds: the continuous
+    // transition snapshots interfered with form interactivity (live deploys had
+    // form fields that wouldn't accept typing). Plain instant navigation is
+    // fine and predictably interactive.
+    defaultViewTransition: false,
   });
 
   return router;
