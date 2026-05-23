@@ -1,20 +1,36 @@
-# Pain Card 資料模型 (Data Model)
+# Pain Card v2 — 資料模型 (Data Model)
 
-> **此文件為唯一真相源 (Single Source of Truth)。**
+> **此文件為 v2 唯一真相源 (Single Source of Truth)。**
 > 所有 page spec、API spec、test case 的欄位定義必須與本檔一致。
-> 對應 `docs/workshop/painpoint_beginner_worksheet.md` 的 9 張卡片。
+> 對應 v2 的 **13 卡片 + Result** 流程。
+> UI 與 AI prompt 的中文字串請參照 `references/voice_and_tone.md`，本檔僅定義工程結構。
 
 ---
 
 ## 設計原則
 
-1. **單一物件原則**：9 張卡片是 **同一個 PainCard 物件** 的 9 個欄位，不是 9 個獨立資料
-2. **不可變更新**：每次卡片填寫產生新的 PainCard 版本（appendOnly），舊版本保留為 history
+1. **單一物件原則**：13 張卡片是 **同一個 PainCard 物件** 的多個欄位，不是 13 份獨立資料
+2. **不可變更新**：每次卡片填寫產生新的 PainCard 版本（appendOnly），舊版本保留為 `history`
 3. **本地優先**：MVP 階段所有資料存在 LocalStorage，無雲端同步
 4. **可匯出**：完整 PainCard 可匯出為 Markdown / JSON / PDF
-5. **零分數、零分類學**：資料層不存任何打分結果或預設標籤
+5. **零分數、零分類學**：資料層不存任何打分結果或預設標籤；欄位語意僅為「準備好往下走了嗎」的布林狀態
 6. **問題取代評分**：每張卡片讓使用者先寫，AI 只在使用者寫完後出現作為對照
-7. **守門但不評等**：anti-fake validator 為真實性護欄，回傳中性提示而非「過關 / 失敗」
+7. **工程欄位名與 UI 字串脫鉤**：schema 內部可保留 `ready_to_continue`、`verdict` 之類工程名，但任何顯示給使用者的字串走 `voice_and_tone.md`
+
+---
+
+## v1 → v2 變動摘要
+
+| 變動 | 內容 |
+| :-- | :-- |
+| 新增 | `pain_diary[]`（Card A）、`ai_narrowing`（Card 1-A / 1-B）、`focused_pain`（Card 3）、`empathy_map`（Card B）、`assumptions`（Card D）、`post_interview_synthesis`（Card G） |
+| 合併 | 舊 `stuck_formula` + `workaround` → `stuck_formula_with_solutions`（Card 4） |
+| 改寫 | 舊 `people` → `people_with_guesses[]`（每人帶 5 個預先猜想） |
+| 改寫 | 舊 `self_guess` 已併入 `people_with_guesses[].guessed_answers` |
+| 改寫 | 舊 `verdict` + `pain_id_export` → `result` |
+| 欄位重命名 | `exit_gate_passed` → `ready_to_continue`（語意一致，但移除「閘門」工程語感）|
+| schema_version | `1.0` → `2.0` |
+| current_step | `1..10` → `1..13` ｜ `'result'` |
 
 ---
 
@@ -22,202 +38,321 @@
 
 ```typescript
 /**
- * PainCard — 痛點身份證
+ * PainCard v2 — 痛點身份證
+ * 對應 v2 的 13 卡片 + Result 流程
  */
 type PainCard = {
   // === Meta ===
-  id: string;                     // UUID v4
-  schema_version: '1.0';
+  id: string;                       // UUID v4
+  schema_version: '2.0';
   status: PainCardStatus;
-  created_at: string;             // ISO8601
-  updated_at: string;             // ISO8601
-  current_step: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;  // 10 = 已匯出
+  created_at: string;               // ISO8601
+  updated_at: string;               // ISO8601
+  current_step:
+    | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13
+    | 'result';
 
-  // === Card 1: 抱怨原句 ===
+  // === Card 1: 那句脫口而出的話 ===
   complaint: {
-    verbatim: string;             // 必填，原句不美化
-    source_name: string;          // 必填，誰說的（真名）
-    source_relation: string;      // 必填，你跟他的關係
-    datetime: string;             // 必填，YYYY-MM-DD 或情境描述
-    scene: string;                // 必填，當時他在做什麼
+    verbatim: string;               // 原話，不修飾
+    source_name: string;            // 誰說的（真名 / 暱稱皆可，但要叫得出來）
+    source_relation: string;        // 你跟他的關係
+    datetime: string;               // ISO8601 或情境描述
+    scene: string;                  // 那時候在做什麼
+    ready_to_continue: boolean;     // 內部布林，不顯示給使用者
   };
 
-  // === Card 2: 三個有名字的人 ===
-  people: {
-    background: string;           // 大概是什麼背景（年齡 / 職業 / 地點）
-    list: Array<{
-      name: string;               // 必填，真名（不可為「補習班老師 A」）
-      contact: string;            // 必填，LINE / 電話 / Email 等
-      relation: string;           // 必填，你跟他的關係
-    }>;                           // length 必須 = 3
+  // === Card A (NEW): 痛點現場日記 ===
+  pain_diary: {
+    entries: Array<{
+      timestamp: string;            // ISO8601
+      location: string;             // 在哪裡發生的（家 / 辦公室 / 通勤）
+      mood: string;                 // 當下心情（一兩個詞）
+      trigger: string;              // 是什麼觸發了這一刻
+      note: string;                 // 自由書寫，原話或描述
+      attachments?: string[];       // 可選：照片 / 語音 URL（MVP 純文字）
+    }>;                             // 0..N，建議 3-5 個
+    ready_to_continue: boolean;
   };
 
-  // === Card 3: 卡關公式 ===
-  stuck_formula: {
-    ai_polished: string | null;   // AI 校對後的版本（可選）
-    ai_clarifying_questions: string[];  // AI 列出「需要再問清楚」的問題（≥ 0 個）
-    confirmed: boolean;           // 使用者是否確認此版本
-  };
+  // === Card 1-A (NEW): AI 替你打開三條路 ===
+  ai_narrowing: {
+    directions: Array<{
+      id: string;
+      title: string;                // AI 給的方向標題
+      description: string;          // AI 的描述
+      why_it_matters: string;       // AI 解釋這條路在意什麼
+    }>;                             // 通常 3 個
+    picked_direction_id: string | null;
 
-  // === Card 4: 現在怎麼解 ===
-  workaround: {
-    tool_name: string;            // 必填，現有工具/方法的名字（具體，不可為「沒人解過」）
-    why_still_stuck: string;      // 必填，為什麼還是覺得卡
-    ai_alternatives: string[];    // AI 提案的 5 個常見 workaround
-    user_dissatisfactions: string[];  // 必須 ≥ 3 個具體不滿理由
-  };
-
-  // === Card 5: 兩件事不能同時要（取捨自陳）===
-  contradiction: {
-    side_a: string;                    // A 端：他想要這個（≥10 字，使用者自己寫）
-    side_b: string;                    // B 端：他也想要這個（≥10 字，使用者自己寫）
-    sacrificed: 'a' | 'b';             // 通常會犧牲哪一邊
-    sacrificed_reason: string;         // 為什麼那邊會被犧牲（≥1 句，使用者自陳理由）
-  };
-
-  // === Card 6: AI 證據蒐集 ===
-  ai_evidence: {
-    ai_tool: 'chatgpt_dr' | 'claude' | 'perplexity' | 'gemini';
-    ai_tool_reason: string;            // 1 句話為什麼選這個工具
-    raw_response: string;              // AI 回覆原文（整段保存）
-    eight_answers: {                   // 對應 prompt 的 8 題
-      q1_specific_groups: string;
-      q2_scenes_frequency: string;
-      q3_workarounds: string;
-      q4_dissatisfactions_categorized: string;
-      q5_public_evidence: string;
-      q6_jtbd: string;
-      q7_possible_fake_pains: string;
-      q8_interview_targets: string;
-    };
-    no_solution_check_passed: boolean;
-  };
-
-  // === Card 7: 自己先猜 + 讀 AI ===
-  self_guess: {
-    guesses: {                          // 在讀 AI 之前先寫
-      most_painful_person: string;
-      most_common_scene: string;
-      biggest_dissatisfaction: string;
-      possible_fake_pain: string;
-    };
-    ai_checkpoints_passed: {
-      people_segmented: boolean;
-      scenes_observable: boolean;
-      workaround_dissatisfactions_listed: boolean;
-      fake_pains_flagged: boolean;
-    };
-    pain_judgment_table: string;
-    deltas: {
-      biggest_diff: string;
-      ai_added: string;
-      guess_unsupported: string;
-    };
-    phase_a_completed_at: string | null;  // 鎖 deltas 編輯（卡 7 phase A 完成時間戳）
-  };
-
-  // === Card 8: 真人訪談規劃 ===
-  interview_plan: {
-    targets: Array<{
-      persona: string;
-      contact_known: boolean;
-      contact_info: string;
-      planned_time: string;
+    // === Card 1-B: 走進其中一條，慢慢往下問 ===
+    drill_rounds: Array<{
+      round: 1 | 2 | 3;
+      user_question: string;        // 使用者這一輪想問的問題
+      ai_response: string;          // AI 的回應（不含解法）
+      user_reflection: string;      // 使用者讀完的反思
     }>;
-    questions: string[];                 // 必須 = 3 題
-    interview_taboos_understood: boolean;
-    ai_simulated_response: string | null;
+    ready_to_continue: boolean;
   };
 
-  // === Card 9: 真假判斷（純書面，無分數）===
-  verdict: {
-    judgment: 'true_pain' | 'fake_pain' | 'pending_interview';
-    reason_100w: string;                 // ≥ 100 字書面理由
-    most_confident_evidence: string;     // 最有把握的證據
-    least_confident: string;             // 最沒把握的地方
-    next_action: 'interview' | 'more_evidence' | 'change_topic';
+  // === Card 3: 聚焦痛點摘要 ===
+  focused_pain: {
+    summary: string;                // 使用者把 1-A/1-B 結果寫成一段摘要（≥ 60 字）
+    in_their_own_words: string;     // 用那個有名字的人會講的話再說一次
+    why_this_one: string;           // 為什麼是這條路、不是其他兩條
+    ready_to_continue: boolean;
   };
 
-  // === Card 10: 痛點身份證（不是新資料，而是上述整合輸出）===
-  exported: {
-    exported_at: string | null;
-    formats: Array<'markdown' | 'json' | 'pdf'>;
-    last_review_at: string | null;
+  // === Card B (NEW): 心情地圖 (Empathy Map) ===
+  empathy_map: {
+    think: string;                  // 心裡想什麼
+    feel: string;                   // 感受
+    say: string;                    // 嘴上會說什麼
+    do: string;                     // 行為上會做什麼
+    pain: string;                   // 卡在哪
+    gain: string;                   // 希望得到什麼
+    ready_to_continue: boolean;
   };
+
+  // === Card 4: 把卡點輕輕說清楚 + AI 解法回看 ===
+  stuck_formula_with_solutions: {
+    user_draft: string;             // 使用者寫「我每次要 ___，都會卡在 ___」
+    ai_polished: string | null;     // AI 整理後的版本（不取代原稿）
+    ai_clarifying_questions: string[];
+
+    // AI 列出常見解法，使用者逐一回看
+    ai_solutions: Array<{
+      id: string;
+      label: string;                // AI 提的解法名（不是行銷文案）
+      description: string;          // 簡短描述
+    }>;
+    user_solution_verdicts: Array<{
+      solution_id: string;
+      verdict: 'helps' | 'partial' | 'no' | 'unknown';   // 內部欄位
+      reason: string;               // 使用者寫為什麼這個解法不夠
+    }>;
+    ready_to_continue: boolean;
+  };
+
+  // === Card 5: 取捨對話 (TRIZ) ===
+  contradiction: {
+    pairs: Array<{
+      side_a: string;               // 想要 A
+      side_b: string;               // 也想要 B
+      picked: 'a' | 'b';
+      reason: string;               // 為什麼這次選這邊
+    }>;                             // 建議 3 組
+    ready_to_continue: boolean;
+  };
+
+  // === Card 6: 市場聲音的三段證據 ===
+  ai_evidence: {
+    ai_tool: 'chatgpt_dr' | 'claude' | 'perplexity' | 'gemini' | 'in_app';
+    evidences: Array<{
+      source: string;               // 哪裡看到的
+      quote: string;                // 引用片段
+      relevance: string;            // 使用者寫為什麼這段跟我的痛有關
+    }>;                             // 至少 3 段
+    landscape: 'common_pain' | 'niche_pain' | 'unclear';  // 內部欄位
+    landscape_note: string;         // 使用者自己寫的觀察
+    ready_to_continue: boolean;
+  };
+
+  // === Card 7: 三個有名字的人 + 你心裡的猜想 ===
+  people_with_guesses: {
+    background: string;             // 這群人的共同背景
+    list: Array<{
+      name: string;                 // 真名 / 你叫得出來的稱呼
+      contact: string;              // LINE / 電話 / Email
+      relation: string;             // 跟你的關係
+      why_pick_them: string;        // 為什麼想找他聊
+      guessed_answers: string[];    // 你預先猜他會給的 5 個答案
+    }>;                             // length 必須 = 3
+    ready_to_continue: boolean;
+  };
+
+  // === Card D (NEW): 自我假設清單 (Assumption Check) ===
+  assumptions: {
+    items: Array<{
+      assumption: string;           // 我目前的假設
+      evidence_so_far: string;      // 我目前手上的證據
+      what_would_change_my_mind: string;  // 訪談中要聽到什麼才會修正
+    }>;
+    biases_to_watch: string;        // 自我提醒：我容易帶哪些偏見
+    ready_to_continue: boolean;
+  };
+
+  // === Card 8: 真人對話 ===
+  interview: {
+    sessions: Array<{
+      person_name: string;          // 從 people_with_guesses 連結
+      datetime: string;             // ISO8601
+      mode: 'in_person' | 'video_call' | 'phone' | 'chat';
+      consent_recorded: boolean;    // 是否取得錄音 / 紀錄同意
+      key_quotes: string[];         // 印象深刻的原話
+      surprises: string[];          // 哪些是猜錯的
+      confirmed_guesses: string[];  // 哪些猜對了
+      new_threads: string[];        // 哪些新的線索冒出來
+    }>;
+    ready_to_continue: boolean;
+  };
+
+  // === Card G (NEW): 訪後沉澱 (Post-Interview Synthesis) ===
+  post_interview_synthesis: {
+    ai_clustered_themes: Array<{
+      theme: string;                // AI 建議的主題標籤
+      supporting_quotes: string[];  // AI 連結的引用
+      user_kept: boolean;           // 使用者決定保留 / 重命名 / 丟棄
+      user_renamed_to?: string;
+    }>;
+    user_summary: string;           // 使用者自己寫的一段沉澱（不只是 AI 結果）
+    member_check_questions: string[];  // 想回頭跟受訪者再 check 的問題
+    ready_to_continue: boolean;
+  };
+
+  // === Result: Pain ID 卡片（取代舊 verdict + pain_id_export） ===
+  result: {
+    pain_id: string;                // 自動生成的識別碼
+    story_one_liner: string;        // 一句話的故事
+    next_step_hint: 'continue_listening' | 'pause_for_now' | 'ready_for_sprint';
+    next_step_note: string;         // 使用者自己寫的下一步說明
+    handoff_to_sprint: boolean;     // 是否要進階到 first-dollar sprint
+    exported_at: string | null;     // 何時匯出
+    export_format: 'markdown' | 'json' | 'pdf' | null;
+  };
+
+  // === History（appendOnly）===
+  history: Array<{
+    snapshot_at: string;
+    diff_summary: string;
+  }>;
 };
+
+type PainCardStatus =
+  | 'draft'           // 寫作中
+  | 'paused'          // 中途離開，下次可回來
+  | 'completed';      // 走完 Result
 ```
 
 ---
 
-## 列舉型別 (Enums)
+## 欄位語義備註
 
-### PainCardStatus
+### `ready_to_continue` vs 舊版 `exit_gate_passed`
 
-對應 `painmap_pain_thinking_system.md` 的兩階段狀態：
+- 語意相同：使用者已經寫了足夠資訊，可以往下走。
+- 命名改變：移除「閘門 (gate)」「通過 (pass)」的工程語感。
+- UI 永遠**不直接顯示**這個布林。UI 只顯示「走下一張卡」按鈕的啟用狀態。
+- 後端 / store 內部仍可使用這個欄位做狀態判斷。
 
-| 狀態 | 觸發條件 | 階段 |
-| :--- | :--- | :--- |
-| `draft` | 剛建立或卡 1 完成 | 階段一 |
-| `in_progress` | 卡 2-8 進行中 | 階段一 |
-| `structured` | 卡 9 完成 + 真痛點判斷 | 階段一終點 |
-| `pending_interview` | 卡 9 完成但判斷為「待訪談」 | 階段一暫停 |
-| `archived_fake` | 卡 9 完成 + 假痛點判斷（封存） | 階段一終點 |
+### `next_step_hint` 為什麼還在
+
+雖然不打分數，但使用者完成 Result 時需要一個**書面 + 結構化**的下一步建議。
+三個值對應 `voice_and_tone.md` 中的軟性語句：
+
+| 內部值 | UI 顯示文案 |
+| :-- | :-- |
+| `continue_listening` | 「這條故事還想再多聽幾個聲音」 |
+| `pause_for_now` | 「先把這個放回口袋，過一陣子再回來看」 |
+| `ready_for_sprint` | 「這條故事準備好走進真實的 72 小時了」 |
+
+### 「AI 介入點」與 schema 的對應
+
+| 卡片 | AI 寫入 | 欄位 |
+| :-- | :-- | :-- |
+| Card 1-A | 直接 | `ai_narrowing.directions[]` |
+| Card 1-B | 直接 | `ai_narrowing.drill_rounds[].ai_response` |
+| Card 4 | 直接 | `stuck_formula_with_solutions.ai_polished` + `.ai_solutions[]` |
+| Card 6 | 間接（複製貼上） | `ai_evidence.evidences[]`（使用者貼進來）|
+| Card G | 直接 | `post_interview_synthesis.ai_clustered_themes[]` |
+| 其他 | ❌ 不介入 |  |
 
 ---
 
-## 反思條件對應 (Reflection Prompts)
+## 驗證規則摘要
 
-每張卡片完成的條件由其欄位狀態決定。詳見 `references/exit_gates_matrix.md`。卡片**不擋住前進**——只在欄位空白時建議使用者「回去把 X 想清楚再來」。
+每張卡片走下一張前的「ready_to_continue」條件詳見 `references/exit_gates_matrix.md`。
+此處只列工程必要欄位的最低要求：
 
-| 卡片 | 反思條件（資料層判定） |
-| :-- | :--- |
-| 1 | `complaint.verbatim`、`source_name`、`source_relation`、`datetime`、`scene` 全非空 |
-| 2 | `people.list.length === 3` 且每筆 `name`/`contact`/`relation` 非空 |
-| 3 | AI 對話完成 + `confirmed === true` |
-| 4 | `workaround.tool_name` 非空 + `user_dissatisfactions.length >= 3` |
-| 5 | `contradiction.side_a.length >= 10` + `side_b.length >= 10` + `sacrificed` 已選 + `sacrificed_reason` 非空 |
-| 6 | `ai_evidence.eight_answers` 8 題全非空 + `no_solution_check_passed === true` |
-| 7 | `self_guess.guesses` 4 欄非空 + 4 個 `ai_checkpoints_passed === true` + `deltas` 3 欄非空 |
-| 8 | `interview_plan.targets.length >= 1` + `questions.length === 3` + `interview_taboos_understood === true` |
-| 9 | `judgment` 已選 + `reason_100w.length >= 100` + `most_confident_evidence`/`least_confident` 非空 + `next_action` 已選 |
+| 卡片 | 最低要求 |
+| :-- | :-- |
+| Card 1 | `complaint.verbatim.length ≥ 10` + `source_name` + `datetime` + `scene` 皆非空 |
+| Card A | `pain_diary.entries.length ≥ 1`（建議 3，最低 1） |
+| Card 1-A | `ai_narrowing.directions.length === 3` + `picked_direction_id !== null` |
+| Card 1-B | `ai_narrowing.drill_rounds.length ≥ 2`（建議 3） |
+| Card 3 | `focused_pain.summary.length ≥ 60` + `why_this_one` 非空 |
+| Card B | empathy_map 6 個欄位皆非空 |
+| Card 4 | `user_draft` 非空 + `user_solution_verdicts.length ≥ 3` |
+| Card 5 | `contradiction.pairs.length ≥ 1`（建議 3） |
+| Card 6 | `evidences.length ≥ 3` + `landscape_note` 非空 |
+| Card 7 | `list.length === 3` + 每人 `guessed_answers.length ≥ 3`（建議 5） |
+| Card D | `assumptions.items.length ≥ 2` |
+| Card 8 | `interview.sessions.length ≥ 1`（建議 = `people_with_guesses.list.length`） |
+| Card G | `user_summary.length ≥ 80` |
+| Result | `story_one_liner` + `next_step_note` 皆非空 |
 
 ---
 
-## 持久化策略 (MVP)
-
-### LocalStorage 結構
+## LocalStorage 結構
 
 ```typescript
-// localStorage key: "painmap-worksheet"
-type LocalStorage = {
-  current_card_id: string;              // 目前正在編輯的 card UUID
-  cards: Record<string, PainCard>;      // 所有 cards 以 id 為 key
-  schema_version: '1.0';
-};
+// key: painmap.worksheet.v2
+{
+  schema_version: '2.0';
+  active_pain_card_id: string;
+  pain_cards: {
+    [id: string]: PainCard;
+  };
+}
 ```
 
-### 匯出格式
-
-| 格式 | 用途 | 包含 |
-| :-- | :--- | :--- |
-| Markdown | 分享、貼到部落格 | 痛點身份證模板 + 9 卡摘要 |
-| JSON | 跨工具搬移、備份 | 完整 PainCard 物件 |
-| PDF | 列印、面對面討論 | 美化版痛點身份證 |
-
-匯出檔名格式：`paincard-{slug}-{YYYY-MM-DD}.{ext}`，slug 由 `complaint.verbatim` 前 20 字產生。
+從 v1 升級時：
+- 讀取舊 `painmap.worksheet` key
+- 若 `schema_version === '1.0'`，呼叫 `migrateV1ToV2()` 把舊欄位映射到新欄位（見 `lib/painCardMigration.ts`）
+- 升級完寫入新 key `painmap.worksheet.v2`，舊 key 保留 30 天以防 rollback
 
 ---
 
-## 與 PainMap 進階版銜接
+## 匯出格式（Pain ID 卡片）
 
-當 `verdict.judgment === 'true_pain'` 時，可一鍵匯出至 PainMap App：
+匯出時組裝 markdown 範本（精簡版）：
 
+```markdown
+# Pain ID · {pain_id}
+
+## 一句話的故事
+{result.story_one_liner}
+
+## 抱怨原話
+> {complaint.verbatim}
+> — {complaint.source_name}，{complaint.datetime}
+
+## 聚焦的痛點
+{focused_pain.summary}
+
+## 心情地圖
+- 心裡想：{empathy_map.think}
+- 感受：{empathy_map.feel}
+- 嘴上說：{empathy_map.say}
+- 行為：{empathy_map.do}
+- 卡在：{empathy_map.pain}
+- 希望：{empathy_map.gain}
+
+## 卡點公式
+{stuck_formula_with_solutions.user_draft}
+
+## 三個取捨
+{contradiction.pairs}
+
+## 訪過的人
+{interview.sessions}
+
+## 訪後沉澱
+{post_interview_synthesis.user_summary}
+
+## 我的下一步
+{result.next_step_note}
 ```
-PainCard
-  ↓ adapter
-PainMap App's Pain Entry (進階 schema)
-  ↓
-進入 Pain Collector / Essence Decomposer 流程
-```
 
-詳見 `product/stage1_to_stage2_handoff.md`。
+JSON 匯出：完整 PainCard 物件（包含 history）。
+PDF 匯出：上述 markdown 渲染後輸出，沿用 brand 字體與留白。
