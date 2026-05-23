@@ -1,0 +1,64 @@
+name: Deploy to GitHub Pages
+
+# Auto-deploy on every push to main + manual trigger.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Grants the workflow the perms it needs to publish to GitHub Pages.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Only let one Pages deploy run at a time. Newer commits cancel in-progress runs.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Build
+        run: npm run build:ghpages
+
+      - name: SPA fallback — copy index.html to 404.html
+        # GitHub Pages serves 404.html for unknown paths. Making it identical
+        # to index.html lets the SPA router handle deep links like
+        # /painmap-v2/learn/worksheet/05 on a fresh page load.
+        run: cp dist-ghpages/index.html dist-ghpages/404.html
+
+      - name: Bypass Jekyll
+        # GH Pages otherwise applies Jekyll, which can mangle Vite asset paths
+        # that start with an underscore.
+        run: touch dist-ghpages/.nojekyll
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist-ghpages
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

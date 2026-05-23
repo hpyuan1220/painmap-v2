@@ -55,9 +55,16 @@ function DefaultErrorComponent({ error, reset }: { error: Error; reset: () => vo
 }
 
 export const getRouter = () => {
+  // `import.meta.env.BASE_URL` is set by Vite to the build's `base` config
+  // value (default "/"). For GitHub Pages we build with `base: "/painmap-v2/"`,
+  // so the router needs the matching basepath. Strip the trailing slash because
+  // TanStack Router expects no trailing slash on the basepath.
+  const basepath = (import.meta.env.BASE_URL ?? "/").replace(/\/$/, "");
+
   const router = createRouter({
     routeTree,
     context: {},
+    basepath: basepath || undefined,
     scrollRestoration: true,
     defaultPreloadStaleTime: 0,
     defaultErrorComponent: DefaultErrorComponent,

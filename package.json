@@ -8,6 +8,7 @@
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "build:vercel": "vite build --config vite.config.vercel.ts",
+    "build:ghpages": "vite build --config vite.config.ghpages.ts",
     "preview": "vite preview",
     "preview:vercel": "vite preview --config vite.config.vercel.ts",
     "lint": "eslint .",
