@@ -43,3 +43,8 @@ card*-*.png
 
 # Landing manual test screenshots
 landing-*.png
+
+# Playwright E2E test artifacts
+test-results/
+playwright-report/
+.playwright/
