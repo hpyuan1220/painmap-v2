@@ -1,5 +1,5 @@
 /**
- * CardProgressStepper — 9 步進度條 + 結果頁身份證 (Grok dark theme)
+ * CardProgressStepper — 13 步進度條 + Result Pain ID 卡片 (v3.0)
  *
  * 唯一目的：讓使用者知道自己在哪、之前完成了哪幾張、後面還有哪幾張。
  * 不是排名工具、不是評分工具、不是激勵工具。
@@ -16,23 +16,23 @@ import type { CurrentStep } from "@/types/painCard";
 import { STEP_LABELS } from "@/types/painCard";
 import { cn } from "@/lib/utils";
 
-const STEPS: CurrentStep[] = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+type StepNum = Exclude<CurrentStep, "result">;
+
+const STEPS: StepNum[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
+const TOTAL = STEPS.length;
 
 type StepState = "completed" | "current" | "locked";
 
-/**
- * step 顯示狀態:
- * - current: 使用者目前正在這一卡(看 URL,而不是 store)
- * - completed: 已經到過(<= maxReached)且不是當前頁
- * - locked: 還沒解鎖(> maxReached)
- */
-function stateOf(step: CurrentStep, current: CurrentStep, maxReached: CurrentStep): StepState {
-  if (step === current) return "current";
-  if (step <= maxReached) return "completed";
-  return "locked";
+function order(s: CurrentStep): number {
+  return s === "result" ? 14 : s;
 }
 
-const STEP_PATHS = {
+function stateOf(step: StepNum, current: CurrentStep, maxReached: CurrentStep): StepState {
+  if (step === current) return "current";
+  return order(step) <= order(maxReached) ? "completed" : "locked";
+}
+
+const STEP_PATHS: Record<StepNum, string> = {
   1: "/learn/worksheet/01",
   2: "/learn/worksheet/02",
   3: "/learn/worksheet/03",
@@ -42,23 +42,20 @@ const STEP_PATHS = {
   7: "/learn/worksheet/07",
   8: "/learn/worksheet/08",
   9: "/learn/worksheet/09",
-  10: "/learn/worksheet/result",
-} as const;
+  10: "/learn/worksheet/10",
+  11: "/learn/worksheet/11",
+  12: "/learn/worksheet/12",
+  13: "/learn/worksheet/13",
+};
 
-type StepPath = (typeof STEP_PATHS)[keyof typeof STEP_PATHS];
-
-function pathFor(step: CurrentStep | 10): StepPath {
-  return STEP_PATHS[step];
-}
-
-/** 從 URL pathname 解析出目前在第幾卡;不在 worksheet 卡片內就回 store 的 current_step */
+/** 從 URL pathname 解析出目前在哪一卡 */
 function stepFromPath(pathname: string, fallback: CurrentStep): CurrentStep {
   const m = pathname.match(/\/learn\/worksheet\/(\d{2})/);
   if (m) {
     const n = Number(m[1]);
-    if (n >= 1 && n <= 9) return n as CurrentStep;
+    if (n >= 1 && n <= 13) return n as StepNum;
   }
-  if (pathname.includes("/learn/worksheet/result")) return 10;
+  if (pathname.includes("/learn/worksheet/result")) return "result";
   return fallback;
 }
 
@@ -67,38 +64,43 @@ export function CardProgressStepper() {
   const { pathname } = useLocation();
   const current = stepFromPath(pathname, maxReached);
   const resultState: StepState =
-    current === 10 ? "current" : maxReached === 10 ? "completed" : "locked";
+    current === "result"
+      ? "current"
+      : order(maxReached) >= 14
+        ? "completed"
+        : "locked";
+
+  const currentDisplay =
+    current === "result" ? "DONE" : String(current).padStart(2, "0");
 
   return (
     <nav
-      aria-label="痛點填空簿進度"
+      aria-label="痛點訪談陪伴本進度"
       className="w-full border-b border-border-hairline bg-canvas-base"
     >
       {/* Mobile: 折疊文字 */}
       <div className="md:hidden flex items-center justify-between px-5 py-3">
         <span className="font-mono text-[11px] uppercase tracking-[0.08em] text-text-tertiary">
-          Card{" "}
-          <span className="text-text-primary tabular-nums">{String(current).padStart(2, "0")}</span>
-          {" / 09"}
-          {current === 10 && " · DONE"}
+          Card <span className="text-text-primary tabular-nums">{currentDisplay}</span>
+          {current !== "result" && ` / ${TOTAL}`}
         </span>
         <span className="text-[13px] text-text-secondary truncate max-w-[60%]">
-          {STEP_LABELS[current]}
+          {current === "result" ? "Pain ID" : STEP_LABELS[current as StepNum]}
         </span>
       </div>
 
       {/* Desktop / Tablet: 水平 stepper */}
-      <ol className="hidden md:flex items-start justify-between gap-1 px-8 py-5 max-w-6xl mx-auto">
+      <ol className="hidden md:flex items-start justify-between gap-0.5 px-6 py-5 max-w-7xl mx-auto overflow-x-auto">
         {STEPS.map((step, i) => {
           const state = stateOf(step, current, maxReached);
           const isLast = i === STEPS.length - 1;
           return (
-            <li key={step} className="flex-1 flex items-start min-w-0">
-              <div className="flex flex-col items-center min-w-0 flex-1">
+            <li key={step} className="flex items-start min-w-0">
+              <div className="flex flex-col items-center min-w-0">
                 <StepDot step={step} state={state} />
                 <span
                   className={cn(
-                    "mt-2.5 font-mono text-[10px] uppercase tracking-[0.06em] truncate max-w-[72px]",
+                    "mt-2 font-mono text-[9px] uppercase tracking-[0.05em] truncate max-w-[64px] text-center",
                     state === "completed" && "text-text-secondary",
                     state === "current" && "text-text-primary",
                     state === "locked" && "text-text-tertiary",
@@ -110,8 +112,10 @@ export function CardProgressStepper() {
               {!isLast && (
                 <div
                   className={cn(
-                    "h-px flex-1 mt-3.5 mx-1 transition-colors",
-                    step < maxReached ? "bg-text-primary/60" : "bg-border-hairline",
+                    "h-px w-4 mt-3.5 mx-0.5 transition-colors",
+                    order(step) < order(maxReached)
+                      ? "bg-text-primary/60"
+                      : "bg-border-hairline",
                   )}
                   aria-hidden
                 />
@@ -119,30 +123,32 @@ export function CardProgressStepper() {
             </li>
           );
         })}
-        {/* 結果頁 / 身份證 */}
+        {/* Result Pain ID 卡片 */}
         <li className="flex items-start">
           <div
             className={cn(
-              "h-px w-6 mt-3.5 mr-1 transition-colors",
-              maxReached === 10 ? "bg-text-primary/60" : "bg-border-hairline",
+              "h-px w-4 mt-3.5 mr-0.5 transition-colors",
+              order(maxReached) >= 14
+                ? "bg-text-primary/60"
+                : "bg-border-hairline",
             )}
             aria-hidden
           />
           <div className="flex flex-col items-center">
             <Link
               to="/learn/worksheet/result"
-              aria-label="痛點身份證 (結果頁)"
+              aria-label="Pain ID 卡片 (結尾)"
               className={cn(
                 "h-7 w-7 rounded-full flex items-center justify-center text-[12px] font-medium transition-all duration-200",
-                resultState === "completed"
+                resultState === "completed" || resultState === "current"
                   ? "bg-text-primary text-text-inverse"
                   : "border border-border-hairline bg-canvas-raised text-text-tertiary hover:border-border-default",
               )}
             >
               ◆
             </Link>
-            <span className="mt-2.5 font-mono text-[10px] uppercase tracking-[0.06em] text-text-tertiary">
-              ID
+            <span className="mt-2 font-mono text-[9px] uppercase tracking-[0.05em] text-text-tertiary">
+              Pain ID
             </span>
           </div>
         </li>
@@ -151,23 +157,21 @@ export function CardProgressStepper() {
   );
 }
 
-const StepDot = memo(function StepDot({ step, state }: { step: CurrentStep; state: StepState }) {
+const StepDot = memo(function StepDot({ step, state }: { step: StepNum; state: StepState }) {
   const baseClasses =
-    "h-7 w-7 rounded-full flex items-center justify-center transition-all duration-200 font-mono text-[11px] tabular-nums";
-
-  const numberLabel = String(step).padStart(2, "0");
+    "h-7 w-7 rounded-full flex items-center justify-center transition-all duration-200 font-mono text-[10px] tabular-nums";
+  const label = String(step).padStart(2, "0");
 
   if (state === "locked") {
     return (
       <div
-        aria-current={undefined}
-        aria-label={`卡 ${step}（鎖定）`}
+        aria-label={`Card ${label}（鎖定）`}
         className={cn(
           baseClasses,
           "border border-border-hairline bg-canvas-raised text-text-tertiary",
         )}
       >
-        {numberLabel}
+        {label}
       </div>
     );
   }
@@ -175,8 +179,8 @@ const StepDot = memo(function StepDot({ step, state }: { step: CurrentStep; stat
   if (state === "completed") {
     return (
       <Link
-        to={pathFor(step)}
-        aria-label={`卡 ${step}（已完成）`}
+        to={STEP_PATHS[step]}
+        aria-label={`Card ${label}（已完成）`}
         className={cn(
           baseClasses,
           "border border-text-primary/40 bg-surface-active text-text-primary hover:bg-surface-active hover:border-text-primary",
@@ -190,12 +194,12 @@ const StepDot = memo(function StepDot({ step, state }: { step: CurrentStep; stat
   // current
   return (
     <Link
-      to={pathFor(step)}
+      to={STEP_PATHS[step]}
       aria-current="step"
-      aria-label={`卡 ${step}（進行中）`}
+      aria-label={`Card ${label}（進行中）`}
       className={cn(baseClasses, "bg-text-primary text-text-inverse")}
     >
-      {numberLabel}
+      {label}
     </Link>
   );
 });
