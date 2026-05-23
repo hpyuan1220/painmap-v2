@@ -7,6 +7,7 @@ import {
   TextField,
   TextareaField,
 } from "@/components/worksheet/WorksheetFormPrimitives";
+import { isCard7Ready } from "@/lib/cardValidators";
 import { usePainCardStore } from "@/store/painCard";
 import type { PersonWithGuesses } from "@/types/painCard";
 
@@ -53,16 +54,7 @@ function CardSevenPage() {
     setTimeout(() => ensurePeopleSlots(3), 0);
   }
 
-  const ready =
-    list.length === 3 &&
-    list.every(
-      (p) =>
-        p.name.trim() &&
-        p.contact.trim() &&
-        p.relation.trim() &&
-        p.why_pick_them.trim() &&
-        p.guessed_answers.filter((a) => a.trim()).length >= 3,
-    );
+  const ready = isCard7Ready(pwg);
 
   function setPerson(idx: number, patch: Partial<PersonWithGuesses>) {
     const next = list.map((p, i) => (i === idx ? { ...p, ...patch } : p));

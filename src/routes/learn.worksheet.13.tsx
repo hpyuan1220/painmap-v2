@@ -8,6 +8,7 @@ import {
   TextField,
   TextareaField,
 } from "@/components/worksheet/WorksheetFormPrimitives";
+import { isCardGReady } from "@/lib/cardValidators";
 import { usePainCardStore } from "@/store/painCard";
 import type { ClusteredTheme, InterviewSession, AssumptionItem } from "@/types/painCard";
 
@@ -83,8 +84,7 @@ function CardGPage() {
 
   const themes = pis.ai_clustered_themes.length === 0 ? [emptyTheme()] : pis.ai_clustered_themes;
   const summaryLen = pis.user_summary.trim().length;
-  const memberQ = pis.member_check_questions.filter((q) => q.trim());
-  const ready = summaryLen >= 80 && memberQ.length >= 1;
+  const ready = isCardGReady(pis);
 
   const prompt = buildPrompt(
     card.focused_pain.summary,

@@ -8,6 +8,7 @@ import {
   TextField,
   TextareaField,
 } from "@/components/worksheet/WorksheetFormPrimitives";
+import { isCard1AReady } from "@/lib/cardValidators";
 import { usePainCardStore } from "@/store/painCard";
 import type { AiDirection } from "@/types/painCard";
 
@@ -76,9 +77,7 @@ function CardOneAPage() {
     an.directions.length === 0
       ? [emptyDir("d1"), emptyDir("d2"), emptyDir("d3")]
       : an.directions;
-  const ready = directions.length === 3 &&
-    directions.every((d) => d.title.trim() && d.description.trim()) &&
-    an.picked_direction_id !== null;
+  const ready = isCard1AReady(an);
 
   function setDir(idx: number, patch: Partial<AiDirection>) {
     const next = directions.map((d, i) => (i === idx ? { ...d, ...patch } : d));

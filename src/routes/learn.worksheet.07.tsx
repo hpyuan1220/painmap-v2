@@ -8,6 +8,7 @@ import {
   TextField,
   TextareaField,
 } from "@/components/worksheet/WorksheetFormPrimitives";
+import { isCard4Ready } from "@/lib/cardValidators";
 import { usePainCardStore } from "@/store/painCard";
 import type { AiSolution, SolutionVerdict } from "@/types/painCard";
 
@@ -53,8 +54,7 @@ function CardFourPage() {
     return v && v.reason.trim().length > 0;
   }).length;
 
-  const ready =
-    s.user_draft.trim().length > 0 && verdictsCompleted >= 3;
+  const ready = isCard4Ready(s);
 
   function getVerdict(solutionId: string): SolutionVerdict {
     return (

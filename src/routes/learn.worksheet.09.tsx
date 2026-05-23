@@ -7,6 +7,7 @@ import {
   TextField,
   TextareaField,
 } from "@/components/worksheet/WorksheetFormPrimitives";
+import { isCard6Ready } from "@/lib/cardValidators";
 import { usePainCardStore } from "@/store/painCard";
 import type { AiTool, EvidenceEntry } from "@/types/painCard";
 
@@ -35,10 +36,7 @@ function CardSixPage() {
   const updateField = usePainCardStore((s) => s.updateField);
 
   const list = ae.evidences.length === 0 ? [emptyEvidence()] : ae.evidences;
-  const ready =
-    list.length >= 3 &&
-    list.every((e) => e.source.trim() && e.quote.trim() && e.relevance.trim()) &&
-    ae.landscape_note.trim().length > 0;
+  const ready = isCard6Ready(ae);
 
   function setEvidence(idx: number, patch: Partial<EvidenceEntry>) {
     const next = list.map((e, i) => (i === idx ? { ...e, ...patch } : e));

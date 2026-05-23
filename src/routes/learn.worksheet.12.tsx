@@ -7,6 +7,7 @@ import {
   RadioGroup,
   TextField,
 } from "@/components/worksheet/WorksheetFormPrimitives";
+import { isCard8Ready } from "@/lib/cardValidators";
 import { usePainCardStore } from "@/store/painCard";
 import type { InterviewMode, InterviewSession } from "@/types/painCard";
 
@@ -46,15 +47,7 @@ function CardEightPage() {
   const updateField = usePainCardStore((s) => s.updateField);
 
   const list = sessions.length === 0 ? [emptySession()] : sessions;
-  const ready =
-    list.length >= 1 &&
-    list.every(
-      (s) =>
-        s.person_name.trim() &&
-        s.datetime &&
-        s.mode &&
-        s.key_quotes.filter((q) => q.trim()).length >= 1,
-    );
+  const ready = isCard8Ready({ sessions });
 
   function setSession(idx: number, patch: Partial<InterviewSession>) {
     const next = list.map((s, i) => (i === idx ? { ...s, ...patch } : s));

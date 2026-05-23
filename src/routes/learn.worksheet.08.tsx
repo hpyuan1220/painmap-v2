@@ -7,6 +7,7 @@ import {
   TextField,
   TextareaField,
 } from "@/components/worksheet/WorksheetFormPrimitives";
+import { isCard5Ready } from "@/lib/cardValidators";
 import { usePainCardStore } from "@/store/painCard";
 import type { ContradictionPair } from "@/types/painCard";
 
@@ -36,9 +37,7 @@ function CardFivePage() {
   const updateField = usePainCardStore((s) => s.updateField);
 
   const list = pairs.length === 0 ? [emptyPair()] : pairs;
-  const ready =
-    list.length >= 1 &&
-    list.every((p) => p.side_a.trim() && p.side_b.trim() && p.reason.trim());
+  const ready = isCard5Ready({ pairs });
 
   function setPair(idx: number, patch: Partial<ContradictionPair>) {
     const next = list.map((p, i) => (i === idx ? { ...p, ...patch } : p));

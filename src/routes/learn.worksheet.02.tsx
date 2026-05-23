@@ -6,6 +6,7 @@ import {
   TextField,
   TextareaField,
 } from "@/components/worksheet/WorksheetFormPrimitives";
+import { isCardAReady } from "@/lib/cardValidators";
 import { usePainCardStore } from "@/store/painCard";
 import type { PainDiaryEntry } from "@/types/painCard";
 
@@ -40,9 +41,7 @@ function CardAPage() {
   const updateField = usePainCardStore((s) => s.updateField);
 
   const list = entries.length === 0 ? [emptyEntry()] : entries;
-  const ready =
-    list.length >= 1 &&
-    list.every((e) => e.timestamp && e.location.trim() && e.note.trim());
+  const ready = isCardAReady({ entries });
 
   function setEntry(idx: number, patch: Partial<PainDiaryEntry>) {
     const next = list.map((e, i) => (i === idx ? { ...e, ...patch } : e));

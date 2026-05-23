@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import { CardScaffold } from "@/components/worksheet/CardScaffold";
 import { TextareaField } from "@/components/worksheet/WorksheetFormPrimitives";
+import { isCardBReady } from "@/lib/cardValidators";
 import { usePainCardStore } from "@/store/painCard";
 
 export const Route = createFileRoute("/learn/worksheet/06")({
@@ -23,14 +24,7 @@ const INSTRUCTION = `我們站到那個人的位置上看一看。
 function CardBPage() {
   const em = usePainCardStore((s) => s.card.empathy_map);
   const updateField = usePainCardStore((s) => s.updateField);
-  const ready = !!(
-    em.think.trim() &&
-    em.feel.trim() &&
-    em.say.trim() &&
-    em.do.trim() &&
-    em.pain.trim() &&
-    em.gain.trim()
-  );
+  const ready = isCardBReady(em);
 
   return (
     <CardScaffold
