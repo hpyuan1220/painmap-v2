@@ -68,8 +68,16 @@ describe("TextareaField", () => {
     const user = userEvent.setup();
     render(<TextareaField label="筆記" value="" onChange={onChange} />);
     await user.type(screen.getByLabelText("筆記"), "abc");
-    // Without a parent rerender, the controlled value prop remains empty.
-    expect(onChange).toHaveBeenLastCalledWith("c");
+    expect(onChange).toHaveBeenLastCalledWith("abc");
+  });
+
+  it("keeps typed text visible before a parent rerender", async () => {
+    const user = userEvent.setup();
+    render(<TextareaField label="筆記" value="" onChange={() => {}} />);
+    const textarea = screen.getByLabelText("筆記") as HTMLTextAreaElement;
+
+    await user.type(textarea, "abc");
+    expect(textarea.value).toBe("abc");
   });
 
   it("keeps typed text when controlled by a parent", async () => {

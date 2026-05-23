@@ -8,10 +8,38 @@
  * stays on the invitation tone defined in voice_and_tone.md.
  */
 
-import { useId, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 
 const inputClass =
-  "w-full rounded-md border border-border-hairline bg-canvas-raised px-3 py-2.5 text-[15px] text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-text-primary";
+  "relative z-10 pointer-events-auto w-full rounded-md border border-border-hairline bg-canvas-raised px-3 py-2.5 text-[15px] text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-text-primary";
+
+function useWritableDraft(value: string, onChange: (v: string) => void) {
+  const [draft, setDraft] = useState(value);
+  const focused = useRef(false);
+
+  useEffect(() => {
+    if (!focused.current) {
+      setDraft(value);
+    }
+  }, [value]);
+
+  function write(next: string) {
+    setDraft(next);
+    onChange(next);
+  }
+
+  return {
+    value: draft,
+    onFocus: () => {
+      focused.current = true;
+    },
+    onBlur: () => {
+      focused.current = false;
+      onChange(draft);
+    },
+    write,
+  };
+}
 
 export function TextField({
   label,
@@ -27,7 +55,7 @@ export function TextField({
   type?: "text" | "date" | "datetime-local" | "tel" | "email" | "url";
 }) {
   const id = useId();
-  const handleValueChange = (v: string) => onChange(v);
+  const draft = useWritableDraft(value, onChange);
   return (
     <div className="flex flex-col gap-1.5">
       <label htmlFor={id} className="text-[13px] font-medium text-text-secondary">
@@ -36,10 +64,13 @@ export function TextField({
       <input
         id={id}
         type={type}
-        value={value}
-        onInput={(e) => handleValueChange(e.currentTarget.value)}
-        onChange={(e) => handleValueChange(e.target.value)}
+        value={draft.value}
+        onFocus={draft.onFocus}
+        onBlur={draft.onBlur}
+        onInput={(e) => draft.write(e.currentTarget.value)}
+        onChange={(e) => draft.write(e.target.value)}
         placeholder={hint}
+        autoComplete="off"
         className={inputClass}
       />
     </div>
@@ -60,7 +91,7 @@ export function TextareaField({
   rows?: number;
 }) {
   const id = useId();
-  const handleValueChange = (v: string) => onChange(v);
+  const draft = useWritableDraft(value, onChange);
   return (
     <div className="flex flex-col gap-1.5">
       <label htmlFor={id} className="text-[13px] font-medium text-text-secondary">
@@ -69,13 +100,42 @@ export function TextareaField({
       <textarea
         id={id}
         rows={rows}
-        value={value}
-        onInput={(e) => handleValueChange(e.currentTarget.value)}
-        onChange={(e) => handleValueChange(e.target.value)}
+        value={draft.value}
+        onFocus={draft.onFocus}
+        onBlur={draft.onBlur}
+        onInput={(e) => draft.write(e.currentTarget.value)}
+        onChange={(e) => draft.write(e.target.value)}
         placeholder={hint}
+        autoComplete="off"
         className={inputClass}
       />
     </div>
+  );
+}
+
+function ListItemInput({
+  value,
+  placeholder,
+  onChange,
+}: {
+  value: string;
+  placeholder?: string;
+  onChange: (v: string) => void;
+}) {
+  const draft = useWritableDraft(value, onChange);
+
+  return (
+    <input
+      type="text"
+      value={draft.value}
+      onFocus={draft.onFocus}
+      onBlur={draft.onBlur}
+      onInput={(e) => draft.write(e.currentTarget.value)}
+      onChange={(e) => draft.write(e.target.value)}
+      placeholder={placeholder}
+      autoComplete="off"
+      className={inputClass}
+    />
   );
 }
 
@@ -137,21 +197,14 @@ export function ListField({
       {hint && <p className="text-[12px] text-text-tertiary">{hint}</p>}
       {items.map((item, idx) => (
         <div key={idx} className="flex gap-2 items-start">
-          <input
-            type="text"
+          <ListItemInput
             value={item}
-            onInput={(e) => {
+            onChange={(v) => {
               const next = [...items];
-              next[idx] = e.currentTarget.value;
-              onChange(next);
-            }}
-            onChange={(e) => {
-              const next = [...items];
-              next[idx] = e.target.value;
+              next[idx] = v;
               onChange(next);
             }}
             placeholder={itemPlaceholder}
-            className={inputClass}
           />
           <button
             type="button"
