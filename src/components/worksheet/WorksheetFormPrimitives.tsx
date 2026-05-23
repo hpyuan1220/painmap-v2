@@ -8,7 +8,7 @@
  * stays on the invitation tone defined in voice_and_tone.md.
  */
 
-import { type ReactNode } from "react";
+import { useId, type ReactNode } from "react";
 
 const inputClass =
   "w-full rounded-md border border-border-hairline bg-canvas-raised px-3 py-2.5 text-[15px] text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-text-primary";
@@ -26,19 +26,23 @@ export function TextField({
   onChange: (v: string) => void;
   type?: "text" | "date" | "datetime-local" | "tel" | "email" | "url";
 }) {
-  const id = `tf-${label}`;
+  const id = useId();
+  const handleValueChange = (v: string) => onChange(v);
   return (
-    <label htmlFor={id} className="flex flex-col gap-1.5">
-      <span className="text-[13px] font-medium text-text-secondary">{label}</span>
+    <div className="flex flex-col gap-1.5">
+      <label htmlFor={id} className="text-[13px] font-medium text-text-secondary">
+        {label}
+      </label>
       <input
         id={id}
         type={type}
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onInput={(e) => handleValueChange(e.currentTarget.value)}
+        onChange={(e) => handleValueChange(e.target.value)}
         placeholder={hint}
         className={inputClass}
       />
-    </label>
+    </div>
   );
 }
 
@@ -55,19 +59,23 @@ export function TextareaField({
   onChange: (v: string) => void;
   rows?: number;
 }) {
-  const id = `ta-${label}`;
+  const id = useId();
+  const handleValueChange = (v: string) => onChange(v);
   return (
-    <label htmlFor={id} className="flex flex-col gap-1.5">
-      <span className="text-[13px] font-medium text-text-secondary">{label}</span>
+    <div className="flex flex-col gap-1.5">
+      <label htmlFor={id} className="text-[13px] font-medium text-text-secondary">
+        {label}
+      </label>
       <textarea
         id={id}
         rows={rows}
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onInput={(e) => handleValueChange(e.currentTarget.value)}
+        onChange={(e) => handleValueChange(e.target.value)}
         placeholder={hint}
         className={inputClass}
       />
-    </label>
+    </div>
   );
 }
 
@@ -84,9 +92,7 @@ export function RadioGroup<T extends string>({
 }) {
   return (
     <fieldset className="flex flex-col gap-2">
-      <legend className="text-[13px] font-medium text-text-secondary mb-1">
-        {label}
-      </legend>
+      <legend className="text-[13px] font-medium text-text-secondary mb-1">{label}</legend>
       {options.map((opt) => (
         <label
           key={opt.value}
@@ -126,7 +132,7 @@ export function ListField({
   itemPlaceholder?: string;
 }) {
   return (
-    <div className="flex flex-col gap-2">
+    <div role="group" aria-label={label} className="flex flex-col gap-2">
       <p className="text-[13px] font-medium text-text-secondary">{label}</p>
       {hint && <p className="text-[12px] text-text-tertiary">{hint}</p>}
       {items.map((item, idx) => (
@@ -134,6 +140,11 @@ export function ListField({
           <input
             type="text"
             value={item}
+            onInput={(e) => {
+              const next = [...items];
+              next[idx] = e.currentTarget.value;
+              onChange(next);
+            }}
             onChange={(e) => {
               const next = [...items];
               next[idx] = e.target.value;
@@ -176,9 +187,7 @@ export function CardBlock({
     <section className="rounded-lg border border-border-hairline bg-canvas-raised p-5 flex flex-col gap-4">
       {(title || onRemove) && (
         <header className="flex items-center justify-between">
-          {title && (
-            <h3 className="text-[14px] font-medium text-text-primary">{title}</h3>
-          )}
+          {title && <h3 className="text-[14px] font-medium text-text-primary">{title}</h3>}
           {onRemove && (
             <button
               type="button"
