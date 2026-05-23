@@ -1,15 +1,17 @@
-# Reflection Hints Matrix — 9 卡反思問題與回頭重想路徑
+# Continue-When-Ready Matrix — 13 張卡片「走下一張卡前我們想多聽你說的事」
 
 > **真相源**：
-> - `docs/workshop/painpoint_beginner_worksheet.md` 各卡的「想想看」段落
-> - `docs/painmap_worksheet/product/data_model.md` 的欄位驗證對應
+> - `data_model.md` §驗證規則摘要 — 欄位最低要求
+> - `voice_and_tone.md` — 所有顯示給使用者的中文字串
+> - `user_journey.md` — 各卡片旅程描述
 >
-> **本檔角色**：把 worksheet 的「想想看」翻譯成可程式化規則，對齊 PainCard schema 欄位，並設計回頭重想時的中性提示文案。
+> **本檔角色**：把每張卡的「走下一張卡前」條件翻譯成可程式化規則 + 對應給使用者看的軟性邀請文案。
 >
-> **設計鐵律**（蘇格拉底式）：
-> - 卡片不擋人，只**建議**回頭重想；不出現「過關 / 退回 / 失敗」字眼。
-> - 唯一的硬性規則是「真實性護欄」（Card 1 反分析語、Card 2 真名規則）—— 觸發時以中性提示（`{ kind: "ok" | "hint" }`）呈現，從不說 "fail"。
-> - 沒有任何卡片 hard-block 前進；卡片只**標記**「這裡可能還沒想清楚」並讓使用者自決。
+> **設計鐵律**：
+> - 卡片永遠不**擋住**前進，只**邀請**停留。
+> - 不出現「過關 / 退回 / 失敗 / 驗證 / Exit Gate」（與 `voice_and_tone.md` §3.1 一致）。
+> - 唯一的硬性規則是「具體性護欄」（Card 1 反分析語、Card 7 真名規則），且只以中性 hint 呈現，不擋前進。
+> - 所有欄位最低要求滿足前，「走下一張卡」按鈕保持灰色（CTA disabled），但仍可隨時回到前面任何一張卡。
 
 ---
 
@@ -18,293 +20,387 @@
 ### 0.1 卡片狀態演進
 
 ```
-draft (卡 1 開始)
-  ↓ 寫一寫
-in_progress (卡 2..卡 8)
-  ↓ 寫到卡 9 完成
-卡 9 真假判斷寫完
+draft        (Card 1 開始)
   ↓
-status 由 verdict.judgment 決定：
-  - true_pain → structured
-  - fake_pain → archived_fake
-  - pending_interview → pending_interview
+in_progress  (Card A..Card G)
+  ↓ Result 卡片寫完
+completed    (帶得走的 Pain ID 卡片產出)
+  ↓ 中途離開
+paused       (LocalStorage 保留，下次回來繼續)
 ```
 
 ### 0.2 兩層提示
 
-| 層級 | 範圍 | 範例 |
-| :--- | :--- | :--- |
-| L1：欄位填寫狀態 | 必填 / 長度 | `complaint.verbatim` 非空、長度 ≥ 10 字 |
-| L2：真實性護欄（從不擋過，只給中性 hint） | 規則式提示 | 不可包含「我覺得」「應該需要」 |
+| 層級 | 範圍 | 行為 |
+| :-- | :-- | :-- |
+| L1：欄位最低要求 | 必填 / 長度 / 數量 | 「走下一張卡」按鈕灰色，無法點 |
+| L2：具體性護欄 | 規則式中性提示 | 顯示軟性 hint，**仍可前進** |
 
-### 0.3 「卡片建議回頭」 vs 「卡片擋你前進」
+### 0.3 邀請式停留 vs 工程式擋人
 
 ```
 鐵律：卡片永遠不擋你前進。
 
 只有兩種情況：
-1. 必填欄位空白 → 「下一步」按鈕灰色（無法點）
-2. 真實性護欄被觸發 → 顯示中性提示「想想看：這幾個字像不像是你自己幫他想的？」
-   但仍可前進（使用者自決）
+1. 最低要求未滿足 → 「走下一張卡」按鈕灰色，但底下用一段話告訴你「我們再陪你多聽兩件事」
+2. 具體性護欄觸發 → 顯示中性 hint，但按鈕仍可點（使用者自決）
 ```
 
-> 寫卡片時不需要區分 HARD / SOFT。所有提示都是 SOFT（中性反思），只有必填欄位的填寫狀態決定 CTA 是否可點。
+所有 hint 都是 soft（中性反思），只有 L1 最低要求決定 CTA 是否可點。
 
 ---
 
-## 1. 9 張卡片反思問題矩陣
+## 1. 13 張卡片「走下一張卡前」矩陣
 
-下表每張卡都列：worksheet 原始反思問題、對應 PainCard 欄位、欄位驗證 / 真實性護欄。
-
-### 卡 1 ｜ 抱怨原句
-
-| Source | 反思問題 |
-| :--- | :--- |
-| 想想看 | 寫的是**原句**還是你的解釋？至少有 1 個**有名字的真人**？ |
-
-| ID | 規則 | 欄位 | 行為 |
-| :--- | :--- | :--- | :--- |
-| G1.1 | `complaint.verbatim` 非空且長度 ≥ 10 字 | `complaint.verbatim` | CTA 灰色直到寫滿 |
-| G1.2 | `complaint.source_name` 非空 | `complaint.source_name` | CTA 灰色直到寫滿 |
-| G1.3 | `complaint.source_relation` 非空 | `complaint.source_relation` | CTA 灰色直到寫滿 |
-| G1.4 | `complaint.datetime` 非空 | `complaint.datetime` | CTA 灰色直到寫滿 |
-| G1.5 | `complaint.scene` 非空 | `complaint.scene` | CTA 灰色直到寫滿 |
-| G1.6 | `complaint.verbatim` 不可包含「我覺得」「應該需要」「也許」「可能」「大概」 | `complaint.verbatim` | 中性 hint「這幾個字像不像是你自己幫他想的？」（不擋前進） |
-| G1.7 | `complaint.source_name` 不可為「同學 A」「老師 B」「某人」「朋友」這類代稱 | `complaint.source_name` | 中性 hint「最好補上真名」（不擋前進） |
+下表每張卡都列：
+- 對應 PainCard 欄位
+- L1 最低要求（CTA disable rules）
+- L2 具體性護欄（中性 hint，不擋前進）
+- 給使用者看的軟性邀請文案範例
 
 ---
 
-### 卡 2 ｜ 三個有名字的人
+### Card 1 · 那句脫口而出的話
 
-| Source | 反思問題 |
-| :--- | :--- |
-| 想想看 | 3 個都有真名嗎？你**今天**就能傳訊息給其中 1 位嗎？如果不能，那他算「有名字的人」嗎？ |
+| 欄位 | `complaint.{verbatim, source_name, source_relation, datetime, scene}` |
+| :-- | :-- |
 
-| ID | 規則 | 欄位 | 行為 |
-| :--- | :--- | :--- | :--- |
-| G2.1 | `people.background` 非空 | `people.background` | CTA 灰色直到寫滿 |
-| G2.2 | `people.list.length === 3`（嚴格 3 筆） | `people.list` | CTA 灰色直到寫滿 |
-| G2.3 | 每筆 `people.list[*].name` 非空 | — | CTA 灰色直到寫滿 |
-| G2.4 | 每筆 `people.list[*].contact` 非空 | — | CTA 灰色直到寫滿 |
-| G2.5 | 每筆 `people.list[*].relation` 非空 | — | CTA 灰色直到寫滿 |
-| G2.6 | 每筆 `people.list[*].name` 不為代稱 | — | 中性 hint「想想看：這個算真名嗎？」（不擋前進） |
-| G2.7 | 至少 1 筆 `contact` 是「今天就能聯絡」的形式 | — | 中性 hint「你今天傳得到他訊息嗎？」（不擋前進） |
+**L1 最低要求**
 
-**worksheet 鐵律**：「AI 不能幫忙生 persona」— 此頁前端禁用 AI 提案按鈕。
+| ID | 規則 | 觸發時 CTA |
+| :-- | :-- | :-- |
+| C1.1 | `complaint.verbatim` 非空且長度 ≥ 10 字 | 灰色直到寫滿 |
+| C1.2 | `complaint.source_name` 非空 | 灰色直到寫滿 |
+| C1.3 | `complaint.source_relation` 非空 | 灰色直到寫滿 |
+| C1.4 | `complaint.datetime` 非空 | 灰色直到寫滿 |
+| C1.5 | `complaint.scene` 非空 | 灰色直到寫滿 |
 
----
+**L2 具體性護欄（中性 hint）**
 
-### 卡 3 ｜ 卡關公式
+| ID | 規則 | 軟性 hint |
+| :-- | :-- | :-- |
+| C1.h1 | `complaint.verbatim` 不可包含「我覺得」「應該需要」「也許」「可能」「大概」 | 「這幾個字讀起來像是你替他想的，要不要試著只留下他自己說過的話？」 |
+| C1.h2 | `complaint.source_name` 不可為「同學 A」「老師 B」「某人」「朋友」這類代稱 | 「想邀請你補上一個你叫得出名字的人，這樣等一下這趟路會更具體一點。」 |
 
-| Source | 反思問題 |
-| :--- | :--- |
-| 想想看 | 句子裡的兩個空格都**很具體**嗎？你寫的公式句，能不能被一個外人聽完就重複給第三個人？ |
+**走下一張卡前的軟性邀請**
 
-| ID | 規則 | 欄位 | 行為 |
-| :--- | :--- | :--- | :--- |
-| G3.1 | `stuck_formula.user_draft` 非空 | `stuck_formula.user_draft` | CTA 灰色直到寫滿 |
-| G3.2 | `stuck_formula.confirmed === true`（使用者已確認版本） | `stuck_formula.confirmed` | CTA 灰色直到勾選 |
-| G3.3 | `stuck_formula.user_draft` 含「我每次要 ___」「卡在 ___」兩個語意位置 | `stuck_formula.user_draft` | 中性 hint「兩個空格都填具體了嗎？」 |
-| G3.4 | 兩個空格內不可為抽象詞「效率不好 / 不順 / 太慢 / 太忙」單詞 | `stuck_formula.user_draft` | 中性 hint「你寫的可能還太抽象，再去問主人翁一次會更穩」 |
-| G3.5 | 若 `ai_clarifying_questions.length > 0`，UI 提示「你能回答這 N 題嗎？□ 可以 □ 待問主人翁」 | `stuck_formula.ai_clarifying_questions` | 紀錄 metadata，不擋 |
-
----
-
-### 卡 4 ｜ 現在怎麼解
-
-| Source | 反思問題 |
-| :--- | :--- |
-| 想想看 | 主人翁現在用的方法**有具體名字**嗎？他過去 30 天有沒有真的花時間或錢試圖解？如果沒有，這真的痛嗎？ |
-
-| ID | 規則 | 欄位 | 行為 |
-| :--- | :--- | :--- | :--- |
-| G4.1 | `workaround.tool_name` 非空 | `workaround.tool_name` | CTA 灰色直到寫滿 |
-| G4.2 | `workaround.tool_name` 不為「沒人解過 / 還沒解 / 自己想辦法 / 沒有」 | `workaround.tool_name` | 中性 hint「他過去 30 天有沒有真的花時間或錢試圖解？」 |
-| G4.3 | `workaround.user_dissatisfactions.length >= 3` | `workaround.user_dissatisfactions` | CTA 灰色直到 3 個 |
-| G4.4 | 每個 dissatisfaction 字串長度 ≥ 5 字 | — | 中性 hint「想想看：這個夠具體嗎？」 |
-| G4.5 | `workaround.why_still_stuck` 非空 | `workaround.why_still_stuck` | CTA 灰色直到寫滿 |
-
----
-
-### 卡 5 ｜ 兩件事不能同時要
-
-| Source | 反思問題 |
-| :--- | :--- |
-| 想想看 | 他想要 ___，但又同時想要 ___。如果他能放掉其中一邊，他不會卡在這裡——所以他**放不下哪邊**？為什麼那邊會被犧牲？ |
-
-| ID | 規則 | 欄位 | 行為 |
-| :--- | :--- | :--- | :--- |
-| G5.1 | `contradiction.side_a` 非空且長度 ≥ 10 字 | `contradiction.side_a` | CTA 灰色直到寫滿 |
-| G5.2 | `contradiction.side_b` 非空且長度 ≥ 10 字 | `contradiction.side_b` | CTA 灰色直到寫滿 |
-| G5.3 | `contradiction.sacrificed ∈ {'a', 'b'}` | `contradiction.sacrificed` | CTA 灰色直到選 |
-| G5.4 | `contradiction.sacrificed_reason` 非空且 ≥ 1 句完整描述（建議 ≥ 15 字） | `contradiction.sacrificed_reason` | CTA 灰色直到寫滿 |
-| G5.5 | A 端 / B 端不可為「品質好 / 速度快 / 成本低」單詞抽象描述 | — | 中性 hint「想想看：用主人翁的話寫，會更具體」 |
-
-> 卡 5 是蘇格拉底式取捨自陳：使用者用自己的話寫 A/B 兩端、選犧牲哪邊、寫為什麼那邊會被犧牲。AI 的角色僅是協助使用者把自己腦中的話寫清楚。
-
----
-
-### 卡 6 ｜ AI 證據蒐集
-
-| Source | 反思問題 |
-| :--- | :--- |
-| 想想看 | AI 給你的 8 個答案裡，哪一個讓你最意外？為什麼意外？ |
-
-| ID | 規則 | 欄位 | 行為 |
-| :--- | :--- | :--- | :--- |
-| G6.1 | `ai_evidence.ai_tool ∈ {'chatgpt_dr', 'claude', 'perplexity', 'gemini'}` | `ai_evidence.ai_tool` | CTA 灰色直到選 |
-| G6.2 | `ai_evidence.ai_tool_reason` 非空 | `ai_evidence.ai_tool_reason` | CTA 灰色直到寫滿 |
-| G6.3 | `ai_evidence.eight_answers` 全 8 題非空 | `ai_evidence.eight_answers.q1..q8` | CTA 灰色直到 8 題全填 |
-| G6.4 | `ai_evidence.raw_response` 非空且長度 ≥ 200 字 | `ai_evidence.raw_response` | CTA 灰色直到寫滿 |
-| G6.5 | `ai_evidence.no_solution_check_passed === true` | `ai_evidence.no_solution_check_passed` | CTA 灰色直到勾選 |
-| G6.6 | `raw_response` 不含「你應該開發」「建議製作 App」「可以做成 SaaS」等字串 | `ai_evidence.raw_response` | 自動將 G6.5 設為 false，提示重跑補強 prompt |
-
-> G6.6 若觸發 → 系統自動把 `no_solution_check_passed` 設為 false，UI 顯示補強 prompt 按鈕（見 `ai_prompt_library.md §4.8`）。
-
----
-
-### 卡 7 ｜ 自己先猜 + 讀 AI
-
-| Source | 反思問題 |
-| :--- | :--- |
-| 想想看 | 4 個檢查點都過了嗎？你的猜想跟 AI 差最大的地方，反映了你想當然了什麼？ |
-
-| ID | 規則 | 欄位 | 行為 |
-| :--- | :--- | :--- | :--- |
-| G7.1 | `self_guess.guesses` 4 欄全填 | `self_guess.guesses.*` | CTA 灰色直到 4 欄全填 |
-| G7.2 | 4 個 `ai_checkpoints_passed.*` 全 true | `self_guess.ai_checkpoints_passed.*` | CTA 灰色直到 4 個全勾 |
-| G7.3 | `self_guess.pain_judgment_table` 非空（AI 已產出表格） | `self_guess.pain_judgment_table` | CTA 灰色直到貼回 |
-| G7.4 | `self_guess.deltas` 3 欄全填 | `self_guess.deltas.*` | CTA 灰色直到 3 欄全填 |
-| G7.5 | UI 強制：使用者必須先填完 `guesses` 才能看到 AI 整理的判斷表（時序鎖） | — | UI 強制（這是卡 7 的核心訓練設計） |
-
-> G7.5 是 **worksheet 的核心訓練設計**：「先猜後看，你才會發現 AI 補了什麼 / 漏了什麼」。前端必須做時序鎖：`guesses` 全填 → 解鎖「請 AI 整理」按鈕。
-
----
-
-### 卡 8 ｜ 真人訪談規劃
-
-| Source | 反思問題 |
-| :--- | :--- |
-| 想想看 | 你列出了至少 1 位**有名字**或**有具體聯絡管道**的訪談對象嗎？這 3 道題，你今晚就能傳給其中一個人嗎？ |
-
-| ID | 規則 | 欄位 | 行為 |
-| :--- | :--- | :--- | :--- |
-| G8.1 | `interview_plan.targets.length >= 1` | `interview_plan.targets` | CTA 灰色直到 1 個 |
-| G8.2 | 每筆 target 的 `persona` 非空 + 有 `contact_known === true` 配 `contact_info` 真名，或 `contact_known === false` 配「具體去哪找」 | — | CTA 灰色直到寫滿 |
-| G8.3 | `interview_plan.questions.length === 3` | `interview_plan.questions` | CTA 灰色直到 3 題 |
-| G8.4 | 每題 `questions[i]` 不可為推銷題型 | — | 中性 hint「這題像不像在問『你會不會買』？訪談禁忌」 |
-| G8.5 | `interview_plan.interview_taboos_understood === true` | `interview_plan.interview_taboos_understood` | CTA 灰色直到勾選 |
-
-> G8.4 推銷題型偵測 keywords（黑名單）：`會付錢`、`會用嗎`、`如果有...你會`、`你覺得我做`、`你願意付`、`想不想要`、`覺得這個產品`。
-
----
-
-### 卡 9 ｜ 真假判斷
-
-| Source | 反思問題 |
-| :--- | :--- |
-| 想想看（純螢幕提示，**不寫進資料**） | 1. 你能說出 3 個有名字的人嗎？<br>2. 你看到他每週遇到幾次？是猜的還是有人告訴你？<br>3. 他付出最多的是時間、錢、心力還是關係？<br>4. 他現在解法最讓他不爽的點，能用他的話寫出來嗎？<br>5. 最有把握的證據 vs 最薄弱的環節分別是什麼？ |
-
-| ID | 規則 | 欄位 | 行為 |
-| :--- | :--- | :--- | :--- |
-| G9.1 | `verdict.judgment ∈ {'true_pain', 'fake_pain', 'pending_interview'}` | `verdict.judgment` | CTA 灰色直到選 |
-| G9.2 | `verdict.reason_100w` 非空且長度 ≥ 100 字 | `verdict.reason_100w` | CTA 灰色直到寫滿 |
-| G9.3 | `verdict.most_confident_evidence` 非空 | `verdict.most_confident_evidence` | CTA 灰色直到寫滿 |
-| G9.4 | `verdict.least_confident` 非空 | `verdict.least_confident` | CTA 灰色直到寫滿 |
-| G9.5 | `verdict.next_action ∈ {'interview', 'more_evidence', 'change_topic'}` | `verdict.next_action` | CTA 灰色直到選 |
-
-> 卡 9 不可有 AI 按鈕。判斷必須由使用者親自寫。
+> 走下一張卡前，我們想多聽你說兩件事：
+> - 這句話是誰說的？（一個你叫得出名字的人）
+> - 大概什麼時候、什麼場景下說的？
 >
-> 5 個 Socratic 反思問句只當作螢幕上的提示文字（純 UI），**不寫進資料**。資料層只有：judgment + reason_100w + most_confident_evidence + least_confident + next_action 五欄。
+> 不用很完美，先把你記得的寫下來就好。
 
 ---
 
-## 2. 回頭重想路徑（中性建議，不強制）
+### Card A · 痛點現場日記
 
-每張卡如果使用者寫到一半覺得卡住，可以**自願**回頭重想前面的卡片。系統不主動把人擋下、不主動 redirect。
+| 欄位 | `pain_diary.entries[]` |
+| :-- | :-- |
 
-### 2.1 中性建議文案
+**L1 最低要求**
 
-每張卡片的 hint 都遵守：
+| ID | 規則 | 觸發時 CTA |
+| :-- | :-- | :-- |
+| CA.1 | `pain_diary.entries.length ≥ 1`（建議 3） | 灰色直到至少 1 筆 |
+| CA.2 | 每筆 entry 的 `timestamp` + `location` + `note` 非空 | 灰色直到當筆寫滿 |
 
-1. 用「你」稱呼，不用「使用者 / 用戶」
-2. 先說發生什麼（事實），再說怎麼修（行動）
-3. **不出現**「錯了」「失敗」「不及格」「過關」「退回」這類字眼
-4. 不出現分數 / 等級 / 排名
-5. 不出現「FOMO 字眼」（沒有「再不做就...」「過期...」「機會錯過...」）
+**軟性邀請**
 
-### 2.2 回頭重想時的中性建議模板
-
-```
-卡 N 寫到一半覺得卡住？
-  ↓
-看下面這幾個建議：
-
-| 卡 | 反思建議文案 |
-| :- | :--- |
-| 1 | 「想想看：這句話是他說的、還是你幫他想的？」 |
-| 2 | 「想想看：你今天傳得到他訊息嗎？」 |
-| 3 | 「回去把卡 1 想清楚再來：沒問清楚的話，公式句一定寫不細。」 |
-| 4 | 「回去把卡 1 想清楚再來：他過去 30 天有沒有真的花時間或錢試圖解？」 |
-| 5 | 「回去把卡 3 想清楚再來：兩件事拆不出來，通常代表卡關句還沒拆乾淨。」 |
-| 6 | 「補強 prompt 重跑：AI 給的太籠統的話，回去卡 1-5 補上更具體的細節再來。」 |
-| 7 | 「回去把卡 6 想清楚再來：4 個檢查點任一沒過，補資訊重跑就好。」 |
-| 8 | 「回去把卡 2 想清楚再來：列不出訪談對象，代表這群人你還沒進去。」 |
-| 9 | 「想想看：無法下判斷是正常的。先看哪一邊最弱，回去補那張卡。」 |
-```
-
-### 2.3 卡片重新進入時的資料行為
-
-| 行為 | 規則 |
-| :--- | :--- |
-| 回頭重想時保留已填欄位 | 是。回到卡 N 不會刪除卡 N+1...M 的資料；標記為 `stale=true`。 |
-| 重新進入卡 N+1 時 | 提示「你回頭改過卡 N，這張卡的內容可能需要更新」+ 一鍵「保留 / 清空 / 編輯」三選項 |
-| 卡 9 完成後再回頭改 | 將 `verdict.*` 全部清空，`status` 退回 `in_progress` |
-| 完成的痛點身份證再回頭改 | 不允許（卡 10 已匯出代表已 final）— 若使用者一定要改，提示「請建立新的 PainCard」 |
-
-### 2.4 中性提示視覺呈現
-
-```
-┌────────────────────────────────────────┐
-│ [Caution Icon]                         │
-│ 想想看：這個內容可能還可以更具體         │
-│                                          │
-│ 你目前寫的：「卡在效率不好」             │
-│ 試著想想：發生時的具體動作或時間量化     │
-│                                          │
-│ [我了解，先送出] [回去再想想]            │
-└────────────────────────────────────────┘
-```
-
-> 顏色：使用 `--color-caution: #D97706`（PainMap brand），不使用大面積紅色。
+> 接下來幾天，當這個卡住的感覺又冒出來時，隨手寫一兩句進來就好。
+>
+> 我們建議 3 筆，但 1 筆也可以走下一張。
+> 你之後隨時可以回來繼續加。
 
 ---
 
-## 3. 設計守則
+### Card 1-A · AI 替你打開三條路
 
-### 3.1 三個原則
+| 欄位 | `ai_narrowing.directions[]`, `ai_narrowing.picked_direction_id` |
+| :-- | :-- |
 
-1. **必填欄位空白 → CTA 灰色**（這不是「擋」，是「資料還沒齊」）
-2. **真實性護欄觸發 → 中性 hint**（顯示但不擋前進）
-3. **使用者自決何時前進**（無任何閘門擋人，因此不需要「我知道我在做什麼」覆寫機制）
+**L1 最低要求**
 
-### 3.2 不分 HARD / SOFT
+| ID | 規則 | 觸發時 CTA |
+| :-- | :-- | :-- |
+| C1A.1 | `ai_narrowing.directions.length === 3` | 灰色直到貼回 3 條方向 |
+| C1A.2 | `ai_narrowing.picked_direction_id !== null` | 灰色直到選一條 |
 
-所有提示都遵循以下二分：
+**軟性邀請**
 
-- 規則 100% 可程式化（必填 / 長度）→ 用 CTA disable 表達
-- 規則無法 100% 抓出（過度抽象 / 真實性）→ 改成中性 hint，使用者自決
-
-兩者都不會出現「失敗 / 過關 / 退回」字眼。
+> 把 AI 給你的三條方向貼回來，看一看哪一條讓你最想再多聽幾段聲音。
+>
+> 其他兩條不會消失，這次先走一條而已。
 
 ---
 
-## 4. 與其他文件的引用對應
+### Card 1-B · 走進其中一條，慢慢往下問
 
-| 本檔規則 | 對應 |
-| :--- | :--- |
-| 欄位名 | `data_model.md §完整 Schema` |
-| 內容真實性護欄規則 | `pain_card_schema.md`（保留 anti-fake 規則，回應為中性） |
-| 補強 prompt | `ai_prompt_library.md §4.7-4.8` |
-| brand voice | `painmap_brand_system.md §文案規則` |
-| 黑帽禁令（不可做 streak / 過期） | `anti_gamification_guardrails.md` |
+| 欄位 | `ai_narrowing.drill_rounds[]` |
+| :-- | :-- |
+
+**L1 最低要求**
+
+| ID | 規則 | 觸發時 CTA |
+| :-- | :-- | :-- |
+| C1B.1 | `drill_rounds.length ≥ 2`（建議 3） | 灰色直到至少 2 輪 |
+| C1B.2 | 每輪 `user_question` + `ai_response` + `user_reflection` 三欄非空 | 灰色直到該輪寫滿 |
+
+**軟性邀請**
+
+> 一輪一輪慢慢來。每一輪結束，記得寫一句「我聽到了什麼」就好，不用整理得完美。
+>
+> 走完 2 輪就可以往下，但 3 輪會讓下一張卡更清楚。
+
+---
+
+### Card 3 · 聚焦痛點摘要
+
+| 欄位 | `focused_pain.{summary, in_their_own_words, why_this_one}` |
+| :-- | :-- |
+
+**L1 最低要求**
+
+| ID | 規則 | 觸發時 CTA |
+| :-- | :-- | :-- |
+| C3.1 | `summary.length ≥ 60` | 灰色直到寫滿 |
+| C3.2 | `in_their_own_words` 非空 | 灰色直到寫滿 |
+| C3.3 | `why_this_one` 非空 | 灰色直到寫滿 |
+
+**軟性邀請**
+
+> 把我們剛剛走過的路寫成一段約 60 字的摘要。
+> 不是要你下結論，是把這趟路上聽到的東西，先用自己的話收一次。
+
+---
+
+### Card B · 心情地圖
+
+| 欄位 | `empathy_map.{think, feel, say, do, pain, gain}` |
+| :-- | :-- |
+
+**L1 最低要求**
+
+| ID | 規則 | 觸發時 CTA |
+| :-- | :-- | :-- |
+| CB.1 | 六個欄位皆非空 | 灰色直到全寫滿 |
+
+**軟性邀請**
+
+> 我們站到那個人的位置上看一看。
+> 六個欄位都先簡單一句話就好，不用寫成段落。
+
+---
+
+### Card 4 · 把卡點輕輕說清楚 + AI 解法回看
+
+| 欄位 | `stuck_formula_with_solutions.{user_draft, ai_solutions[], user_solution_verdicts[]}` |
+| :-- | :-- |
+
+**L1 最低要求**
+
+| ID | 規則 | 觸發時 CTA |
+| :-- | :-- | :-- |
+| C4.1 | `user_draft` 非空 | 灰色直到寫滿 |
+| C4.2 | `user_solution_verdicts.length ≥ 3` | 灰色直到至少 3 個解法被回看 |
+| C4.3 | 每個 verdict 的 `reason` 非空 | 灰色直到當筆寫滿 |
+
+**L2 具體性護欄**
+
+| ID | 規則 | 軟性 hint |
+| :-- | :-- | :-- |
+| C4.h1 | `user_solution_verdicts.reason` 不可只是「沒用」「不好」「不行」這類兩字評論 | 「這個解法為什麼不夠？想多聽你說一兩句具體的場景。」 |
+
+**軟性邀請**
+
+> AI 給的這幾個解法，我們不急著評論它們好或不好。
+> 只是請你誠實寫一寫：如果用這個，你心裡那個卡住的感覺，會不會就消失？
+
+---
+
+### Card 5 · 取捨對話
+
+| 欄位 | `contradiction.pairs[]` |
+| :-- | :-- |
+
+**L1 最低要求**
+
+| ID | 規則 | 觸發時 CTA |
+| :-- | :-- | :-- |
+| C5.1 | `pairs.length ≥ 1`（建議 3） | 灰色直到至少 1 組 |
+| C5.2 | 每組的 `side_a` + `side_b` + `reason` 非空，`picked` 已選 | 灰色直到當組寫滿 |
+
+**軟性邀請**
+
+> 寫一組就可以走下一張，但 3 組會讓你更看清楚自己的優先序。
+
+---
+
+### Card 6 · 市場聲音的三段證據
+
+| 欄位 | `ai_evidence.{evidences[], landscape, landscape_note}` |
+| :-- | :-- |
+
+**L1 最低要求**
+
+| ID | 規則 | 觸發時 CTA |
+| :-- | :-- | :-- |
+| C6.1 | `evidences.length ≥ 3` | 灰色直到至少 3 段 |
+| C6.2 | 每段 evidence 的 `source` + `quote` + `relevance` 非空 | 灰色直到當段寫滿 |
+| C6.3 | `landscape_note` 非空 | 灰色直到寫滿 |
+
+**L2 具體性護欄**
+
+| ID | 規則 | 軟性 hint |
+| :-- | :-- | :-- |
+| C6.h1 | `quote` 不可為單純連結（須含實際文字片段） | 「想邀請你把這段聲音裡讓你有感的句子貼回來，連結之後不一定還在。」 |
+
+**軟性邀請**
+
+> 找 3 段你在外面聽到的聲音，可以是論壇、新聞、訪談、學術文章。
+> 每段都寫一句「為什麼這段跟我手上的故事有關」。
+
+---
+
+### Card 7 · 三個有名字的人 + 你心裡的猜想
+
+| 欄位 | `people_with_guesses.{background, list[]}` |
+| :-- | :-- |
+
+**L1 最低要求**
+
+| ID | 規則 | 觸發時 CTA |
+| :-- | :-- | :-- |
+| C7.1 | `list.length === 3` | 灰色直到 3 個人 |
+| C7.2 | 每人 `name` + `contact` + `relation` + `why_pick_them` 非空 | 灰色直到當人寫滿 |
+| C7.3 | 每人 `guessed_answers.length ≥ 3`（建議 5） | 灰色直到至少 3 個猜想 |
+
+**L2 具體性護欄**
+
+| ID | 規則 | 軟性 hint |
+| :-- | :-- | :-- |
+| C7.h1 | `name` 不可為「同事 A」「家長 B」「某老師」這類代稱 | 「想邀請你寫上一個你叫得出名字的人，這樣下一張卡的訪談才聯絡得到。」 |
+| C7.h2 | `contact` 不可空（須有 LINE / 電話 / Email / IG 任一） | 「沒有聯絡方式，等一下走到真人對話會卡住，我們先補上一個。」 |
+
+**軟性邀請**
+
+> 三個人都要有名字 + 聯絡得到。
+> 每人寫 3-5 個你預先猜他會說的答案 — 不是要你猜對，是要你記得自己的預期，等一下訪談時才能辨認「驚訝」。
+
+---
+
+### Card D · 自我假設清單
+
+| 欄位 | `assumptions.{items[], biases_to_watch}` |
+| :-- | :-- |
+
+**L1 最低要求**
+
+| ID | 規則 | 觸發時 CTA |
+| :-- | :-- | :-- |
+| CD.1 | `items.length ≥ 2` | 灰色直到至少 2 個 |
+| CD.2 | 每筆 `assumption` + `evidence_so_far` + `what_would_change_my_mind` 非空 | 灰色直到當筆寫滿 |
+| CD.3 | `biases_to_watch` 非空 | 灰色直到寫滿 |
+
+**軟性邀請**
+
+> 走進對話前，把自己心裡的猜想先攤開來看一看。
+> 不是要你放棄它們，是要你記得：等一下對方說的話如果跟你不一樣，不要急著解釋掉它。
+
+---
+
+### Card 8 · 真人對話
+
+| 欄位 | `interview.sessions[]` |
+| :-- | :-- |
+
+**L1 最低要求**
+
+| ID | 規則 | 觸發時 CTA |
+| :-- | :-- | :-- |
+| C8.1 | `sessions.length ≥ 1`（建議 = `people_with_guesses.list.length`） | 灰色直到至少 1 場 |
+| C8.2 | 每場的 `person_name` + `datetime` + `mode` + `key_quotes[]` 非空 | 灰色直到當場寫滿 |
+
+**軟性邀請**
+
+> 一場對話也可以走下一張，但 3 場會讓你更看清楚哪些是個別的、哪些是共通的。
+>
+> 不用寫成逐字稿，幾句印象深刻的原話就好。
+
+---
+
+### Card G · 訪後沉澱
+
+| 欄位 | `post_interview_synthesis.{ai_clustered_themes[], user_summary, member_check_questions[]}` |
+| :-- | :-- |
+
+**L1 最低要求**
+
+| ID | 規則 | 觸發時 CTA |
+| :-- | :-- | :-- |
+| CG.1 | `user_summary.length ≥ 80` | 灰色直到寫滿 |
+| CG.2 | `member_check_questions.length ≥ 1` | 灰色直到至少 1 個 |
+
+**軟性邀請**
+
+> AI 已經把訪談裡的聲音分成幾個主題。
+> 你逐一看一看：哪些主題保留、哪些重新命名、哪些丟掉？
+>
+> 最後寫一段約 80 字的沉澱 — 用你自己的話，不是 AI 的話。
+
+---
+
+### Result · Pain ID 卡片
+
+| 欄位 | `result.{story_one_liner, next_step_note, next_step_hint}` |
+| :-- | :-- |
+
+**L1 最低要求**
+
+| ID | 規則 | 觸發時 CTA |
+| :-- | :-- | :-- |
+| CR.1 | `story_one_liner` 非空 | 「匯出」按鈕灰色直到寫滿 |
+| CR.2 | `next_step_note` 非空 | 「匯出」按鈕灰色直到寫滿 |
+| CR.3 | `next_step_hint` 已選 | 「匯出」按鈕灰色直到選一個 |
+
+**軟性邀請**
+
+> 走到這裡了。
+>
+> 用一句話告訴未來的自己：這趟路上你聽到了什麼？
+> 再寫一段你的下一步 — 可以是「找另一個人聊」「先放一陣子」「準備去做 72 小時 sprint」都可以。
+
+---
+
+## 2. 中性 hint 文案規則
+
+所有 L2 hint 必須符合 `voice_and_tone.md` §3 + §6：
+
+- 以「想邀請你」「我們再陪你看一下」「要不要試著」開頭
+- 不出現「請」「必填」「規則」「禁止」「驗證」「失敗」
+- 結尾邀請使用者**自己決定**是否要修改，不替使用者下結論
+- 任何時候都允許使用者按「我先這樣，往下走」
+
+---
+
+## 3. 工程實作對應
+
+| 行為 | 實作位置 |
+| :-- | :-- |
+| L1 CTA 灰色邏輯 | `src/lib/card{X}Validators.ts` 各檔 |
+| L2 hint 觸發邏輯 | 同上，回傳 `{ kind: 'hint', message: '...' }` |
+| 中文 hint 文案 | 集中在 `src/components/worksheet/card{XX}/hints.ts`（待 Phase 4 建立）|
+| CTA 按鈕狀態 | `src/components/worksheet/CardProgressStepper.tsx` 連動 |
+
+---
+
+## 4. 與舊版 (`exit_gates_matrix.md` v1) 的對應
+
+| v1 用語 | v2 用語 |
+| :-- | :-- |
+| Exit Gate / 閘門 | 走下一張卡前 |
+| 過關 / 通過 | 寫到一個段落 |
+| Failure routing | 軟性停留 |
+| 退回 / 失敗 | 我們再陪你停一會兒 |
+| HARD / SOFT | （v2 全部 SOFT；HARD 概念由「最低要求」取代）|
+
+v1 的 9 卡 × 反思矩陣已全數對應到 v2 的 13 卡 + Result 矩陣，新增 Card A / B / D / G 各自的條件。
