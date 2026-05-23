@@ -9,7 +9,9 @@ import {
   TextareaField,
 } from "@/components/worksheet/WorksheetFormPrimitives";
 import { isCard1AReady } from "@/lib/cardValidators";
+import { parseCard1ADirections } from "@/lib/parsers/card1ADirectionsParser";
 import { usePainCardStore } from "@/store/painCard";
+import { useState } from "react";
 import type { AiDirection } from "@/types/painCard";
 
 export const Route = createFileRoute("/learn/worksheet/03")({
@@ -66,6 +68,8 @@ function CardOneAPage() {
   const diaryEntries = usePainCardStore((s) => s.card.pain_diary.entries);
   const an = usePainCardStore((s) => s.card.ai_narrowing);
   const updateField = usePainCardStore((s) => s.updateField);
+  const [aiResponse, setAiResponse] = useState("");
+  const [parseHint, setParseHint] = useState<string | null>(null);
 
   const diaryNotes = diaryEntries
     .map((e) => `- [${e.timestamp}] ${e.location}：${e.note}`)
@@ -84,6 +88,23 @@ function CardOneAPage() {
     updateField("ai_narrowing.directions", next);
   }
 
+  function handleAiResponseChange(value: string) {
+    setAiResponse(value);
+    if (!value.trim()) {
+      setParseHint(null);
+      return;
+    }
+    const parsed = parseCard1ADirections(value);
+    if (parsed.length === 0) {
+      setParseHint("我們在這段回應裡找不到「方向 1 / 2 / 3」的標題格式 — 沒關係，你可以自己填到下面的三張卡。");
+      return;
+    }
+    const padded: AiDirection[] = [...parsed];
+    while (padded.length < 3) padded.push(emptyDir(`d${padded.length + 1}`));
+    updateField("ai_narrowing.directions", padded);
+    setParseHint(`已幫你填好 ${parsed.length} 條方向到下面的卡。可以再編輯。`);
+  }
+
   return (
     <CardScaffold
       step={3}
@@ -94,13 +115,19 @@ function CardOneAPage() {
     >
       <AIPromptCopyBlock
         prompt={prompt}
-        response=""
-        onResponseChange={() => undefined}
+        response={aiResponse}
+        onResponseChange={handleAiResponseChange}
         title="想請 AI 替你打開三條路"
       />
 
+      {parseHint && (
+        <p className="text-[13px] leading-relaxed text-text-secondary">
+          {parseHint}
+        </p>
+      )}
+
       <p className="text-[13px] text-text-secondary mt-2">
-        AI 給你三條路之後，把它們的標題、描述、在意的事填到下面三張卡。
+        AI 給你三條路之後，把它們的標題、描述、在意的事填到下面三張卡（也可以直接編輯自動填入的內容）。
       </p>
 
       {directions.map((d, idx) => (

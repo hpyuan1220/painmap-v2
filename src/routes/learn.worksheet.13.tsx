@@ -9,8 +9,10 @@ import {
   TextareaField,
 } from "@/components/worksheet/WorksheetFormPrimitives";
 import { isCardGReady } from "@/lib/cardValidators";
+import { parseCardGThemes } from "@/lib/parsers/cardGThemesParser";
 import { usePainCardStore } from "@/store/painCard";
 import type { ClusteredTheme, InterviewSession, AssumptionItem } from "@/types/painCard";
+import { useState } from "react";
 
 export const Route = createFileRoute("/learn/worksheet/13")({
   head: () => ({
@@ -81,8 +83,25 @@ function CardGPage() {
   const card = usePainCardStore((s) => s.card);
   const pis = card.post_interview_synthesis;
   const updateField = usePainCardStore((s) => s.updateField);
+  const [aiResponse, setAiResponse] = useState("");
+  const [parseHint, setParseHint] = useState<string | null>(null);
 
   const themes = pis.ai_clustered_themes.length === 0 ? [emptyTheme()] : pis.ai_clustered_themes;
+
+  function handleAiResponseChange(value: string) {
+    setAiResponse(value);
+    if (!value.trim()) {
+      setParseHint(null);
+      return;
+    }
+    const parsed = parseCardGThemes(value);
+    if (parsed.length === 0) {
+      setParseHint("我們在這段回應裡找不到「主題 1 / 2 / 3」的標題格式 — 沒關係，你可以自己填到下面的主題卡。");
+      return;
+    }
+    updateField("post_interview_synthesis.ai_clustered_themes", parsed);
+    setParseHint(`已幫你整理出 ${parsed.length} 個主題到下面。每個都可以保留、重命名或丟掉。`);
+  }
   const summaryLen = pis.user_summary.trim().length;
   const ready = isCardGReady(pis);
 
@@ -109,13 +128,19 @@ function CardGPage() {
     >
       <AIPromptCopyBlock
         prompt={prompt}
-        response=""
-        onResponseChange={() => undefined}
+        response={aiResponse}
+        onResponseChange={handleAiResponseChange}
         title="想請 AI 陪我把訪談聲音整理成主題"
       />
 
+      {parseHint && (
+        <p className="text-[13px] leading-relaxed text-text-secondary">
+          {parseHint}
+        </p>
+      )}
+
       <p className="text-[13px] text-text-secondary">
-        AI 給你 3-5 個主題後，填到下面。你可以保留、重命名，或丟掉。
+        AI 給你 3-5 個主題後，貼回上方。下面會自動填入，你可以保留、重命名，或丟掉。
       </p>
 
       {themes.map((t, idx) => (
