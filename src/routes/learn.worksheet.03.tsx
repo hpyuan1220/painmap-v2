@@ -1,190 +1,41 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
-import { Edit, Sparkles } from "lucide-react";
+import { createFileRoute } from "@tanstack/react-router";
 
-import { CardHero } from "@/components/worksheet/CardHero";
-import { AiPromptBlock } from "@/components/worksheet/card03/AiPromptBlock";
-import { AiResponseInput } from "@/components/worksheet/card03/AiResponseInput";
-import { ClarifyingQAPanel } from "@/components/worksheet/card03/ClarifyingQAPanel";
-import { ExampleReferenceCard3 } from "@/components/worksheet/card03/ExampleReferenceCard3";
-import { CardThreeExitGateFooter } from "@/components/worksheet/card03/CardThreeExitGateFooter";
-import { evaluateCardThree, interpolatePrompt } from "@/lib/cardThreeValidators";
-import { useSavedAgo } from "@/hooks/useSavedAgo";
+import { CardScaffold } from "@/components/worksheet/CardScaffold";
+import { WorksheetStub } from "@/components/worksheet/WorksheetStub";
 import { usePainCardStore } from "@/store/painCard";
 
 export const Route = createFileRoute("/learn/worksheet/03")({
   head: () => ({
     meta: [
-      { title: "卡 3 卡關公式 — PainMap Worksheet" },
+      { title: "Card 1-A · AI 替你打開三條路 — PainMap Worksheet" },
       { name: "robots", content: "noindex" },
-      {
-        name: "description",
-        content:
-          "把那句模糊的抱怨翻譯成「我每次要 X，都會卡在 Y」。你先寫初版，再讓 AI 校對並列出還沒問清楚的事。",
-      },
     ],
   }),
-  component: CardThreePage,
+  component: CardOneAPage,
 });
 
-function CardThreePage() {
-  const navigate = useNavigate();
-  const card = usePainCardStore((s) => s.card);
-  const hydrated = usePainCardStore((s) => s.hydrated);
-  const updateField = usePainCardStore((s) => s.updateField);
-  const advanceStep = usePainCardStore((s) => s.advanceStep);
+const INSTRUCTION = `把你寫的抱怨 + 日記貼給 AI，
+不是要它替你想解法，而是請它替你打開幾條你可能還沒注意到的方向。
 
-  const stuck = card.stuck_formula;
+三條路裡，你最想再多聽哪一條？
+其他兩條不會消失，這次先走一條而已。`;
 
-  const checks = useMemo(() => evaluateCardThree(card), [card]);
-
-  const [attempted, setAttempted] = useState(false);
-  const [blockedMessage, setBlockedMessage] = useState<string | null>(null);
-  const [submitting, setSubmitting] = useState(false);
-
-  const prompt = useMemo(
-    () => interpolatePrompt(card.complaint.verbatim, card.people.background),
-    [card.complaint.verbatim, card.people.background],
-  );
-
-  const savedAgo = useSavedAgo(card.updated_at);
-
-  // 任意輸入變更後清除 blocked message
-  useEffect(() => {
-    setBlockedMessage(null);
-  }, [stuck.ai_polished, stuck.ai_clarifying_answers]);
-
-  const setAiPolished = (v: string) =>
-    updateField("stuck_formula.ai_polished", v.length > 0 ? v : null);
-
-  // 變更 questions 時，同步重建 ai_clarifying_answers（保留既有答案）
-  const setQuestions = (next: string[]) => {
-    const prev = stuck.ai_clarifying_answers ?? [];
-    const byQ = new Map(prev.map((a) => [a.question, a]));
-    const rebuilt = next.map((q) => byQ.get(q) ?? { question: q, answer: "", reserved: false });
-    updateField("stuck_formula.ai_clarifying_questions", next);
-    updateField("stuck_formula.ai_clarifying_answers", rebuilt);
-  };
-
-  const setAnswerForQuestion = (question: string, answer: string) => {
-    const prev = stuck.ai_clarifying_answers ?? [];
-    const next = prev.map((a) => (a.question === question ? { ...a, answer } : a));
-    updateField("stuck_formula.ai_clarifying_answers", next);
-  };
-
-  const setReservedForQuestion = (question: string, reserved: boolean) => {
-    const prev = stuck.ai_clarifying_answers ?? [];
-    const next = prev.map((a) => (a.question === question ? { ...a, reserved } : a));
-    updateField("stuck_formula.ai_clarifying_answers", next);
-  };
-
-  const handleAdvance = () => {
-    setAttempted(true);
-    if (!checks.prereqReady) {
-      setBlockedMessage("先回去把卡 1（抱怨原句）和卡 2（背景）寫完，這張卡才有素材可以翻譯。");
-      return;
-    }
-    if (!checks.aiPolishedFilled || !checks.aiPolishedLongEnough) {
-      setBlockedMessage("Step 2 把 AI 整理後的卡關公式句貼回來吧（至少 15 字）。");
-      return;
-    }
-    if (!checks.confirmed) {
-      const remaining = checks.clarifying.totalCount - checks.clarifying.resolvedCount;
-      setBlockedMessage(
-        `還有 ${remaining} 題 AI 想問清楚的事 — 寫下你的回答（≥10 字），或勾「已預約找主人翁問」也可以。`,
-      );
-      return;
-    }
-    setBlockedMessage(null);
-    setSubmitting(true);
-    try {
-      advanceStep(4);
-      navigate({ to: "/learn/worksheet/04" });
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const aiPolishedPass = checks.aiPolishedFilled && checks.aiPolishedLongEnough;
+function CardOneAPage() {
+  const { directions, picked_direction_id } = usePainCardStore((s) => s.card.ai_narrowing);
+  const ready = directions.length === 3 && picked_direction_id !== null;
 
   return (
-    <div className="flex flex-col min-h-[calc(100vh-9rem)] bg-canvas-base">
-      <main className="flex-1 max-w-7xl w-full mx-auto px-5 sm:px-8 lg:px-12 py-12 lg:py-16 pb-40">
-        <CardHero
-          illustration="e13-stuck-loop"
-          alt="一個自己指向自己的封閉迴圈，在某處斷掉"
-        />
-        {/* card intro */}
-        <header className="mb-6">
-          <div className="flex items-center justify-between gap-4 mb-3">
-            <p className="text-xs sm:text-sm font-medium tracking-widest uppercase text-secondary">
-              卡 3 / 9
-            </p>
-            <span
-              className="inline-flex items-center gap-1.5 rounded-md border-2 border-verified/40 bg-verified/5 px-2 py-1 text-[11px] font-bold text-verified"
-              aria-label="這張卡 AI 介入：校對 prompt"
-            >
-              <Sparkles className="h-3 w-3" aria-hidden />
-              AI 介入：✅ 校對 prompt
-            </span>
-          </div>
-          <h1 className="text-2xl sm:text-[28px] font-bold leading-[1.3] text-text-primary">
-            把抱怨翻譯成「卡關公式」
-          </h1>
-
-          <div className="mt-5 flex items-start gap-3 rounded-lg border border-primary/15 bg-primary-light/60 p-4">
-            <Edit className="h-5 w-5 text-primary shrink-0 mt-0.5" aria-hidden />
-            <div className="text-[15px] leading-[1.6] text-text-primary">
-              <span className="font-semibold">流程：</span>
-              複製 prompt → 讓 AI 幫你把卡 1 那段抱怨整理成句型 → 你回答 AI 還沒問清楚的事。AI
-              不會替你發明細節，那些得你自己補。
-            </div>
-          </div>
-
-          <p className="mt-4 text-[14.5px] leading-[1.65] text-text-secondary">
-            最後會整理成這個句型：
-            <code className="font-mono px-1.5 py-0.5 rounded bg-muted-bg text-text-primary">
-              「我每次要 [想做的事]，都會卡在 [障礙]。」
-            </code>
-          </p>
-        </header>
-
-        <div className="space-y-5">
-          <AiPromptBlock prompt={prompt} prereqReady={checks.prereqReady} />
-
-          <AiResponseInput
-            aiPolished={stuck.ai_polished ?? ""}
-            onAiPolishedChange={setAiPolished}
-            questions={stuck.ai_clarifying_questions}
-            onQuestionsChange={setQuestions}
-          />
-
-          <ClarifyingQAPanel
-            questions={stuck.ai_clarifying_questions}
-            answers={stuck.ai_clarifying_answers ?? []}
-            items={checks.clarifying.items}
-            resolvedCount={checks.clarifying.resolvedCount}
-            totalCount={checks.clarifying.totalCount}
-            onAnswerChange={setAnswerForQuestion}
-            onReservedChange={setReservedForQuestion}
-            highlight={attempted && !checks.confirmed}
-          />
-
-          <p className="text-[12px] text-text-muted" aria-live="polite">
-            {hydrated && savedAgo ? `已悄悄存進你的瀏覽器 · ${savedAgo}` : "還沒開始寫"}
-          </p>
-
-          <ExampleReferenceCard3 />
-        </div>
-      </main>
-
-      <CardThreeExitGateFooter
-        aiPolishedPass={aiPolishedPass}
-        confirmedPass={checks.confirmed}
-        submitting={submitting}
-        blockedMessage={blockedMessage}
-        onAdvance={handleAdvance}
+    <CardScaffold
+      step={3}
+      title="Card 1-A · AI 替你打開三條路"
+      instruction={INSTRUCTION}
+      readyToContinue={ready}
+      notReadyHint="走下一張卡前：把 AI 給你的三條方向貼回來，並從中選一條（其他兩條我們會替你留著）。"
+    >
+      <WorksheetStub
+        cardLabel="Card 1-A · AI 替你打開三條路"
+        fieldPath="ai_narrowing.directions[], ai_narrowing.picked_direction_id"
       />
-    </div>
+    </CardScaffold>
   );
 }
