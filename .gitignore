@@ -48,3 +48,9 @@ landing-*.png
 test-results/
 playwright-report/
 .playwright/
+
+# Microsoft Office lock files
+~$*
+
+# Local docx working files (not part of project source)
+*.docx
