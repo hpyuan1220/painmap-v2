@@ -117,17 +117,16 @@ export const Route = createRootRoute({
         href: "/fonts/geist-mono-variable.woff2",
         crossOrigin: "anonymous",
       },
-      // Non-blocking load: fetch as 'print' then swap to 'all' on load so it
-      // doesn't block FCP.
+      // Google Fonts stylesheet. Previously used a media="print" + onLoad trick
+      // to defer loading, but onLoad as a string ("this.media='all'") is an SSR-only
+      // HTML attribute pattern that crashes React in pure CSR builds (the Vercel and
+      // GitHub Pages static SPA targets) with error #231 — "onLoad received a string".
+      // Trade the perf optimization for a working build; the Google Fonts CDN is fast
+      // enough that blocking load is acceptable.
       {
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&display=swap",
-        media: "print",
-        onLoad: "this.media='all'",
-      } as unknown as React.DetailedHTMLProps<
-        React.LinkHTMLAttributes<HTMLLinkElement>,
-        HTMLLinkElement
-      >,
+      },
       {
         rel: "stylesheet",
         href: appCss,
