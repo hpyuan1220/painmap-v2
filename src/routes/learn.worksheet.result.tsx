@@ -11,21 +11,20 @@ import { useEffect } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 
 import { MarkdownView } from "@/components/worksheet/MarkdownView";
+import { TextareaField, TextField } from "@/components/worksheet/WorksheetFormPrimitives";
 import { usePainCardStore } from "@/store/painCard";
 import {
   downloadExport,
   generatePainId,
   isReadyForExport,
+  toEmailHref,
   toMarkdown,
 } from "@/lib/painIdExport";
 import type { NextStepHint } from "@/types/painCard";
 
 export const Route = createFileRoute("/learn/worksheet/result")({
   head: () => ({
-    meta: [
-      { title: "Pain ID 卡片 — PainMap Worksheet" },
-      { name: "robots", content: "noindex" },
-    ],
+    meta: [{ title: "Pain ID 卡片 — PainMap Worksheet" }, { name: "robots", content: "noindex" }],
   }),
   component: ResultPage,
 });
@@ -44,6 +43,8 @@ const HINT_LABELS: Record<NextStepHint, string> = {
   pause_for_now: "先把這個放回口袋，過一陣子再回來看",
   ready_for_sprint: "這條故事準備好走進真實的 72 小時了",
 };
+
+const FINAL_CARD_EMAIL = "hpyuan1220@gmail.com";
 
 function ResultPage() {
   const card = usePainCardStore((s) => s.card);
@@ -66,6 +67,12 @@ function ResultPage() {
     downloadExport(card, format);
   }
 
+  function handleEmail() {
+    updateField("result.export_format", "markdown");
+    updateField("result.exported_at", new Date().toISOString());
+    markAsCompleted();
+  }
+
   return (
     <main className="max-w-3xl mx-auto px-5 sm:px-8 py-10 sm:py-12 flex flex-col gap-8">
       <header className="flex flex-col gap-3">
@@ -77,19 +84,12 @@ function ResultPage() {
         </p>
       </header>
 
-      <section className="flex flex-col gap-2">
-        <label htmlFor="story-one-liner" className="text-[13px] font-medium text-text-secondary">
-          一句話的故事
-        </label>
-        <input
-          id="story-one-liner"
-          type="text"
-          value={card.result.story_one_liner}
-          onChange={(e) => updateField("result.story_one_liner", e.target.value)}
-          placeholder="用一句話告訴未來的自己：這趟路上你聽到了什麼？"
-          className="w-full rounded-md border border-border-hairline bg-canvas-raised px-3 py-2.5 text-[15px] text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-text-primary"
-        />
-      </section>
+      <TextField
+        label="一句話的故事"
+        hint="用一句話告訴未來的自己：這趟路上你聽到了什麼？"
+        value={card.result.story_one_liner}
+        onChange={(v) => updateField("result.story_one_liner", v)}
+      />
 
       <section className="flex flex-col gap-3">
         <p className="text-[13px] font-medium text-text-secondary">下一步</p>
@@ -105,12 +105,12 @@ function ResultPage() {
             <span className="text-[15px] text-text-primary">{HINT_LABELS[hint]}</span>
           </label>
         ))}
-        <textarea
-          rows={3}
+        <TextareaField
+          label="下一步補充"
+          hint="想多寫一點關於你的下一步嗎？"
           value={card.result.next_step_note}
-          onChange={(e) => updateField("result.next_step_note", e.target.value)}
-          placeholder="想多寫一點關於你的下一步嗎？"
-          className="mt-2 w-full rounded-md border border-border-hairline bg-canvas-raised px-3 py-2.5 text-[15px] text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-text-primary"
+          onChange={(v) => updateField("result.next_step_note", v)}
+          rows={3}
         />
       </section>
 
@@ -138,6 +138,14 @@ function ResultPage() {
         >
           下載 JSON 快照
         </button>
+        <a
+          href={canExport ? toEmailHref(card, FINAL_CARD_EMAIL) : undefined}
+          onClick={canExport ? handleEmail : undefined}
+          aria-disabled={!canExport}
+          className="inline-flex items-center justify-center rounded-md px-5 py-3 font-medium text-[15px] transition-colors aria-disabled:pointer-events-none aria-disabled:opacity-50 border border-border-default bg-canvas-base text-text-primary hover:bg-canvas-raised"
+        >
+          寄到 hpyuan1220@gmail.com
+        </a>
       </footer>
     </main>
   );

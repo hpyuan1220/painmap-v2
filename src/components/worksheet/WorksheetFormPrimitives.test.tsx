@@ -12,6 +12,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { useState } from "react";
 
 import {
   CardBlock,
@@ -39,6 +40,20 @@ describe("TextField", () => {
     render(<TextField label="x" hint="輸入 hint" value="" onChange={() => {}} />);
     expect(screen.getByPlaceholderText("輸入 hint")).toBeInTheDocument();
   });
+
+  it("keeps repeated labels connected to their own inputs", () => {
+    render(
+      <>
+        <TextField label="方向的名字" value="" onChange={() => {}} />
+        <TextField label="方向的名字" value="" onChange={() => {}} />
+        <TextField label="方向的名字" value="" onChange={() => {}} />
+      </>,
+    );
+
+    const inputs = screen.getAllByLabelText("方向的名字") as HTMLInputElement[];
+    expect(inputs).toHaveLength(3);
+    expect(new Set(inputs.map((input) => input.id)).size).toBe(3);
+  });
 });
 
 describe("TextareaField", () => {
@@ -53,8 +68,36 @@ describe("TextareaField", () => {
     const user = userEvent.setup();
     render(<TextareaField label="筆記" value="" onChange={onChange} />);
     await user.type(screen.getByLabelText("筆記"), "abc");
-    // userEvent fires per-keystroke; final call should carry the full string
+    // Without a parent rerender, the controlled value prop remains empty.
     expect(onChange).toHaveBeenLastCalledWith("c");
+  });
+
+  it("keeps typed text when controlled by a parent", async () => {
+    function Harness() {
+      const [value, setValue] = useState("");
+      return <TextareaField label="筆記" value={value} onChange={setValue} />;
+    }
+
+    const user = userEvent.setup();
+    render(<Harness />);
+    const textarea = screen.getByLabelText("筆記") as HTMLTextAreaElement;
+
+    await user.type(textarea, "abc");
+    expect(textarea.value).toBe("abc");
+  });
+
+  it("keeps repeated labels connected to their own textareas", () => {
+    render(
+      <>
+        <TextareaField label="為什麼這條值得聽" value="" onChange={() => {}} />
+        <TextareaField label="為什麼這條值得聽" value="" onChange={() => {}} />
+        <TextareaField label="為什麼這條值得聽" value="" onChange={() => {}} />
+      </>,
+    );
+
+    const textareas = screen.getAllByLabelText("為什麼這條值得聽") as HTMLTextAreaElement[];
+    expect(textareas).toHaveLength(3);
+    expect(new Set(textareas.map((textarea) => textarea.id)).size).toBe(3);
   });
 });
 
@@ -115,19 +158,17 @@ describe("RadioGroup", () => {
 
 describe("ListField", () => {
   it("renders one input per item and an add button", () => {
-    render(
-      <ListField
-        label="清單"
-        items={["a", "b"]}
-        onChange={() => {}}
-        addLabel="＋ 再加"
-      />,
-    );
+    render(<ListField label="清單" items={["a", "b"]} onChange={() => {}} addLabel="＋ 再加" />);
     const inputs = screen.getAllByRole("textbox") as HTMLInputElement[];
     expect(inputs).toHaveLength(2);
     expect(inputs[0].value).toBe("a");
     expect(inputs[1].value).toBe("b");
     expect(screen.getByText("＋ 再加")).toBeInTheDocument();
+  });
+
+  it("exposes the list as a named group", () => {
+    render(<ListField label="清單" items={[]} onChange={() => {}} />);
+    expect(screen.getByRole("group", { name: "清單" })).toBeInTheDocument();
   });
 
   it("calls onChange with appended item when add is clicked", async () => {

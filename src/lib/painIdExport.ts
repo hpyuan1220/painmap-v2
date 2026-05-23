@@ -42,9 +42,7 @@ export function toMarkdown(card: PainCard): string {
   if (card.complaint.verbatim) {
     lines.push(`> ${card.complaint.verbatim}`);
     if (card.complaint.source_name || card.complaint.datetime) {
-      const meta = [card.complaint.source_name, card.complaint.datetime]
-        .filter(Boolean)
-        .join("，");
+      const meta = [card.complaint.source_name, card.complaint.datetime].filter(Boolean).join("，");
       lines.push(`> — ${meta}`);
     }
   } else {
@@ -77,7 +75,7 @@ export function toMarkdown(card: PainCard): string {
   if (pairs.length > 0) {
     lines.push("## 取捨");
     for (const p of pairs) {
-      lines.push(`- A：${p.side_a}　／　B：${p.side_b}`);
+      lines.push(`- A：${p.side_a} / B：${p.side_b}`);
       lines.push(`  選 ${p.picked === "a" ? "A" : "B"}，因為：${p.reason}`);
     }
     lines.push("");
@@ -113,11 +111,16 @@ export function toJson(card: PainCard): string {
   return JSON.stringify(card, null, 2);
 }
 
+/** Build a prefilled email draft for the final Pain ID card. */
+export function toEmailHref(card: PainCard, recipient: string): string {
+  const painId = card.result.pain_id || "pain-id";
+  const subject = `PainMap Pain ID · ${painId}`;
+  const body = toMarkdown(card);
+  return `mailto:${encodeURIComponent(recipient)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+}
+
 /** Trigger a browser download for an export. */
-export function downloadExport(
-  card: PainCard,
-  format: "markdown" | "json" | "pdf",
-): void {
+export function downloadExport(card: PainCard, format: "markdown" | "json" | "pdf"): void {
   const painId = card.result.pain_id || "pain-id";
   let blob: Blob;
   let filename: string;

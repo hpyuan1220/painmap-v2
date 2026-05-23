@@ -13,6 +13,7 @@ import { describe, expect, it } from "vitest";
 import {
   generatePainId,
   isReadyForExport,
+  toEmailHref,
   toJson,
   toMarkdown,
 } from "@/lib/painIdExport";
@@ -109,5 +110,23 @@ describe("toJson", () => {
     const card = emptyPainCard();
     const parsed = JSON.parse(toJson(card));
     expect(parsed.schema_version).toBe("3.0");
+  });
+});
+
+describe("toEmailHref", () => {
+  it("builds a prefilled email draft for the Pain ID card", () => {
+    const card = emptyPainCard();
+    card.result.pain_id = "pid-test-abc123";
+    card.result.story_one_liner = "我聽到了一段卡住的故事";
+    card.result.next_step_hint = "continue_listening";
+    card.result.next_step_note = "再找兩位老師聊";
+
+    const href = toEmailHref(card, "hpyuan1220@gmail.com");
+    const decoded = decodeURIComponent(href);
+
+    expect(href).toContain("mailto:hpyuan1220%40gmail.com");
+    expect(decoded).toContain("PainMap Pain ID · pid-test-abc123");
+    expect(decoded).toContain("# Pain ID · pid-test-abc123");
+    expect(decoded).toContain("我聽到了一段卡住的故事");
   });
 });
