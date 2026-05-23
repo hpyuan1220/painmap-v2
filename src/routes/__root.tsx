@@ -83,55 +83,63 @@ export const Route = createRootRoute({
           "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/fd2ca7ed-977c-4db7-9a9e-827d1a78fa75/id-preview-a4a4d1e5--d0139ee1-9f0d-4539-a1a8-5a4fdd46360e.lovable.app-1777712052394.png",
       },
     ],
-    links: [
-      // WebP favicon — PainMap continuous-line brand mark
-      { rel: "icon", type: "image/webp", href: "/logo.webp" },
-      { rel: "apple-touch-icon", href: "/logo.webp" },
-      // Preload above-the-fold visual assets so they fetch in parallel
-      // with the JS bundle (LCP optimization). Logo + Hero illustration.
-      { rel: "preload", as: "image", href: "/logo.webp", type: "image/webp" },
-      {
-        rel: "preload",
-        as: "image",
-        href: "/illustrations/e11-listening-vessel.webp",
-        type: "image/webp",
-      },
-      // Preconnect Google Fonts only (Noto Sans TC). Geist self-hosted
-      // → no jsdelivr connection needed.
-      { rel: "preconnect", href: "https://fonts.googleapis.com" },
-      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      // Preload self-hosted Geist variable fonts. Same origin = no extra
-      // TLS handshake; preload tells browser to start fetch immediately
-      // (parallel to JS) without waiting for CSS parse to discover them.
-      {
-        rel: "preload",
-        as: "font",
-        type: "font/woff2",
-        href: "/fonts/geist-sans-variable.woff2",
-        crossOrigin: "anonymous",
-      },
-      {
-        rel: "preload",
-        as: "font",
-        type: "font/woff2",
-        href: "/fonts/geist-mono-variable.woff2",
-        crossOrigin: "anonymous",
-      },
-      // Google Fonts stylesheet. Previously used a media="print" + onLoad trick
-      // to defer loading, but onLoad as a string ("this.media='all'") is an SSR-only
-      // HTML attribute pattern that crashes React in pure CSR builds (the Vercel and
-      // GitHub Pages static SPA targets) with error #231 — "onLoad received a string".
-      // Trade the perf optimization for a working build; the Google Fonts CDN is fast
-      // enough that blocking load is acceptable.
-      {
-        rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&display=swap",
-      },
-      {
-        rel: "stylesheet",
-        href: appCss,
-      },
-    ],
+    links: (() => {
+      // Resolve asset URLs against Vite's BASE_URL so they line up with the
+      // build's `base` setting. On Cloudflare/Vercel that's "/" (no change).
+      // On GitHub Pages it's "/painmap-v2/", and absolute "/logo.webp"
+      // would 404 because the site lives at hpyuan1220.github.io/painmap-v2/.
+      const base = import.meta.env.BASE_URL ?? "/";
+      const asset = (p: string) => `${base}${p.replace(/^\//, "")}`;
+      return [
+        // WebP favicon — PainMap continuous-line brand mark
+        { rel: "icon", type: "image/webp", href: asset("logo.webp") },
+        { rel: "apple-touch-icon", href: asset("logo.webp") },
+        // Preload above-the-fold visual assets so they fetch in parallel
+        // with the JS bundle (LCP optimization). Logo + Hero illustration.
+        { rel: "preload", as: "image", href: asset("logo.webp"), type: "image/webp" },
+        {
+          rel: "preload",
+          as: "image",
+          href: asset("illustrations/e11-listening-vessel.webp"),
+          type: "image/webp",
+        },
+        // Preconnect Google Fonts only (Noto Sans TC). Geist self-hosted
+        // → no jsdelivr connection needed.
+        { rel: "preconnect", href: "https://fonts.googleapis.com" },
+        { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+        // Preload self-hosted Geist variable fonts. Same origin = no extra
+        // TLS handshake; preload tells browser to start fetch immediately
+        // (parallel to JS) without waiting for CSS parse to discover them.
+        {
+          rel: "preload",
+          as: "font",
+          type: "font/woff2",
+          href: asset("fonts/geist-sans-variable.woff2"),
+          crossOrigin: "anonymous",
+        },
+        {
+          rel: "preload",
+          as: "font",
+          type: "font/woff2",
+          href: asset("fonts/geist-mono-variable.woff2"),
+          crossOrigin: "anonymous",
+        },
+        // Google Fonts stylesheet. Previously used a media="print" + onLoad trick
+        // to defer loading, but onLoad as a string ("this.media='all'") is an SSR-only
+        // HTML attribute pattern that crashes React in pure CSR builds (the Vercel and
+        // GitHub Pages static SPA targets) with error #231 — "onLoad received a string".
+        // Trade the perf optimization for a working build; the Google Fonts CDN is fast
+        // enough that blocking load is acceptable.
+        {
+          rel: "stylesheet",
+          href: "https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&display=swap",
+        },
+        {
+          rel: "stylesheet",
+          href: appCss,
+        },
+      ];
+    })(),
   }),
   shellComponent: RootShell,
   component: RootComponent,
