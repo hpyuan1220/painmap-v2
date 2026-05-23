@@ -86,7 +86,7 @@ export function Illustration({
       )}
     >
       <img
-        src={`/illustrations/${name}.webp`}
+        src={`${import.meta.env.BASE_URL}illustrations/${name}.webp`}
         alt={alt}
         width={dims.w}
         height={dims.h}
