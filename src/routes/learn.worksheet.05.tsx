@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import { CardScaffold } from "@/components/worksheet/CardScaffold";
 import { TextareaField } from "@/components/worksheet/WorksheetFormPrimitives";
+import { isCard3Ready } from "@/lib/cardValidators";
 import { usePainCardStore } from "@/store/painCard";
 
 export const Route = createFileRoute("/learn/worksheet/05")({
@@ -24,10 +25,7 @@ function CardThreePage() {
   const updateField = usePainCardStore((s) => s.updateField);
 
   const summaryLen = fp.summary.trim().length;
-  const ready =
-    summaryLen >= 60 &&
-    fp.in_their_own_words.trim().length > 0 &&
-    fp.why_this_one.trim().length > 0;
+  const ready = isCard3Ready(fp);
 
   return (
     <CardScaffold

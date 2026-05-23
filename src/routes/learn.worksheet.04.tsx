@@ -6,6 +6,7 @@ import {
   CardBlock,
   TextareaField,
 } from "@/components/worksheet/WorksheetFormPrimitives";
+import { isCard1BReady } from "@/lib/cardValidators";
 import { usePainCardStore } from "@/store/painCard";
 import type { DrillRound } from "@/types/painCard";
 
@@ -75,11 +76,7 @@ function CardOneBPage() {
     { id: "", title: "", description: "", why_it_matters: "" };
 
   const rounds = an.drill_rounds.length === 0 ? [emptyRound(1)] : an.drill_rounds;
-  const ready =
-    rounds.length >= 2 &&
-    rounds.every(
-      (r) => r.user_question.trim() && r.ai_response.trim() && r.user_reflection.trim(),
-    );
+  const ready = isCard1BReady(an);
 
   function setRound(idx: number, patch: Partial<DrillRound>) {
     const next = rounds.map((r, i) => (i === idx ? { ...r, ...patch } : r));

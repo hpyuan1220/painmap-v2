@@ -5,6 +5,7 @@ import {
   CardBlock,
   TextareaField,
 } from "@/components/worksheet/WorksheetFormPrimitives";
+import { isCardDReady } from "@/lib/cardValidators";
 import { usePainCardStore } from "@/store/painCard";
 import type { AssumptionItem } from "@/types/painCard";
 
@@ -35,15 +36,7 @@ function CardDPage() {
   const updateField = usePainCardStore((s) => s.updateField);
 
   const items = a.items.length === 0 ? [emptyItem(), emptyItem()] : a.items;
-  const ready =
-    items.length >= 2 &&
-    items.every(
-      (i) =>
-        i.assumption.trim() &&
-        i.evidence_so_far.trim() &&
-        i.what_would_change_my_mind.trim(),
-    ) &&
-    a.biases_to_watch.trim().length > 0;
+  const ready = isCardDReady(a);
 
   function setItem(idx: number, patch: Partial<AssumptionItem>) {
     const next = items.map((it, i) => (i === idx ? { ...it, ...patch } : it));

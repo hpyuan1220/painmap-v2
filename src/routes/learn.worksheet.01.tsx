@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { CardScaffold } from "@/components/worksheet/CardScaffold";
+import { isCard1Ready } from "@/lib/cardValidators";
 import { usePainCardStore } from "@/store/painCard";
 
 export const Route = createFileRoute("/learn/worksheet/01")({
@@ -29,12 +30,7 @@ function CardOnePage() {
   const complaint = usePainCardStore((s) => s.card.complaint);
   const updateField = usePainCardStore((s) => s.updateField);
 
-  const ready =
-    complaint.verbatim.trim().length >= 10 &&
-    complaint.source_name.trim().length > 0 &&
-    complaint.source_relation.trim().length > 0 &&
-    complaint.datetime.trim().length > 0 &&
-    complaint.scene.trim().length > 0;
+  const ready = isCard1Ready(complaint);
 
   return (
     <CardScaffold
