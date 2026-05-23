@@ -1,386 +1,228 @@
-# Worksheet Page Spec Template (卡片頁專用)
+# Worksheet Page Spec Template v2 (卡片頁專用)
 
-> 這是 PainMap Worksheet **卡片頁專用範本**，仿 `docs/web_design/pages/page_template.md` 並擴充三個專屬區塊：
+> **v2 鐵律**：本範本只負責「頁面結構」。
+> 卡片的「做什麼、為什麼、語氣」由 4 份 canonical 文件決定，**不要在 page spec 重述**：
 >
-> - **EXIT GATE**：卡片過關條件、失敗路由、文案
-> - **AI INTEGRATION**：AI prompt 來源、輸出處理、反 solution mode 偵測
-> - **OCTALYSIS HOOKS**：主/副驅動力 + 設計手法
+> - `product/user_journey.md` — 每張卡的目的、情緒、走下一張前的軟性邀請
+> - `product/data_model.md` — 欄位 schema + 最低要求
+> - `references/exit_gates_matrix.md` — L1 CTA 條件 + L2 中性 hint
+> - `references/ai_prompt_library.md` — AI prompt 原文 + 變數插值 + 防護字
 >
-> 入口頁 (`00_landing.md`) 與結果頁 (`10_pain_id_export.md`) 不適用此範本，採用 `docs/web_design/pages/page_template.md` 原版。
+> Page spec 只列：路由、欄位映射、layout、states、RWD、頁面特有的例外。
 >
-> 後續每張卡片 (`01_card_complaint.md` ~ `09_card_verdict.md`) 直接複製此檔填空。
+> 嗓音準則永遠是 `references/voice_and_tone.md`，任何顯示給使用者的中文字串都必須通過 §3.1 黑名單檢查。
 
 ---
 
 ## [PAGE META]
 
-- **page_name**: {例：Card 3 - 卡關公式}
-- **route_path**: `/learn/worksheet/0X`
-- **page_type**: `form_card` 或 `form_card_ai`（有 AI 整合的用 `form_card_ai`）
-- **card_number**: 1 ~ 9
-- **paincard_field**: {對應 PainCard schema 的欄位，例：`stuck_formula`}
-- **primary_goal**: {這張卡片要產出 PainCard 的哪個欄位 / 哪些值}
-- **secondary_goal**: {次要目的，例：訓練使用者的某種判斷}
-- **target_users**:
-  - 主要：{主要使用者，多半同 brand system 的 Aji / Vivian / Kai}
-  - 次要：{次要使用者}
-- **entry_point**: 從卡 (X-1) 過關後自動導向 / 從 stepper 點擊回看
-- **expected_time_on_page**: {預期填寫時間，3-15 分鐘}
+```yaml
+page_name: {例：Card 1-A · AI 替你打開三條路}
+route_path: /learn/worksheet/0X         # 兩位數補零
+page_type: form_card | form_card_ai     # 有 AI 介入用 form_card_ai
+step_in_flow: 1..13 | 'result'          # 對應 PainCard.current_step
+paincard_field_path: {data_model.md 中對應的欄位路徑，例：ai_narrowing}
+ai_prompt_section: {ai_prompt_library.md 對應段落，例：§2}
+exit_gate_section: {exit_gates_matrix.md 對應卡片區段}
+journey_section: {user_journey.md 對應段落}
+```
 
 ---
 
 ## [STRUCTURE: SECTIONS]
 
-> 卡片頁標準 5 個 Section（依需要可加 1-2 個 AI 區塊）
+標準 5-6 個 section（依需要可省略 `ai_assist_block` 或 `example_block`）：
 
-1. **page_header**
-   - section_type: header
-   - section_purpose: 顯示卡片標題、卡 X / 9 進度、儲存狀態
+1. `page_header` — 卡片標題、步驟進度、儲存狀態
+2. `instruction_block` — 1-2 句邀請式說明（這張卡要做什麼）
+3. `user_input_block` — 主要 form 欄位
+4. `ai_assist_block`（form_card_ai 才有）— prompt 複製 + 貼回回應
+5. `example_block`（選擇性）— 林老師案例參照
+6. `continue_when_ready_block` — 走下一張卡的 CTA + 軟性邀請
 
-2. **instruction_block**
-   - section_type: instruction
-   - section_purpose: 用 1-2 句話說明這張卡片要做什麼、為什麼要做
-
-3. **user_input_block**
-   - section_type: form
-   - section_purpose: 「你來填」的核心欄位輸入區（依 PainCard schema）
-
-4. **ai_assist_block**（僅 form_card_ai 才有）
-   - section_type: ai_block
-   - section_purpose: AI 校對 / 提案 / 證據蒐集，含 prompt 複製功能
-
-5. **example_block**
-   - section_type: example
-   - section_purpose: 顯示範例（補習班老師案例或抽象示例），讓使用者看到「過關長什麼樣」
-
-6. **exit_gate_block**
-   - section_type: exit_gate
-   - section_purpose: 過關條件檢核 + 「下一張」按鈕；失敗時顯示「還缺什麼」
+> 舊版 `exit_gate_block` 改名 `continue_when_ready_block`（與 `voice_and_tone.md` §3.1 一致）。
 
 ---
 
 ## [SECTION COMPONENT SPEC]
 
-### Section: page_header
+### page_header
 
-- **layout**: 固定於 Sub-Navigation 之下，全寬，padding 24px
-- **elements**:
-  - card_title: H1 / required / 「卡 X｜{卡片名稱}」
-  - card_subtitle: Body MD / optional / 1 句話說明這張卡片的本質
-  - save_status: Caption / required / 「已儲存於 HH:MM」或「儲存中...」
-- **states**:
-  - default: 完整顯示
-  - saving: save_status 顯示 spinner + "儲存中..."
-  - saved: save_status 顯示綠色勾號 + "已儲存於 HH:MM"
-  - error: save_status 顯示 amber 警告 + "儲存失敗，請重試"
-- **copy_constraints**: card_title 最多 12 字中文；card_subtitle 最多 30 字中文
+- **layout**：sticky 在 sub-nav 之下，全寬 padding 24px
+- **elements**：
+  - `card_title` (H1) — 例：「Card 1-A · AI 替你打開三條路」（最多 18 字中文）
+  - `card_subtitle` (Body MD, 選填) — 一句話本質（最多 30 字）
+  - `step_indicator` — 「Step 3 / 13」
+  - `save_status` — 「已儲存於 HH:MM」/「儲存中⋯」/「儲存失敗，請重試」
 
-### Section: instruction_block
+### instruction_block
 
-- **layout**: 全寬單欄，BG Surface（white）背景，padding 24px，圓角 12px
-- **elements**:
-  - icon: Illustration / optional / 對應卡片主題的 illustration（例：卡 1 = 對話氣泡 + 鉛筆）
-  - heading: H2 / required / 例：「把抱怨寫下來」
-  - description: Body MD / required / 2-3 行說明
-  - rules_list: BulletList / optional / 規則列表（例：「規則：寫你聽到的原句，不要美化」）
-- **states**:
-  - default: 完整顯示
-  - collapsed: Mobile 上 description 可收合（預設展開）
-- **copy_constraints**: heading 最多 14 字中文；description 每行最多 30 字中文
+- **layout**：全寬，BG Surface，padding 24px，圓角 12px
+- **elements**：
+  - `icon` (illustration, 選填)
+  - `heading` (H2) — 最多 14 字中文
+  - `description` (Body MD) — 2-3 行，採邀請式語氣
+  - `invitation_note` (Caption, 選填) — 「想多聽 / 想邀請 / 走下一張卡前」軟句
+- **嗓音規則**：對齊 `voice_and_tone.md` §4.2，**不可**寫「規則」「必填」「請填入」
 
-### Section: user_input_block
+### user_input_block
 
-- **layout**: 1-column form layout，欄位由上至下垂直排列
-- **elements**:
-  - {field_1}: {Type} / {required|optional} / {說明}
-    - 例：verbatim_textarea: Textarea / required / 5 行高、placeholder「貼上你聽到的原句，不要美化」
-  - {field_2}: ...
-  - field_validation: InlineMessage / 即時 / 顯示「字數 0/200」「格式錯誤」等
-- **states**:
-  - default: 空白 / 預填既有資料
-  - focus: Border Focus (Teal) + 字段標籤上移
-  - error: Error Message inline 顯示 + 字段邊框 amber
-  - filled: 字段已填寫，無 error
-  - autosave: 每 5 秒或失焦時觸發 LocalStorage 寫入
-- **copy_constraints**: 每個 textarea 上限依 schema 欄位定義（如 verbatim 上限 1000 字）
+- **layout**：1-column form
+- **elements**：每個欄位 = Type / required-or-not / placeholder / hint
+- **states**：
+  - `default` / `focus` / `filled` / `hint_shown` / `autosave_pending`
+- **autosave**：5s debounce 或失焦時觸發
+- **placeholder 嗓音**：用「寫下你聽到的⋯」「先別整理，把當下的⋯」這類軟句，不寫「請輸入⋯」
 
-### Section: ai_assist_block（form_card_ai 才有）
+### ai_assist_block（僅 form_card_ai）
 
-> 引用 `components/ai_prompt_copy_block.md`
+引用 `components/ai_prompt_copy_block.md`。
+- **layout**：全寬，BG Muted；Desktop 可選兩欄（左 prompt / 右 response）
+- **elements**：
+  - `section_title` (H3) — 「想請 AI 陪你⋯」（不寫「AI 幫你」「AI 校對」）
+  - `tool_selector` — ChatGPT / Claude / Perplexity / Gemini 四選一
+  - `prompt_textarea` — 顯示 prompt 原文（從 `ai_prompt_library.md` 對應段載入）
+  - `external_link_btn` — 「打開 ChatGPT」（直接帶 prompt）
+  - `response_textarea` — 「把 AI 的回應貼回來」
+  - `solution_mode_hint` — 偵測 solution mode 字串時顯示 `voice_and_tone.md` §6.2 訊息
+- **變數插值**：見 `ai_prompt_library.md` 對應段落「變數插值」表
 
-- **layout**: 全寬單欄，BG Muted 灰背景區分；Desktop 可選擇兩欄（左 prompt，右回覆）
-- **elements**:
-  - section_title: H3 / required / 「🤖 AI 幫你 {動詞}」（例：「AI 幫你校對」）
-  - tool_selector: ToolSelector / required / chatgpt / claude / perplexity / gemini 4 選 1
-  - prompt_textarea: PromptDisplay / required / 顯示 prompt 內容，含複製按鈕
-  - external_link_btn: Button Secondary / optional / 「直接打開 ChatGPT」
-  - response_textarea: Textarea / required / 「貼回 AI 的回覆」
-  - validation_warning: InlineMessage / 條件顯示 / AI 進入 solution mode 時警告
-- **states**:
-  - default: prompt 顯示，response 空白
-  - copied: 複製按鈕顯示 toast「已複製到剪貼簿」
-  - response_filled: 偵測 solution mode 字串，顯示警告
-  - validation_failed: AI 回覆未通過反 solution mode 檢查
-- **copy_constraints**: section_title 最多 16 字中文
+### example_block（選擇性）
 
-### Section: example_block
+- **layout**：全寬，BG Primary Light
+- **elements**：
+  - `section_title` (H3) — 「📖 看一個例子（林老師）」
+  - `example_content` — 範例文本（程式碼字體呈現）
+  - `example_source` (caption) — 「來自 Card 1-A 的延伸」之類
+- **mobile**：預設折疊，「看例子」展開
 
-- **layout**: 全寬單欄，BG Primary Light 淡藍背景，padding 20px
-- **elements**:
-  - section_title: H3 / required / 「📖 範例」
-  - example_content: PreFormattedText / required / 範例文字（採用 Code 字體呈現）
-  - example_source: Caption / optional / 「補習班老師案例」「來自卡 X 的延伸」
-- **states**:
-  - default: 範例完整顯示
-  - collapsed: Mobile 預設折疊，點「看範例」展開
-- **copy_constraints**: example_content 最多 200 字中文
+### continue_when_ready_block
 
-### Section: exit_gate_block
-
-> 引用 `components/exit_gate_check.md`
-
-- **layout**: 全寬單欄，sticky 在頁面底部，padding 24px，BG Surface
-- **elements**:
-  - checklist: ChecklistItems / required / 每個 exit condition 一條（顯示勾選或缺漏）
-  - next_button: Button Primary / required / 「下一張卡片 →」（disabled 直到 checklist 全部通過）
-  - retreat_link: Link Secondary / optional / 「先存檔離開」「回卡 X 補資訊」
-  - help_tooltip: Tooltip / required / next_button disabled 時 hover 顯示「還缺：XXX」
-- **states**:
-  - locked: next_button disabled，checklist 顯示未通過項目
-  - ready: next_button enabled，checklist 全綠
-  - warning: 通過但有警告（例：卡 6 AI 解答夠用但有疑慮），按鈕變黃色「仍要繼續？」
-- **copy_constraints**: next_button 文案固定為「下一張卡片 →」（卡 9 改為「產出我的痛點身份證」）
+引用 `components/exit_gate_check.md`（檔名保留但內容已 v2 化）。
+- **layout**：全寬，sticky 底部，padding 24px
+- **elements**：
+  - `requirement_checklist` — L1 條件勾選狀態（顯示哪些已寫滿）
+  - `next_button` (Button Primary) — 「走下一張卡 →」(disabled 直到 L1 全綠)
+  - `soft_hint_zone` — L2 中性 hint 顯示區（從 `exit_gates_matrix.md` 載入）
+  - `step_back_link` — 「先到前面那張卡看看」（選填）
+  - `pause_link` — 「先存檔離開，下次再回來」
+- **state**：
+  - `locked` — next disabled，但底下顯示「走下一張卡前我們想多聽你說的事」軟句
+  - `ready` — next enabled，checklist 全綠
+- **嗓音規則**：next_button 文字統一為「走下一張卡 →」，最後一張 Card G 改為「走到結尾的 Pain ID 卡片 →」，Result 改為「帶這張 Pain ID 卡片走 →」
 
 ---
 
 ## [INTERACTION & STATE FLOW]
 
-### 主要互動流程
+```
+頁面載入
+  ↓
+從 LocalStorage 讀 PainCard，填入既有資料
+  ↓
+使用者寫 user_input_block → autosave (5s debounce)
+  ↓
+(form_card_ai)
+  使用者複製 prompt → 外部 AI 回 → 貼回 response → 解析寫入 schema
+  ↓
+L1 全綠 → next_button enabled
+  ↓
+點 next → 寫入 current_step + 1 → router 跳下一頁
+```
 
-1. {頁面載入} → 從 LocalStorage 讀取 PainCard，填入既有資料（若有）
-2. {使用者填寫 user_input_block} → 每 5 秒 / 失焦時自動存 LocalStorage
-3. {使用者觸發 AI 動作}（form_card_ai 才有） → 顯示 prompt → 使用者複製 → 貼回 response
-4. {ai_validation 通過} → 自動填入對應的 PainCard 欄位
-5. {checklist 全部通過} → next_button 解鎖
-6. {點擊 next_button} → 寫入 PainCard.current_step + 1，導向下一張卡片
+---
 
-### RWD 行為差異
+## [RWD]
 
-| 斷點 | 佈局 | 差異說明 |
-| :--- | :--- | :--- |
-| Desktop (>1280px) | 全寬內容置中，max-width 920px；ai_assist_block 採兩欄 | 完整體驗 |
-| Tablet (768-1280px) | 同 Desktop 但寬度為 100%；ai_assist_block 採單欄堆疊 | 折疊 example_block 預設收合 |
-| Mobile (<768px) | 全部單欄；instruction_block 可折疊；exit_gate sticky 底部 | example 收合，stepper 折成「卡 X / 9」 |
-
-### 資料更新策略
-
-- LocalStorage 寫入頻率：5 秒 debounce 或欄位失焦時觸發
-- 不需網路：MVP 階段全部本地操作
-- AI 整合：MVP 階段使用「複製 prompt 到外部 ChatGPT」模式（feature flag 切換 LLM API）
-
-### 錯誤恢復
-
-- LocalStorage 容量超過 5MB 時：顯示警告，建議使用者匯出後清除舊資料
-- 瀏覽器禁用 LocalStorage 時：顯示告知 banner「你的瀏覽器禁用了本地儲存，無法保存進度」+ 解決步驟
+| 斷點 | 行為 |
+| :-- | :-- |
+| Desktop (>1280px) | max-width 920px 置中，ai_assist 兩欄 |
+| Tablet (768-1280px) | 同 Desktop 但 100% 寬，ai_assist 單欄堆疊，example 折疊 |
+| Mobile (<768px) | 全部單欄，instruction 可折疊，continue_when_ready sticky 底部 |
 
 ---
 
 ## [DATA & API]
 
-- **uses_api**: false（MVP 階段，全部本地）
-- **localstorage_keys**:
-  - `painmap_worksheet:cards` — Record<id, PainCard>（schema 詳見 `data_model.md`）
-  - `painmap_worksheet:current_card_id` — 當前正在填寫的 card UUID
-- **paincard_fields_read**: {從 PainCard 讀取哪些欄位}
-  - 例：卡 3 讀取 `complaint`、`people.background`（用於 AI prompt 變數插值）
-- **paincard_fields_write**: {寫入 PainCard 的哪些欄位}
-  - 例：卡 3 寫入 `stuck_formula.user_draft`、`stuck_formula.ai_polished`、`stuck_formula.confirmed`
-- **schema_validation**: 寫入前用 Zod 驗證對應 schema 區段
-- **error_cases**:
-  - LocalStorage 寫入失敗：Toast 顯示「儲存失敗」+ 重試按鈕
-  - Schema 驗證失敗：欄位邊框 amber + 錯誤訊息 inline 顯示
-  - AI 回覆解析失敗：保留原始 raw_response，不阻斷流程
+- **uses_api**：MVP 為 false（純 LocalStorage）；M2+ feature flag 切站內 LLM 代理
+- **localstorage_key**：`painmap.worksheet.v2`（schema_version 2.0）
+- **paincard_fields_read** / **paincard_fields_write**：列在每張卡片自己的 spec
+- **schema_validation**：寫入前用 Zod 驗 schema；失敗保留原 input 並顯示 L2 hint
 
 ---
 
-## [EXIT GATE]
+## [CONTINUE-WHEN-READY]
 
-> 卡片頁特有區塊。對應 `references/exit_gates_matrix.md`。
+**全部來自 `references/exit_gates_matrix.md`**，page spec 只引用區段編號：
 
-### 過關條件 (Exit Conditions)
-
-> 從 `data_model.md` 過關條件對應表複製。每個卡片在此明確列出。
-
-- [ ] {例：`complaint.verbatim` 非空}
-- [ ] {例：`complaint.source_name` 非空}
-- [ ] {例：`complaint.scene` 非空}
-
-### Validation Logic
-
-```typescript
-// 範例：卡 1
-function validateCardComplaint(card: PainCard): ValidationResult {
-  const errors: string[] = [];
-  if (!card.complaint.verbatim) errors.push('原句未填');
-  if (!card.complaint.source_name) errors.push('來源人物未填');
-  // ...
-  return { passed: errors.length === 0, errors };
-}
+```yaml
+exit_gate_ref: exit_gates_matrix.md#card-{X}
+l1_requirements: [見 exit_gates_matrix.md 對應 L1 表]
+l2_hints: [見 exit_gates_matrix.md 對應 L2 表]
 ```
-
-### Failure Routes (失敗路由)
-
-> 過不了關時的「建議回退」（不是強制）。
-
-| 失敗條件 | 建議目標 | 文案 |
-| :--- | :--- | :--- |
-| {例：source_name 寫了「補習班老師」沒名字} | `/learn/worksheet/01` 重填 | "你寫的不是真名。回卡 1 寫真名（例：林老師）。" |
-| {例：scene 太抽象} | （留在當頁） | "場景太抽象。試試寫『2026-04-15 21:00，他在書桌前打開 LINE』。" |
-
-### 通過後的下一步
-
-- 寫入 `PainCard.current_step = X + 1`
-- 寫入 `PainCard.updated_at = now()`
-- 導向 `/learn/worksheet/0(X+1)`
-- Toast「已通過卡 X，進入卡 (X+1)」（不誇張，不喊「恭喜」）
 
 ---
 
 ## [AI INTEGRATION]
 
-> 卡片頁特有區塊。卡 1, 2, 9 為「無 AI」，其他卡片有 AI 整合。
-
-### AI 介入類型
-
-- **AI 校對** (卡 3)：使用者先寫 → AI 校對句型 → 使用者確認
-- **AI 提案** (卡 4, 5)：使用者填部分 → AI 提案多個選項 → 使用者選擇
-- **AI 證據蒐集** (卡 6)：使用者貼背景 → AI 跑 8 題研究 → 使用者讀回覆
-- **AI 整理** (卡 7)：使用者先猜 → AI 整理判斷表 → 使用者對照差異
-- **AI 模擬** (卡 8)：使用者寫題目 → AI 扮演受訪者 → 使用者熱身
-
-### Prompt 來源
-
-引用自 `references/ai_prompt_library.md`，每個卡片頁固定 1-2 段 prompt：
+**全部來自 `references/ai_prompt_library.md`**，page spec 只引用：
 
 ```yaml
-prompt_id: card_3_polish
-description: 把抱怨改寫成卡關公式
-inputs:
-  - card_1_verbatim
-  - card_2_background
-template_path: references/ai_prompt_library.md#card-3-polish
+ai_prompt_ref: ai_prompt_library.md#{section-id}
+prompt_variables: [從對應段落「變數插值」表複製]
+anti_solution_mode_safeguard: [從對應段落「anti-solution-mode 防護」複製]
+in_app_payload: [從對應段落「站內 LLM payload」複製]
 ```
-
-### 變數插值機制
-
-prompt 內含 `[貼上卡片 X 的原句]` 等變數，元件自動替換為 PainCard 對應欄位：
-
-| 變數 | 替換來源 |
-| :--- | :--- |
-| `[貼上卡片 1 的原句]` | `card.complaint.verbatim` |
-| `[貼上卡片 2 的「大概背景」]` | `card.people.background` |
-| `[貼上卡片 3 的卡關公式]` | `card.stuck_formula.user_draft` |
-| ... | ... |
-
-### 反 solution mode 偵測
-
-當 AI 回覆中含以下字串時，顯示警告：
-- 「建議開發」「建議做一個」「應該設計」「建議使用 SaaS」「我們可以打造 App」「推薦工具：」「商業模式」「market opportunity」「TAM」
-
-警告 UI（不是 modal，是 inline AmberBanner）：
-
-```
-⚠️ AI 開始推銷解法了。要不要重跑 prompt？
-   建議在 prompt 開頭加一句「不要建議任何解決方案」
-   [重跑 prompt]  [我了解，繼續]
-```
-
-### MVP vs 後期
-
-- **MVP（M1）**：複製 prompt 到外部（ChatGPT / Claude / Perplexity / Gemini）
-- **後期（M2+）**：feature flag 切換站內 LLM API（透過 Edge Function 代理）
-
-詳見 `components/ai_prompt_copy_block.md`。
 
 ---
 
 ## [OCTALYSIS HOOKS]
 
-> 卡片頁特有區塊。對應 `octalysis_card_mapping.md`。
+- **Primary Drive**：#X {驅動力}（在這張卡如何體現）
+- **Secondary Drive(s)**：#X {驅動力}
+- **設計手法**：一兩個 page-specific 技巧
+- **反模式**：禁止做的事（避免破壞白帽驅動力）
 
-### Primary Drive
-
-- **#X {驅動力名稱}**：{在這張卡片如何體現}
-
-### Secondary Drive(s)
-
-- **#X {驅動力名稱}**：{輔助呈現方式}
-
-### 設計手法 (Design Techniques)
-
-- {例：「兩階段 UI — 先猜再讀 AI」}
-- {例：「自由選擇 AI 工具，強化 #3 Creativity」}
-
-### 反模式 (此卡禁止)
-
-- ❌ {例：「禁止顯示『AI 推薦最佳答案』，會破壞 #3 Empowerment」}
-- ❌ {例：「禁止打字機動畫模擬等待，違反『沉穩』」}
-
----
-
-## [EXCEPTION TO GLOBAL RULES]
-
-> 這個頁面需要違反 PainMap brand system 的地方。盡量最小化。
-
-- {例：此頁面 BG 用 BG Page (#F7F8FA) 而非 BG Surface，因為焦點在輸入框}
-- 若無例外：「無特殊例外，完全遵循 painmap_brand_system.md 規範。」
+詳見 `design/octalysis_card_mapping.md`。
 
 ---
 
 ## [BRAND LANGUAGE RULES (PAGE-SPECIFIC)]
 
-### 禁止用語（全站共用 + 此卡特有）
+### 嗓音核對（必須）
 
-| 禁止 | 理由 |
-| :--- | :--- |
-| 「點子」「靈感」 | brand 禁令 |
-| 「分數」「等級」 | brand 禁令 |
-| 「立即」「現在不做就晚了」 | FOMO 禁令 |
-| {頁面特有} | {理由} |
+- [ ] 全頁面字串通過 `voice_and_tone.md` §3.1 黑名單檢查
+- [ ] AI prompt 採邀請句，符合 `voice_and_tone.md` §5 骨架
+- [ ] CTA 文案符合 §3.2 白名單
+- [ ] 錯誤訊息走 §6 模板
 
-### 建議用語（此卡專用）
+### 頁面特有用語
 
-| 建議 | 場景 |
-| :--- | :--- |
-| 「下一張卡片」 | next button |
-| 「先存檔離開」 | retreat link |
-| 「再加一點具體細節」 | 過關失敗提示 |
+| 推薦 | 場景 |
+| :-- | :-- |
+| {例：「往下問」} | Card 1-B drill round 按鈕 |
 
 ---
 
 ## [ACCEPTANCE CRITERIA]
 
-- [ ] 所有 Section 功能正常
-- [ ] 所有狀態已實作（default / saving / error / disabled / focused）
-- [ ] RWD 三斷點行為正確
-- [ ] LocalStorage 自動儲存運作正常（5 秒 debounce）
-- [ ] Stepper 對應的 step 顯示為 active 狀態
-- [ ] Exit Gate 條件正確檢查 PainCard 欄位
-- [ ] 失敗時 retreat link 文案正確顯示
-- [ ] AI prompt 複製按鈕運作正常
-- [ ] AI prompt 變數插值正確替換
-- [ ] AI 回覆 solution mode 偵測準確（≥ 90% recall）
-- [ ] Octalysis hooks 在 UI 上有具體體現（不是只在文件裡）
-- [ ] 全頁面零出現禁止用語（分數 / 點子 / 排行榜）
-- [ ] 全頁面零 FOMO 話術
-- [ ] 字體 / 色彩 / 間距 完全遵循 painmap_brand_system.md
-- [ ] a11y：所有按鈕有 aria-label，鍵盤可達
-- [ ] 鍵盤操作：Tab 順序正確、Enter 觸發主按鈕、Esc 取消修改
+- [ ] 所有 section 功能正常
+- [ ] 所有 state 已實作（default / focus / filled / hint / autosave / locked / ready）
+- [ ] RWD 三斷點正確
+- [ ] LocalStorage 5s debounce 寫入運作
+- [ ] Stepper 對應 step 顯示 active
+- [ ] L1 條件與 `exit_gates_matrix.md` 一致
+- [ ] AI prompt 與 `ai_prompt_library.md` 一致；變數插值正確
+- [ ] solution-mode 偵測準確（≥ 90% recall）
+- [ ] Octalysis hook 在 UI 上有具體體現（不是只在文件裡）
+- [ ] **嗓音核對全綠**（`voice_and_tone.md` §3.1 + §3.2 + §5）
+- [ ] a11y：aria-label、鍵盤可達、Tab 順序正確、Enter 觸發 next、Esc 取消修改
 
 ---
 
 ## [VERSION]
 
 | 版本 | 日期 | 變更 |
-| :--- | :--- | :--- |
-| 1.0 | 2026-05-01 | 首版範本；定義卡片頁 6 區塊 + 3 個專屬擴充區塊 |
+| :-- | :-- | :-- |
+| 1.0 | 2026-05-01 | v1 範本 |
+| 2.0 | 2026-05-23 | v2：拆出 canonical 文件，page spec 不再重述卡片內容；改名 exit_gate → continue_when_ready；對齊 voice_and_tone.md |
