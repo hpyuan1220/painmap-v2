@@ -1,353 +1,130 @@
 /**
- * ExamplePainCardPreviewSection — 林老師範例 (Grok Bento large card)。
+ * ExamplePainCardPreviewSection — v3 「這趟路長什麼樣」 preview.
  *
- * 規格鐵律：
- * - VerifiedTag 顯示「真痛點」綠色，**禁止顯示 0-25 分數**（R4.1 / R4.2）
- * - 點擊預覽卡 → 開 modal 顯示完整 9 卡內容
+ * Replaces v2's 9-card modal with a tighter 13-step preview that lists every card
+ * (Card 1, A, 1-A, 1-B, 3, B, 4, 5, 6, 7, D, 8, G, Result) with a one-line "what
+ * happens here" + AI involvement marker.
  *
- * 互動升級：
- * - Modal 內左側 9 卡可點選切換，右側顯示卡內容 + schema 欄位 + 在
- *   「可驗證痛點格式」中扮演的角色，讓使用者一眼看到欄位如何對應。
- * - 支援 URL hash `#example-paincard-open` 自動打開 modal（給 Hero 次要 CTA 用）。
+ * Voice follows voice_and_tone.md — no 真痛點 / 假痛點 framing, no 「分數」, just an
+ * honest preview of the journey so users know what they're stepping into.
  */
-import { useEffect, useState } from "react";
-import { CheckCircle2, ExternalLink, ChevronRight } from "lucide-react";
 import { Illustration } from "@/components/Illustration";
-import { SectionFade } from "./SectionFade";
 import { Eyebrow } from "@/components/ui/eyebrow";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { cn } from "@/lib/utils";
+import { SectionFade } from "./SectionFade";
 
-const SUMMARY_ROWS: Array<[string, string]> = [
-  ["主人翁", "林老師（30-50 歲補習班數學老師）"],
-  ["場景", "每週六晚上寫 30 則家長 LINE，常寫到半夜兩點"],
-  ["現在怎麼解", "LINE + Excel 成績表 + 翻群組對話（手動拼湊）"],
-  ["兩件事不能同時要", "想客製化但又想規模化"],
-  ["AI 找到的證據", "Dcard 補教版 + 5 種具體職業人群"],
-  ["下一步", "訪談 2 位安親班輔導老師"],
-];
-
-type CardDetail = {
-  step: number;
+type StepPreview = {
+  step: string;          // "01", "02"... "Result"
+  cardLabel: string;     // "Card 1", "Card A", "Card 1-A"...
   title: string;
-  field: string; // schema 欄位名稱
-  role: string; // 在可驗證痛點格式中扮演的角色
-  body: string;
+  oneLiner: string;
+  ai: "none" | "optional" | "core";
 };
 
-const FULL_CARDS: CardDetail[] = [
-  {
-    step: 1,
-    title: "抱怨原句",
-    field: "complaint.raw_quote",
-    role: "鎖定原始訊號 — 不是你的詮釋，是當事人說過的話",
-    body: "「我每週六晚上要寫 30 則家長 LINE，常寫到半夜兩點，但家長還是覺得我沒講到他孩子的重點。」— 林老師，2026/03/15 補習班下班路上。",
-  },
-  {
-    step: 2,
-    title: "3 個有名字的真人",
-    field: "people[]",
-    role: "把抱怨綁在可聯絡的真人，避免變成空泛假設",
-    body: "林老師（補習班）、王主任（安親班）、陳老師（家教平台）— 都有 LINE 與電話。",
-  },
-  {
-    step: 3,
-    title: "卡關公式",
-    field: "stuck_formula",
-    role: "把模糊抱怨壓縮成「每次要 X，都會卡在 Y」的可驗證句型",
-    body: "我每次要『寫家長週報』，都會卡在『要兼顧個人化又要快』。",
-  },
-  {
-    step: 4,
-    title: "現有解法 + 為什麼還卡",
-    field: "workarounds[]",
-    role: "證據：他們已經在花力氣 — 代表痛是真的、且現有方案不夠",
-    body: "LINE + Excel + 翻聊天記錄。卡在：每個家長要的重點不同，套版會被嫌『沒看我孩子』，全手寫又寫不完。",
-  },
-  {
-    step: 5,
-    title: "TRIZ 矛盾選擇",
-    field: "contradiction",
-    role: "找出真正不能同時要的兩件事 — 這是痛的核心",
-    body: "客製化 vs 規模化。為了客製化，犧牲了睡眠與週末。",
-  },
-  {
-    step: 6,
-    title: "AI 證據蒐集",
-    field: "ai_evidence",
-    role: "從公開資料證明這不是只有一個人的問題",
-    body: "Perplexity 撈到 Dcard 補教版 12 篇相關貼文、5 種具體職業（補習班、安親班、家教、線上課老師、學科顧問）都有類似抱怨。",
-  },
-  {
-    step: 7,
-    title: "自己先猜 vs AI 對照",
-    field: "self_guess_vs_ai",
-    role: "暴露你的盲點 — 訓練判斷力，不是接受 AI 的答案",
-    body: "猜：最痛是補習班老師。AI 補：安親班輔導老師更頻繁（每天而非每週）。盲點：低估了頻率維度。",
-  },
-  {
-    step: 8,
-    title: "訪談計畫",
-    field: "interview_plan",
-    role: "把書面假設變成 72 小時內可執行的真人對話",
-    body: "訪 2 位安親班老師。題目：1) 上週六最後一則訊息幾點？2) 為什麼不用現成模板？3) 願意花多少錢解決？",
-  },
-  {
-    step: 9,
-    title: "我的判斷",
-    field: "verdict",
-    role: "書面交付：真痛點 / 假痛點 / 待訪談 + 下一步",
-    body: "✅ 真痛點。理由：5 種職業有重疊抱怨、有現成 workaround 但仍不滿意、頻率高（每週至少 1 次）。下一步：72 小時內完成 2 場訪談。",
-  },
+const STEPS: StepPreview[] = [
+  { step: "01", cardLabel: "Card 1", title: "那句脫口而出的話", oneLiner: "把抱怨原話寫下來，不修飾。", ai: "none" },
+  { step: "02", cardLabel: "Card A", title: "痛點現場日記", oneLiner: "下次卡住的時候，順手寫下時間、地點、心情。", ai: "optional" },
+  { step: "03", cardLabel: "Card 1-A", title: "AI 替你打開三條路", oneLiner: "請 AI 從你的抱怨打開 3 個可能的方向，你選一條。", ai: "core" },
+  { step: "04", cardLabel: "Card 1-B", title: "走進其中一條，慢慢往下問", oneLiner: "跟 AI 來回 2-3 輪，每一輪寫一句你聽到了什麼。", ai: "core" },
+  { step: "05", cardLabel: "Card 3", title: "聚焦痛點摘要", oneLiner: "用自己的話寫一段約 60 字的摘要。", ai: "optional" },
+  { step: "06", cardLabel: "Card B", title: "心情地圖", oneLiner: "站到那個人的位置上，寫他在想、感受、說、做什麼。", ai: "optional" },
+  { step: "07", cardLabel: "Card 4", title: "卡點公式 + AI 解法回看", oneLiner: "「我每次要 ___，卡在 ___」+ AI 列常見解法、你逐一回看。", ai: "core" },
+  { step: "08", cardLabel: "Card 5", title: "取捨對話", oneLiner: "「想要 A 也想要 B，但如果一定要選 ___，因為 ___」。", ai: "optional" },
+  { step: "09", cardLabel: "Card 6", title: "市場聲音的三段證據", oneLiner: "找 3 段公開聲音，寫為什麼跟你的故事有關。", ai: "core" },
+  { step: "10", cardLabel: "Card 7", title: "三個有名字的人 + 你心裡的猜想", oneLiner: "3 個你叫得出名字、聯絡得到的人，每人預先猜 3-5 個答案。", ai: "optional" },
+  { step: "11", cardLabel: "Card D", title: "自我假設清單", oneLiner: "走進對話前，把自己心裡的猜想攤開來看一看。", ai: "none" },
+  { step: "12", cardLabel: "Card 8", title: "真人對話", oneLiner: "跟那 3 個人聊完之後，回來記錄你聽到了什麼。", ai: "none" },
+  { step: "13", cardLabel: "Card G", title: "訪後沉澱", oneLiner: "AI 替你把訪談聲音整理成主題，你決定保留、重命名、丟掉。", ai: "core" },
+  { step: "Pain ID", cardLabel: "Result", title: "Pain ID 卡片", oneLiner: "一張你親手寫完的卡片，匯出帶走。", ai: "none" },
 ];
 
-const OPEN_HASH = "#example-paincard-open";
-
-export function ExamplePainCardPreviewSection() {
-  const [open, setOpen] = useState(false);
-  const [activeStep, setActiveStep] = useState(1);
-
-  // 支援從 Hero CTA 透過 hash 直接打開 modal
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const checkHash = () => {
-      if (window.location.hash === OPEN_HASH) {
-        setOpen(true);
-        // 清掉 hash 避免重複觸發
-        history.replaceState(null, "", window.location.pathname + window.location.search);
-      }
-    };
-    checkHash();
-    window.addEventListener("hashchange", checkHash);
-    return () => window.removeEventListener("hashchange", checkHash);
-  }, []);
-
-  const active = FULL_CARDS.find((c) => c.step === activeStep) ?? FULL_CARDS[0];
-
+function AiBadge({ ai }: { ai: StepPreview["ai"] }) {
+  if (ai === "none") {
+    return (
+      <span className="inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.06em] text-text-tertiary">
+        <span aria-hidden className="h-1 w-1 rounded-full bg-text-tertiary" />
+        no AI
+      </span>
+    );
+  }
+  if (ai === "optional") {
+    return (
+      <span className="inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.06em] text-text-secondary">
+        <span aria-hidden className="h-1 w-1 rounded-full bg-text-secondary" />
+        AI optional
+      </span>
+    );
+  }
   return (
-    <SectionFade
-      id="example-paincard"
-      ariaLabelledBy="example-title"
-      className="relative border-t border-border-hairline bg-canvas-base scroll-mt-20"
-    >
-      <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-12 py-20 md:py-32">
-        <div className="max-w-2xl mb-16">
-          <Eyebrow variant="numbered" index={3}>
-            Example output
-          </Eyebrow>
-          <h2
-            id="example-title"
-            className="mt-5 font-display font-bold leading-[1.05] tracking-[-0.03em] text-text-primary text-[clamp(32px,5vw,64px)]"
-          >
-            30-90 分鐘後，
-            <br />
-            你會產出像這樣的痛點身份證。
-          </h2>
-          <p className="mt-5 text-base sm:text-lg leading-[1.6] text-text-secondary">
-            範例：林老師（補習班家長 LINE 案例）— 點開可看到每張卡如何對應到可驗證的痛點欄位。
-          </p>
-        </div>
-
-        <div className="grid grid-cols-12 gap-6 lg:gap-10 items-start">
-          {/* PainCard preview — editorial main exhibit (left 7 cols on lg+) */}
-          <div className="col-span-12 lg:col-span-7">
-            <Dialog open={open} onOpenChange={setOpen}>
-              <DialogTrigger asChild>
-                <button
-                  type="button"
-                  className="group relative w-full text-left rounded-lg border border-border-hairline bg-canvas-raised p-8 md:p-10 transition-all duration-300 hover:border-border-default hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-text-primary focus-visible:ring-offset-2 focus-visible:ring-offset-canvas-base"
-                >
-                  <div className="relative flex items-center justify-between mb-7">
-                    <Eyebrow variant="numbered" index={9}>
-                      Pain ID · LIN-2026-03-15
-                    </Eyebrow>
-                    {/* VerifiedTag — 不顯示分數 */}
-                    <span className="inline-flex items-center gap-1.5 rounded-md border border-status-success/40 px-2.5 py-1 text-[11px] font-mono uppercase tracking-[0.06em] text-status-success">
-                      <CheckCircle2 className="h-3 w-3" />
-                      Verified Pain
-                    </span>
-                  </div>
-
-                  <h3 className="relative font-display text-2xl font-semibold tracking-[-0.02em] text-text-primary mb-7">
-                    林老師 · 家長 LINE 寫到半夜
-                  </h3>
-
-                  <dl className="relative space-y-3.5">
-                    {SUMMARY_ROWS.map(([k, v]) => (
-                      <div
-                        key={k}
-                        className="grid grid-cols-[7rem_1fr] gap-4 text-[14px] border-b border-border-subtle pb-3.5 last:border-0 last:pb-0"
-                      >
-                        <dt className="font-mono text-[11px] uppercase tracking-[0.06em] text-text-tertiary pt-0.5">
-                          {k}
-                        </dt>
-                        <dd className="text-text-primary leading-[1.6]">{v}</dd>
-                      </div>
-                    ))}
-                  </dl>
-
-                  <div className="relative mt-8 pt-6 border-t border-border-subtle flex items-center justify-between">
-                    <span className="text-[12px] text-text-tertiary">
-                      點擊查看完整 9 張卡與欄位對應
-                    </span>
-                    <span className="inline-flex items-center gap-1.5 text-[12px] font-medium text-text-primary group-hover:text-text-primary">
-                      Open
-                      <ExternalLink className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
-                    </span>
-                  </div>
-                </button>
-              </DialogTrigger>
-
-              <DialogContent className="max-w-4xl max-h-[88vh] overflow-hidden bg-canvas-overlay border-border-default p-0 flex flex-col">
-                <DialogHeader className="px-6 pt-6 pb-4 border-b border-border-hairline">
-                  <DialogTitle className="font-display text-xl tracking-[-0.01em]">
-                    林老師案例 · 9 卡 ↔ 可驗證痛點格式
-                  </DialogTitle>
-                  <DialogDescription className="text-text-secondary">
-                    左側點選任一張卡，右側顯示填寫內容 + 對應的 schema 欄位 + 它在格式中扮演的角色。
-                  </DialogDescription>
-                </DialogHeader>
-
-                <div className="grid md:grid-cols-[14rem_1fr] gap-0 flex-1 overflow-hidden">
-                  {/* 左側：9 卡 list */}
-                  <nav
-                    aria-label="9 張卡"
-                    className="border-r border-border-hairline overflow-y-auto bg-canvas-base/40 p-3 md:p-4 max-h-[40vh] md:max-h-none"
-                  >
-                    <ol className="space-y-1">
-                      {FULL_CARDS.map((c) => {
-                        const isActive = c.step === activeStep;
-                        return (
-                          <li key={c.step}>
-                            <button
-                              type="button"
-                              onClick={() => setActiveStep(c.step)}
-                              aria-current={isActive ? "step" : undefined}
-                              className={cn(
-                                "w-full text-left rounded-md px-3 py-2.5 text-[13px] transition-colors flex items-center gap-2.5 group",
-                                isActive
-                                  ? "bg-canvas-raised border border-text-primary/40 text-text-primary"
-                                  : "border border-transparent text-text-secondary hover:bg-surface-hover hover:text-text-primary",
-                              )}
-                            >
-                              <span
-                                className={cn(
-                                  "font-mono text-[10px] uppercase tracking-[0.08em] shrink-0",
-                                  isActive ? "text-text-primary" : "text-text-tertiary",
-                                )}
-                              >
-                                {String(c.step).padStart(2, "0")}
-                              </span>
-                              <span className="flex-1 truncate font-medium">{c.title}</span>
-                              {isActive && (
-                                <ChevronRight className="h-3.5 w-3.5 text-text-primary shrink-0" />
-                              )}
-                            </button>
-                          </li>
-                        );
-                      })}
-                    </ol>
-                  </nav>
-
-                  {/* 右側：active card detail */}
-                  <div className="overflow-y-auto p-6 md:p-8">
-                    <div className="flex items-center gap-2 mb-3">
-                      <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-text-tertiary">
-                        Card {String(active.step).padStart(2, "0")} / 09
-                      </span>
-                      <span className="h-1 w-1 rounded-full bg-border-default" />
-                      <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-text-primary">
-                        {active.field}
-                      </span>
-                    </div>
-
-                    <h3 className="font-display text-2xl font-semibold tracking-[-0.02em] text-text-primary mb-2">
-                      {active.title}
-                    </h3>
-                    <p className="text-[13px] leading-[1.6] text-text-tertiary mb-6 italic">
-                      {active.role}
-                    </p>
-
-                    <div className="rounded-md border border-border-hairline bg-canvas-raised p-5">
-                      <div className="font-mono text-[10px] uppercase tracking-[0.08em] text-text-tertiary mb-2">
-                        Filled content
-                      </div>
-                      <p className="text-[15px] leading-[1.7] text-text-primary whitespace-pre-line">
-                        {active.body}
-                      </p>
-                    </div>
-
-                    <div className="mt-6 flex items-center justify-between text-[12px] text-text-tertiary">
-                      <button
-                        type="button"
-                        onClick={() => setActiveStep((s) => Math.max(1, s - 1))}
-                        disabled={activeStep === 1}
-                        className="rounded-md px-3 py-1.5 border border-border-hairline hover:bg-surface-hover disabled:opacity-40 disabled:hover:bg-transparent"
-                      >
-                        ← 上一張
-                      </button>
-                      <span>
-                        {activeStep} / {FULL_CARDS.length}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => setActiveStep((s) => Math.min(FULL_CARDS.length, s + 1))}
-                        disabled={activeStep === FULL_CARDS.length}
-                        className="rounded-md px-3 py-1.5 border border-border-hairline hover:bg-surface-hover disabled:opacity-40 disabled:hover:bg-transparent"
-                      >
-                        下一張 →
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </DialogContent>
-            </Dialog>
-          </div>
-
-          {/* Case explainer (right 5 cols on lg+) */}
-          <div className="col-span-12 lg:col-span-5 space-y-6 lg:pt-4">
-            <Illustration
-              name="e3-personas-halftone"
-              alt="多元職業人物 halftone 風格 — 對應 5 種職業的痛點證據"
-              aspect="4/3"
-              sizes="(min-width: 1024px) 40vw, 100vw"
-              className="border-0 bg-transparent mb-2"
-            />
-            <Explainer
-              eyebrow="01 / origin"
-              title="怎麼開始"
-              body="林老師的朋友只是隨口抱怨「最近寫家長 LINE 寫到崩潰」。我把那句話原封不動寫進卡 1。"
-            />
-            <Explainer
-              eyebrow="02 / process"
-              title="90 分鐘做了什麼"
-              body="卡 1-2 找出 3 個真人。卡 3-7 用 AI 撈 Dcard 補教版證據、發現安親班老師頻率更高。卡 8-9 排好訪談題目。"
-            />
-            <Explainer
-              eyebrow="03 / outcome"
-              title="然後呢"
-              body="這張卡不會告訴你「該做什麼產品」。它只告訴你：這個痛是真的，下一步是去訪 2 位安親班老師。"
-            />
-          </div>
-        </div>
-      </div>
-    </SectionFade>
+    <span className="inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.06em] text-text-primary">
+      <span aria-hidden className="h-1 w-1 rounded-full bg-text-primary" />
+      AI core
+    </span>
   );
 }
 
-function Explainer({ eyebrow, title, body }: { eyebrow: string; title: string; body: string }) {
+export function ExamplePainCardPreviewSection() {
   return (
-    <div className="border-l-2 border-border-hairline pl-5 hover:border-text-primary transition-colors duration-300">
-      <Eyebrow className="mb-2">{eyebrow}</Eyebrow>
-      <h3 className="text-base font-semibold text-text-primary mb-1.5">{title}</h3>
-      <p className="text-[14px] leading-[1.7] text-text-secondary">{body}</p>
-    </div>
+    <SectionFade
+      ariaLabelledBy="example-paincard-title"
+      className="relative border-t border-border-hairline bg-canvas-base"
+    >
+      <a id="example-paincard" className="absolute -top-24" aria-hidden />
+      <div className="mx-auto max-w-[1280px] px-5 sm:px-8 lg:px-12 section-lg">
+        <div className="grid grid-cols-12 gap-8 lg:gap-16 items-start">
+          {/* Heading + illustration anchor */}
+          <div className="col-span-12 lg:col-span-5">
+            <Eyebrow variant="numbered" index={3} className="mb-6">
+              The Journey
+            </Eyebrow>
+            <h2
+              id="example-paincard-title"
+              className="font-display font-semibold leading-[1.1] tracking-[-0.03em] text-text-primary text-[clamp(28px,4.5vw,52px)]"
+            >
+              這趟路長什麼樣
+            </h2>
+            <p className="mt-6 max-w-[28em] text-base sm:text-lg leading-[1.7] text-text-secondary">
+              13 張卡片 + 一張帶得走的 Pain ID 卡片。
+              不是每張卡都用 AI — 有些只屬於你自己。
+            </p>
+            <div className="hidden lg:block lg:mt-12 lg:sticky lg:top-24">
+              <Illustration
+                name="e11-listening-vessel"
+                alt="13 張卡片是一段陪伴的步道"
+                aspect="4/3"
+                sizes="40vw"
+                className="border-0 bg-transparent"
+              />
+            </div>
+          </div>
+
+          {/* Step list: right 7 cols on lg+ */}
+          <ol className="col-span-12 lg:col-span-7 flex flex-col">
+            {STEPS.map((s, idx) => (
+              <li
+                key={s.step}
+                className="grid grid-cols-[3rem_1fr_auto] gap-4 items-start py-5 border-b border-border-hairline last:border-b-0"
+                style={{ animationDelay: `${idx * 30}ms` }}
+              >
+                <span className="font-mono text-[12px] uppercase tracking-[0.08em] text-text-tertiary pt-1 tabular-nums">
+                  {s.step}
+                </span>
+                <div className="flex flex-col gap-1.5">
+                  <p className="text-[15px] font-medium text-text-primary">
+                    <span className="text-text-tertiary mr-2 font-mono text-[12px] uppercase tracking-[0.06em]">
+                      {s.cardLabel}
+                    </span>
+                    {s.title}
+                  </p>
+                  <p className="text-[13px] leading-[1.6] text-text-secondary">{s.oneLiner}</p>
+                </div>
+                <div className="pt-1.5">
+                  <AiBadge ai={s.ai} />
+                </div>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </div>
+    </SectionFade>
   );
 }

@@ -1,13 +1,8 @@
 /**
  * MissionSection — Editorial manifesto with right-side illustration.
  *
- * Editorial principles:
- * - Section bg uses canvas-sunken (alternating rhythm vs Hero's canvas-base)
- * - lg+: title/body/footnotes occupy left 7 cols; illustration anchors right 5 cols
- *   (mirror inverse of Hero's 7/5, creating visual zig-zag down the page)
- * - Mobile: illustration drops below copy, full-bleed
- * - Title ranges from 32px (mobile) to 64px (xl) — slightly bumped from prior 56px
- *   to register as a "section anchor" against the surrounding canvas
+ * v3 copy: positions Worksheet as Stage 1 of a longer journey, in research-notebook
+ * voice (no 真痛點 / 假痛點 framing). Voice follows voice_and_tone.md.
  */
 import { Illustration } from "@/components/Illustration";
 import { Eyebrow } from "@/components/ui/eyebrow";
@@ -30,27 +25,28 @@ export function MissionSection() {
               id="mission-title"
               className="font-display font-semibold leading-[1.1] tracking-[-0.03em] text-text-primary text-[clamp(32px,5vw,64px)]"
             >
-              這份只練一件事 —<br />
-              聽到一句抱怨，<br className="hidden sm:inline" />
-              判斷它是不是真的。
+              這份筆記本只做一件事 —<br />
+              陪你把一段卡住的故事<br className="hidden sm:inline" />
+              慢慢聽清楚。
             </p>
 
             <p className="mt-10 max-w-[36em] text-base sm:text-lg leading-[1.7] text-text-secondary">
               我們不教你做產品、收錢、寫程式。這是階段一 ——
-              先把痛點寫得清清楚楚，再考慮其他事。階段一沒走通，階段二再快也只是用對的方法做錯的事。
+              先把故事聽清楚，再考慮其他事。
+              階段一沒走通，階段二再快也只是用對的方法做錯的事。
             </p>
 
             <div className="mt-12 pt-8 border-t border-border-hairline grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-12 max-w-[44em]">
               <Footnote
                 label="階段一 · 你現在在這"
                 product="PainMap Worksheet"
-                output="一張你親手寫完的痛點身份證"
+                output="一張你親手寫完的 Pain ID 卡片"
                 time="30 ~ 90 分鐘"
                 active
               />
               <Footnote
                 label="階段二 · 之後再說"
-                product="PainMap App"
+                product="First-Dollar Sprint"
                 output="第一筆真的有人付的錢"
                 time="72 小時 sprint"
               />
