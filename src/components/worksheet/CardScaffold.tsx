@@ -8,7 +8,6 @@
  * only structure + the "走下一張卡 →" CTA mechanism.
  */
 
-import { useNavigate } from "@tanstack/react-router";
 import { type ReactNode } from "react";
 
 import { usePainCardStore } from "@/store/painCard";
@@ -44,7 +43,6 @@ export function CardScaffold(props: Props) {
   const { step, title, instruction, children, readyToContinue, notReadyHint, nextPath, ctaLabel } =
     props;
 
-  const navigate = useNavigate();
   const advanceStep = usePainCardStore((s) => s.advanceStep);
 
   const targetPath = nextPath ?? defaultNextPath(step);
@@ -55,7 +53,6 @@ export function CardScaffold(props: Props) {
       const next = step >= 13 ? "result" : ((step + 1) as CurrentStep);
       advanceStep(next);
     }
-    navigate({ to: targetPath });
   }
 
   return (
@@ -77,14 +74,14 @@ export function CardScaffold(props: Props) {
             {notReadyHint}
           </p>
         )}
-        <button
-          type="button"
+        <a
+          href={targetPath}
           onClick={handleContinue}
           aria-label={label}
           className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-md px-6 py-3 font-medium text-[15px] transition-colors bg-text-primary text-text-inverse hover:bg-text-primary/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-text-primary/40 focus-visible:ring-offset-2"
         >
           {label}
-        </button>
+        </a>
       </footer>
     </main>
   );
