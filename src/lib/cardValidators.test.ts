@@ -32,29 +32,29 @@ describe("Card 1 · complaint", () => {
     expect(isCard1Ready(emptyPainCard().complaint)).toBe(false);
   });
 
-  it("requires verbatim length ≥ 10", () => {
+  it("is ready with a quote, a person, and one context detail", () => {
     const c = {
       verbatim: "短",
       source_name: "林老師",
-      source_relation: "本人",
+      source_relation: "",
       datetime: "2026-05-22",
-      scene: "週六晚上",
+      scene: "",
     };
-    expect(isCard1Ready(c)).toBe(false);
-    expect(isCard1Ready({ ...c, verbatim: "我每週六晚上要寫家長 LINE" })).toBe(true);
+    expect(isCard1Ready(c)).toBe(true);
+    expect(isCard1Ready({ ...c, datetime: "", scene: "週六晚上" })).toBe(true);
   });
 
-  it("rejects any single empty field", () => {
+  it("requires quote, person, and either time or scene", () => {
     const base = {
       verbatim: "我每週六晚上要寫家長 LINE",
       source_name: "林老師",
-      source_relation: "本人",
+      source_relation: "",
       datetime: "2026-05-22",
-      scene: "週六晚上",
+      scene: "",
     };
-    for (const k of Object.keys(base) as Array<keyof typeof base>) {
-      expect(isCard1Ready({ ...base, [k]: "" })).toBe(false);
-    }
+    expect(isCard1Ready({ ...base, verbatim: "" })).toBe(false);
+    expect(isCard1Ready({ ...base, source_name: "" })).toBe(false);
+    expect(isCard1Ready({ ...base, datetime: "", scene: "" })).toBe(false);
   });
 });
 
@@ -100,9 +100,7 @@ describe("Card 1-A · ai_narrowing.directions", () => {
     };
     expect(isCard1AReady(valid)).toBe(true);
     expect(isCard1AReady({ ...valid, picked_direction_id: null })).toBe(false);
-    expect(
-      isCard1AReady({ ...valid, directions: valid.directions.slice(0, 2) }),
-    ).toBe(false);
+    expect(isCard1AReady({ ...valid, directions: valid.directions.slice(0, 2) })).toBe(false);
   });
 });
 
@@ -150,9 +148,9 @@ describe("Card 3 · focused_pain", () => {
         why_this_one: "y",
       }),
     ).toBe(true);
-    expect(
-      isCard3Ready({ summary: "太短", in_their_own_words: "x", why_this_one: "y" }),
-    ).toBe(false);
+    expect(isCard3Ready({ summary: "太短", in_their_own_words: "x", why_this_one: "y" })).toBe(
+      false,
+    );
   });
 });
 
@@ -253,12 +251,10 @@ describe("Card 7 · people_with_guesses", () => {
       why_pick_them: "在線",
       guessed_answers: ["a", "b", "c"],
     });
-    expect(
-      isCard7Ready({ background: "補習班", list: [person(1), person(2), person(3)] }),
-    ).toBe(true);
-    expect(
-      isCard7Ready({ background: "x", list: [person(1), person(2)] }),
-    ).toBe(false);
+    expect(isCard7Ready({ background: "補習班", list: [person(1), person(2), person(3)] })).toBe(
+      true,
+    );
+    expect(isCard7Ready({ background: "x", list: [person(1), person(2)] })).toBe(false);
     expect(
       isCard7Ready({
         background: "x",
@@ -275,13 +271,9 @@ describe("Card D · assumptions", () => {
       evidence_so_far: `e${n}`,
       what_would_change_my_mind: `c${n}`,
     });
-    expect(
-      isCardDReady({ items: [item(1), item(2)], biases_to_watch: "確認偏誤" }),
-    ).toBe(true);
+    expect(isCardDReady({ items: [item(1), item(2)], biases_to_watch: "確認偏誤" })).toBe(true);
     expect(isCardDReady({ items: [item(1)], biases_to_watch: "x" })).toBe(false);
-    expect(
-      isCardDReady({ items: [item(1), item(2)], biases_to_watch: "" }),
-    ).toBe(false);
+    expect(isCardDReady({ items: [item(1), item(2)], biases_to_watch: "" })).toBe(false);
   });
 });
 
@@ -299,12 +291,8 @@ describe("Card 8 · interview.sessions", () => {
     };
     expect(isCard8Ready({ sessions: [fullSession] })).toBe(true);
     expect(isCard8Ready({ sessions: [] })).toBe(false);
-    expect(
-      isCard8Ready({ sessions: [{ ...fullSession, key_quotes: [] }] }),
-    ).toBe(false);
-    expect(
-      isCard8Ready({ sessions: [{ ...fullSession, person_name: "" }] }),
-    ).toBe(false);
+    expect(isCard8Ready({ sessions: [{ ...fullSession, key_quotes: [] }] })).toBe(false);
+    expect(isCard8Ready({ sessions: [{ ...fullSession, person_name: "" }] })).toBe(false);
   });
 });
 

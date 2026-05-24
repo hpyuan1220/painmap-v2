@@ -27,14 +27,12 @@ import type {
   StuckFormulaWithSolutions,
 } from "@/types/painCard";
 
-/** Card 1 · complaint — all five fields non-empty, verbatim ≥ 10 chars. */
+/** Card 1 · complaint — one quote, one person, and at least one context detail. */
 export function isCard1Ready(c: Complaint): boolean {
   return (
-    c.verbatim.trim().length >= 10 &&
+    c.verbatim.trim().length > 0 &&
     c.source_name.trim().length > 0 &&
-    c.source_relation.trim().length > 0 &&
-    c.datetime.trim().length > 0 &&
-    c.scene.trim().length > 0
+    (c.datetime.trim().length > 0 || c.scene.trim().length > 0)
   );
 }
 
@@ -42,7 +40,8 @@ export function isCard1Ready(c: Complaint): boolean {
 export function isCardAReady(d: PainDiary): boolean {
   if (d.entries.length < 1) return false;
   return d.entries.every(
-    (e) => e.timestamp.trim().length > 0 && e.location.trim().length > 0 && e.note.trim().length > 0,
+    (e) =>
+      e.timestamp.trim().length > 0 && e.location.trim().length > 0 && e.note.trim().length > 0,
   );
 }
 
@@ -97,9 +96,7 @@ export function isCard4Ready(s: StuckFormulaWithSolutions): boolean {
 /** Card 5 · ≥ 1 fully-written contradiction pair. */
 export function isCard5Ready(c: Contradiction): boolean {
   if (c.pairs.length < 1) return false;
-  return c.pairs.every(
-    (p) => p.side_a.trim() && p.side_b.trim() && p.reason.trim(),
-  );
+  return c.pairs.every((p) => p.side_a.trim() && p.side_b.trim() && p.reason.trim());
 }
 
 /** Card 6 · ≥ 3 evidences fully written + landscape_note non-empty. */
@@ -129,10 +126,7 @@ export function isCardDReady(a: Assumptions): boolean {
   if (a.items.length < 2) return false;
   if (
     !a.items.every(
-      (i) =>
-        i.assumption.trim() &&
-        i.evidence_so_far.trim() &&
-        i.what_would_change_my_mind.trim(),
+      (i) => i.assumption.trim() && i.evidence_so_far.trim() && i.what_would_change_my_mind.trim(),
     )
   ) {
     return false;
