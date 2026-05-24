@@ -23,7 +23,7 @@ type Props = {
   instruction: string;
   /** Card-specific UI (form fields, AI block, etc.). */
   children?: ReactNode;
-  /** Whether the user can proceed (L1 conditions met). */
+  /** Whether the card has enough content; incomplete cards show a hint but can still continue. */
   readyToContinue: boolean;
   /** Soft hint shown when not ready. Optional — defaults to a gentle prompt. */
   notReadyHint?: string;
@@ -41,16 +41,8 @@ function defaultNextPath(step: CurrentStep): string {
 }
 
 export function CardScaffold(props: Props) {
-  const {
-    step,
-    title,
-    instruction,
-    children,
-    readyToContinue,
-    notReadyHint,
-    nextPath,
-    ctaLabel,
-  } = props;
+  const { step, title, instruction, children, readyToContinue, notReadyHint, nextPath, ctaLabel } =
+    props;
 
   const navigate = useNavigate();
   const advanceStep = usePainCardStore((s) => s.advanceStep);
@@ -59,7 +51,6 @@ export function CardScaffold(props: Props) {
   const label = ctaLabel ?? "走下一張卡 →";
 
   function handleContinue() {
-    if (!readyToContinue) return;
     if (step !== "result") {
       const next = step >= 13 ? "result" : ((step + 1) as CurrentStep);
       advanceStep(next);
@@ -89,9 +80,8 @@ export function CardScaffold(props: Props) {
         <button
           type="button"
           onClick={handleContinue}
-          disabled={!readyToContinue}
           aria-label={label}
-          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-md px-6 py-3 font-medium text-[15px] transition-colors disabled:cursor-not-allowed disabled:opacity-50 bg-text-primary text-text-inverse hover:bg-text-primary/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-text-primary/40 focus-visible:ring-offset-2"
+          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-md px-6 py-3 font-medium text-[15px] transition-colors bg-text-primary text-text-inverse hover:bg-text-primary/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-text-primary/40 focus-visible:ring-offset-2"
         >
           {label}
         </button>
