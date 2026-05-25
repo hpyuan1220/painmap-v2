@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
 
+import { AIPromptCopyBlock } from "@/components/worksheet/AIPromptCopyBlock";
 import { CardScaffold } from "@/components/worksheet/CardScaffold";
 import {
   CardBlock,
@@ -8,6 +10,7 @@ import {
   TextareaField,
 } from "@/components/worksheet/WorksheetFormPrimitives";
 import { isCard6Ready } from "@/lib/cardValidators";
+import { parseCard6Evidences } from "@/lib/parsers/card6EvidencesParser";
 import { usePainCardStore } from "@/store/painCard";
 import type { AiTool, EvidenceEntry } from "@/types/painCard";
 
@@ -31,9 +34,37 @@ function emptyEvidence(): EvidenceEntry {
   return { source: "", quote: "", relevance: "" };
 }
 
+function evidencePrompt(complaint: string, stuckDraft: string) {
+  return `想請你陪我做一件事 — 在外面（公開的論壇、新聞、訪談、學術文章）找看看，
+有沒有別人也在說類似的事。
+
+我手上的故事是：
+${complaint || "（還沒寫，先用我等一下寫的卡點公式）"}
+
+我目前寫下的卡點公式是：
+${stuckDraft || "（還沒寫）"}
+
+請幫我找 3-5 段公開可查的聲音，每一段都用這個格式寫：
+
+證據 N
+來源：（網址 + 一句話描述）
+引用：「真的有人講的原話片段，不是你自己重寫的」
+為什麼相關：跟我手上的故事哪裡呼應 / 哪裡不一樣？（一兩句話）
+
+別替我打分數、別替我下「common / niche pain」這類結論 — 那個我自己看完三段之後寫。
+也別替我推薦工具、別替我設計解法。`;
+}
+
 function CardSixPage() {
   const ae = usePainCardStore((s) => s.card.ai_evidence);
+  const complaint = usePainCardStore((s) => s.card.complaint.verbatim);
+  const stuckDraft = usePainCardStore(
+    (s) => s.card.stuck_formula_with_solutions.user_draft,
+  );
   const updateField = usePainCardStore((s) => s.updateField);
+
+  const [aiResponse, setAiResponse] = useState("");
+  const [aiNote, setAiNote] = useState<string | null>(null);
 
   const list = ae.evidences.length === 0 ? [emptyEvidence()] : ae.evidences;
   const ready = isCard6Ready(ae);
@@ -41,6 +72,23 @@ function CardSixPage() {
   function setEvidence(idx: number, patch: Partial<EvidenceEntry>) {
     const next = list.map((e, i) => (i === idx ? { ...e, ...patch } : e));
     updateField("ai_evidence.evidences", next);
+  }
+
+  function handleAiResponseChange(value: string) {
+    setAiResponse(value);
+    if (!value.trim()) {
+      setAiNote(null);
+      return;
+    }
+    const parsed = parseCard6Evidences(value);
+    if (parsed.length === 0) {
+      setAiNote(
+        "在這段回應裡找不到「證據 1 / 2 / 3」或數字編號的格式 — 你可以直接用下面的「＋ 加一段證據」自己填。",
+      );
+      return;
+    }
+    updateField("ai_evidence.evidences", parsed);
+    setAiNote(`已幫你填好 ${parsed.length} 段證據，可以再編輯。`);
   }
 
   return (
@@ -63,6 +111,21 @@ function CardSixPage() {
           { value: "in_app" as const, label: "其他（手動找）" },
         ]}
       />
+
+      <AIPromptCopyBlock
+        prompt={evidencePrompt(complaint, stuckDraft)}
+        response={aiResponse}
+        onResponseChange={handleAiResponseChange}
+        title="想請 AI 替我在外面找 3-5 段聲音"
+      />
+
+      {aiNote && (
+        <p className="text-[13px] leading-relaxed text-text-secondary">{aiNote}</p>
+      )}
+
+      <p className="text-[13px] text-text-secondary">
+        AI 給你幾段聲音後，貼回上方。下面會自動填入，你可以保留、編輯，或自己再加。
+      </p>
 
       {list.map((e, idx) => (
         <CardBlock
