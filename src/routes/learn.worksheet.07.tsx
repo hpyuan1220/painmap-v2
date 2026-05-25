@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
 
 import { AIPromptCopyBlock } from "@/components/worksheet/AIPromptCopyBlock";
 import { CardScaffold } from "@/components/worksheet/CardScaffold";
@@ -9,6 +10,7 @@ import {
   TextareaField,
 } from "@/components/worksheet/WorksheetFormPrimitives";
 import { isCard4Ready } from "@/lib/cardValidators";
+import { parseCard4Solutions } from "@/lib/parsers/card4SolutionsParser";
 import { usePainCardStore } from "@/store/painCard";
 import type { AiSolution, SolutionVerdict } from "@/types/painCard";
 
@@ -46,8 +48,28 @@ function CardFourPage() {
   const s = usePainCardStore((store) => store.card.stuck_formula_with_solutions);
   const updateField = usePainCardStore((store) => store.updateField);
 
+  const [aiResponse, setAiResponse] = useState("");
+  const [aiNote, setAiNote] = useState<string | null>(null);
+
   const solutions = s.ai_solutions;
   const verdicts = s.user_solution_verdicts;
+
+  function handleAiResponseChange(value: string) {
+    setAiResponse(value);
+    if (!value.trim()) {
+      setAiNote(null);
+      return;
+    }
+    const parsed = parseCard4Solutions(value);
+    if (parsed.length === 0) {
+      setAiNote(
+        "在這段回應裡找不到「解法 1 / 2 / 3」或數字編號的格式 — 你可以直接用下面的「＋ 加一個解法」自己填。",
+      );
+      return;
+    }
+    updateField("stuck_formula_with_solutions.ai_solutions", parsed);
+    setAiNote(`已幫你填好 ${parsed.length} 個解法，可以再編輯。`);
+  }
 
   const verdictsCompleted = solutions.filter((sol) => {
     const v = verdicts.find((x) => x.solution_id === sol.id);
@@ -106,13 +128,17 @@ function CardFourPage() {
 
       <AIPromptCopyBlock
         prompt={solutionsPrompt(s.user_draft)}
-        response=""
-        onResponseChange={() => undefined}
+        response={aiResponse}
+        onResponseChange={handleAiResponseChange}
         title="想請 AI 列幾個市場上常見的解法"
       />
 
+      {aiNote && (
+        <p className="text-[13px] leading-relaxed text-text-secondary">{aiNote}</p>
+      )}
+
       <p className="text-[13px] text-text-secondary">
-        AI 給你幾個解法後，把它們填到下面，然後逐一寫下「如果用這個，卡住的感覺會不會就消失」。
+        AI 給你幾個解法後，貼回上方。下面會自動填入，你可以保留、重命名，或自己再加。
       </p>
 
       {solutions.length === 0 && (
