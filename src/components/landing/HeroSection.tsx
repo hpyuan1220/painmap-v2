@@ -12,13 +12,13 @@
 import { useNavigate } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 import { Illustration } from "@/components/Illustration";
-import { startNewPainCard } from "@/lib/painCardActions";
+import { startNewPainCardLite } from "@/lib/painCardLite";
 
 export function HeroSection() {
   const navigate = useNavigate();
 
   const handleStart = () => {
-    const { path } = startNewPainCard();
+    const { path } = startNewPainCardLite();
     navigate({ to: path });
   };
 
@@ -66,8 +66,8 @@ export function HeroSection() {
               className="mt-8 max-w-prose text-lg sm:text-xl leading-[1.55] text-text-secondary animate-grok-fade-up"
               style={{ animationDelay: "240ms" }}
             >
-              9 張卡，陪你從「我覺得有問題」走到「我知道問題在哪」。 第一次 90 分鐘，熟了 30 分鐘 —
-              你只需要會抄、會問、會打電話。
+              6 張卡，陪你從「我覺得有問題」走到「我知道先找誰、先驗什麼」。 保留原本 PainMap
+              的節奏，但把疲勞點壓低，讓你更快走到真人訪談前。
             </p>
 
             <div
@@ -79,7 +79,7 @@ export function HeroSection() {
                 onClick={handleStart}
                 className="group inline-flex h-14 items-center justify-center gap-2 rounded-md bg-text-primary px-7 text-[15px] font-medium text-text-inverse transition-colors duration-200 hover:bg-text-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-text-primary focus-visible:outline-offset-2"
               >
-                開始第一張卡
+                開始 6-card flow
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
               </button>
 
