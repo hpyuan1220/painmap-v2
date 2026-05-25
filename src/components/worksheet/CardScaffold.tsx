@@ -68,7 +68,7 @@ export function CardScaffold(props: Props) {
 
       {children && <section className="flex flex-col gap-6">{children}</section>}
 
-      <footer className="sticky bottom-0 -mx-5 sm:-mx-8 px-5 sm:px-8 pt-4 pb-6 border-t border-border-hairline bg-canvas-base">
+      <footer className="sticky bottom-0 z-20 -mx-5 sm:-mx-8 px-5 sm:px-8 pt-4 pb-6 border-t border-border-hairline bg-canvas-base">
         {!readyToContinue && notReadyHint && (
           <p className="mb-3 text-[13px] leading-relaxed text-text-tertiary whitespace-pre-line">
             {notReadyHint}

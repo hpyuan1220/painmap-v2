@@ -11,7 +11,7 @@
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 
 const inputClass =
-  "relative z-10 pointer-events-auto w-full rounded-md border border-border-hairline bg-canvas-raised px-3 py-2.5 text-[15px] text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-text-primary";
+  "w-full rounded-md border border-border-hairline bg-canvas-raised px-3 py-2.5 text-[15px] text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-text-primary";
 
 function useWritableDraft(value: string, onChange: (v: string) => void) {
   const [draft, setDraft] = useState(value);
