@@ -1,9 +1,11 @@
 import * as React from "react";
 
+import { useImeSafeOnChange } from "@/lib/useImeSafeOnChange";
 import { cn } from "@/lib/utils";
 
 const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
-  ({ className, type, ...props }, ref) => {
+  ({ className, type, onChange, onCompositionStart, onCompositionEnd, ...props }, ref) => {
+    const ime = useImeSafeOnChange<HTMLInputElement>(onChange);
     return (
       <input
         type={type}
@@ -12,6 +14,15 @@ const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
           className,
         )}
         ref={ref}
+        onChange={ime.onChange}
+        onCompositionStart={(e) => {
+          ime.onCompositionStart();
+          onCompositionStart?.(e);
+        }}
+        onCompositionEnd={(e) => {
+          ime.onCompositionEnd(e);
+          onCompositionEnd?.(e);
+        }}
         {...props}
       />
     );

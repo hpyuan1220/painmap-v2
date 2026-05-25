@@ -7,8 +7,9 @@
  * - error 才用 border-status-danger
  * - 自動儲存：每次 onChange 直接寫 store
  */
-import { type ChangeEvent, type ReactNode } from "react";
+import { type ReactNode } from "react";
 import { AlertTriangle } from "lucide-react";
+import { useImeSafeOnChange } from "@/lib/useImeSafeOnChange";
 import { cn } from "@/lib/utils";
 
 type CommonProps = {
@@ -72,6 +73,7 @@ export function TextField(props: CommonProps) {
     onBlur,
   } = props;
   const describedBy = `${id}-helper${warning ? ` ${id}-warning` : ""}${error ? ` ${id}-error` : ""}`;
+  const ime = useImeSafeOnChange<HTMLInputElement>((e) => onChange(e.target.value));
   return (
     <div className="space-y-2">
       <FieldLabel id={id} label={label} required={required} />
@@ -86,7 +88,9 @@ export function TextField(props: CommonProps) {
         required={required}
         aria-describedby={describedBy}
         aria-invalid={!!error}
-        onChange={(e: ChangeEvent<HTMLInputElement>) => onChange(e.target.value)}
+        onChange={ime.onChange}
+        onCompositionStart={ime.onCompositionStart}
+        onCompositionEnd={ime.onCompositionEnd}
         onBlur={onBlur}
         className={cn(fieldClasses({ warning: !!warning, error: !!error, highlight }), "h-11")}
       />
@@ -135,6 +139,7 @@ export function TextareaField(props: TextareaProps) {
     onBlur,
   } = props;
   const describedBy = `${id}-helper${warning ? ` ${id}-warning` : ""}${error ? ` ${id}-error` : ""}`;
+  const ime = useImeSafeOnChange<HTMLTextAreaElement>((e) => onChange(e.target.value));
   return (
     <div className="space-y-2">
       <FieldLabel id={id} label={label} required={required} />
@@ -150,7 +155,9 @@ export function TextareaField(props: TextareaProps) {
         required={required}
         aria-describedby={describedBy}
         aria-invalid={!!error}
-        onChange={(e: ChangeEvent<HTMLTextAreaElement>) => onChange(e.target.value)}
+        onChange={ime.onChange}
+        onCompositionStart={ime.onCompositionStart}
+        onCompositionEnd={ime.onCompositionEnd}
         onBlur={onBlur}
         className={cn(
           fieldClasses({ warning: !!warning, error: !!error, highlight }),

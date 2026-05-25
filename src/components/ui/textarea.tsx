@@ -1,9 +1,11 @@
 import * as React from "react";
 
+import { useImeSafeOnChange } from "@/lib/useImeSafeOnChange";
 import { cn } from "@/lib/utils";
 
 const Textarea = React.forwardRef<HTMLTextAreaElement, React.ComponentProps<"textarea">>(
-  ({ className, ...props }, ref) => {
+  ({ className, onChange, onCompositionStart, onCompositionEnd, ...props }, ref) => {
+    const ime = useImeSafeOnChange<HTMLTextAreaElement>(onChange);
     return (
       <textarea
         className={cn(
@@ -11,6 +13,15 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, React.ComponentProps<"tex
           className,
         )}
         ref={ref}
+        onChange={ime.onChange}
+        onCompositionStart={(e) => {
+          ime.onCompositionStart();
+          onCompositionStart?.(e);
+        }}
+        onCompositionEnd={(e) => {
+          ime.onCompositionEnd(e);
+          onCompositionEnd?.(e);
+        }}
         {...props}
       />
     );

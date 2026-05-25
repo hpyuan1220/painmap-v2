@@ -4,6 +4,7 @@
  */
 import type { AiTool } from "@/types/painCard";
 import { AI_TOOLS } from "@/lib/cardSixHelpers";
+import { useImeSafeOnChange } from "@/lib/useImeSafeOnChange";
 import { cn } from "@/lib/utils";
 import { Sparkles } from "lucide-react";
 
@@ -16,6 +17,7 @@ type Props = {
 };
 
 export function AiToolSelector({ selected, onSelect, reason, onReasonChange, highlight }: Props) {
+  const reasonIme = useImeSafeOnChange<HTMLInputElement>((e) => onReasonChange(e.target.value));
   return (
     <div className="space-y-4">
       <fieldset
@@ -81,7 +83,9 @@ export function AiToolSelector({ selected, onSelect, reason, onReasonChange, hig
           id="ai_tool_reason"
           type="text"
           value={reason}
-          onChange={(e) => onReasonChange(e.target.value)}
+          onChange={reasonIme.onChange}
+          onCompositionStart={reasonIme.onCompositionStart}
+          onCompositionEnd={reasonIme.onCompositionEnd}
           placeholder="想找公開討論證據，所以用 ChatGPT Deep Research"
           maxLength={80}
           className="w-full rounded-md border border-border bg-surface px-3.5 py-2.5 text-[15px] text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-ring focus:border-secondary"

@@ -5,6 +5,7 @@
 import { useState, type KeyboardEvent } from "react";
 import { X, AlertTriangle } from "lucide-react";
 import { useAutoAnimate } from "@formkit/auto-animate/react";
+import { useImeSafeOnChange } from "@/lib/useImeSafeOnChange";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -54,6 +55,7 @@ export function TagInputField({
   };
 
   const onKey = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.nativeEvent.isComposing) return;
     if (e.key === "Enter") {
       e.preventDefault();
       commit();
@@ -61,6 +63,8 @@ export function TagInputField({
       onChange(values.slice(0, -1));
     }
   };
+
+  const ime = useImeSafeOnChange<HTMLInputElement>((e) => setDraft(e.target.value));
 
   const countShort = minCount !== undefined && values.length < minCount;
 
@@ -112,7 +116,9 @@ export function TagInputField({
               id={id}
               type="text"
               value={draft}
-              onChange={(e) => setDraft(e.target.value)}
+              onChange={ime.onChange}
+              onCompositionStart={ime.onCompositionStart}
+              onCompositionEnd={ime.onCompositionEnd}
               onKeyDown={onKey}
               onBlur={commit}
               placeholder={values.length === 0 ? placeholder : "繼續新增…（Enter）"}
