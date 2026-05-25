@@ -13,19 +13,31 @@ import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 const inputClass =
   "w-full rounded-md border border-border-hairline bg-canvas-raised px-3 py-2.5 text-[15px] text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-text-primary";
 
+type FieldEvent = { currentTarget: { value: string } };
+
+/**
+ * Controlled-input glue that survives IME (Chinese/Japanese) composition.
+ *
+ * A plain `value={store}` input drops half-formed Chinese input: each keystroke
+ * updates the store, the parent re-renders, and React resets `value` mid-
+ * composition. Here a local `draft` backs the input, the parent re-render is
+ * ignored while the field is focused or composing, and the store update is held
+ * back until composition ends — so typing is never interrupted.
+ */
 function useWritableDraft(value: string, onChange: (v: string) => void) {
   const [draft, setDraft] = useState(value);
   const focused = useRef(false);
+  const composing = useRef(false);
 
   useEffect(() => {
-    if (!focused.current) {
+    if (!focused.current && !composing.current) {
       setDraft(value);
     }
   }, [value]);
 
-  function write(next: string) {
+  function commit(next: string) {
     setDraft(next);
-    onChange(next);
+    if (!composing.current) onChange(next);
   }
 
   return {
@@ -37,7 +49,15 @@ function useWritableDraft(value: string, onChange: (v: string) => void) {
       focused.current = false;
       onChange(draft);
     },
-    write,
+    onInput: (e: FieldEvent) => commit(e.currentTarget.value),
+    onChange: (e: FieldEvent) => commit(e.currentTarget.value),
+    onCompositionStart: () => {
+      composing.current = true;
+    },
+    onCompositionEnd: (e: FieldEvent) => {
+      composing.current = false;
+      commit(e.currentTarget.value);
+    },
   };
 }
 
@@ -55,7 +75,7 @@ export function TextField({
   type?: "text" | "date" | "datetime-local" | "tel" | "email" | "url";
 }) {
   const id = useId();
-  const draft = useWritableDraft(value, onChange);
+  const field = useWritableDraft(value, onChange);
   return (
     <div className="flex flex-col gap-1.5">
       <label htmlFor={id} className="text-[13px] font-medium text-text-secondary">
@@ -64,14 +84,10 @@ export function TextField({
       <input
         id={id}
         type={type}
-        value={draft.value}
-        onFocus={draft.onFocus}
-        onBlur={draft.onBlur}
-        onInput={(e) => draft.write(e.currentTarget.value)}
-        onChange={(e) => draft.write(e.target.value)}
         placeholder={hint}
         autoComplete="off"
         className={inputClass}
+        {...field}
       />
     </div>
   );
@@ -91,7 +107,7 @@ export function TextareaField({
   rows?: number;
 }) {
   const id = useId();
-  const draft = useWritableDraft(value, onChange);
+  const field = useWritableDraft(value, onChange);
   return (
     <div className="flex flex-col gap-1.5">
       <label htmlFor={id} className="text-[13px] font-medium text-text-secondary">
@@ -100,14 +116,10 @@ export function TextareaField({
       <textarea
         id={id}
         rows={rows}
-        value={draft.value}
-        onFocus={draft.onFocus}
-        onBlur={draft.onBlur}
-        onInput={(e) => draft.write(e.currentTarget.value)}
-        onChange={(e) => draft.write(e.target.value)}
         placeholder={hint}
         autoComplete="off"
         className={inputClass}
+        {...field}
       />
     </div>
   );
@@ -122,19 +134,15 @@ function ListItemInput({
   placeholder?: string;
   onChange: (v: string) => void;
 }) {
-  const draft = useWritableDraft(value, onChange);
+  const field = useWritableDraft(value, onChange);
 
   return (
     <input
       type="text"
-      value={draft.value}
-      onFocus={draft.onFocus}
-      onBlur={draft.onBlur}
-      onInput={(e) => draft.write(e.currentTarget.value)}
-      onChange={(e) => draft.write(e.target.value)}
       placeholder={placeholder}
       autoComplete="off"
       className={inputClass}
+      {...field}
     />
   );
 }
