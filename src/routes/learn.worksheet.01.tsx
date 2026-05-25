@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useId } from "react";
 
 import { CardScaffold } from "@/components/worksheet/CardScaffold";
+import { TextareaField, TextField } from "@/components/worksheet/WorksheetFormPrimitives";
 import { isCard1Ready } from "@/lib/cardValidators";
 import { usePainCardStore } from "@/store/painCard";
 
@@ -88,36 +88,11 @@ type FieldProps = {
 };
 
 function Field({ label, hint, value, onChange, textarea, rows = 2 }: FieldProps) {
-  const id = useId();
-  const handleValueChange = (v: string) => onChange(v);
-  const className =
-    "w-full rounded-md border border-border-hairline bg-canvas-raised px-3 py-2.5 text-[15px] text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-text-primary";
-  return (
-    <div className="flex flex-col gap-1.5">
-      <label htmlFor={id} className="text-[13px] font-medium text-text-secondary">
-        {label}
-      </label>
-      {textarea ? (
-        <textarea
-          id={id}
-          rows={rows}
-          value={value}
-          onInput={(e) => handleValueChange(e.currentTarget.value)}
-          onChange={(e) => handleValueChange(e.target.value)}
-          placeholder={hint}
-          className={className}
-        />
-      ) : (
-        <input
-          id={id}
-          type="text"
-          value={value}
-          onInput={(e) => handleValueChange(e.currentTarget.value)}
-          onChange={(e) => handleValueChange(e.target.value)}
-          placeholder={hint}
-          className={className}
-        />
-      )}
-    </div>
-  );
+  if (textarea) {
+    return (
+      <TextareaField label={label} hint={hint} value={value} onChange={onChange} rows={rows} />
+    );
+  }
+
+  return <TextField label={label} hint={hint} value={value} onChange={onChange} />;
 }

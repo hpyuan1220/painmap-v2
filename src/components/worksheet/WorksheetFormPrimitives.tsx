@@ -8,10 +8,58 @@
  * stays on the invitation tone defined in voice_and_tone.md.
  */
 
-import { useId, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 
 const inputClass =
   "w-full rounded-md border border-border-hairline bg-canvas-raised px-3 py-2.5 text-[15px] text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-text-primary";
+
+type FieldEvent = { currentTarget: { value: string } };
+
+/**
+ * Controlled-input glue that survives IME (Chinese/Japanese) composition.
+ *
+ * A plain `value={store}` input drops half-formed Chinese input: each keystroke
+ * updates the store, the parent re-renders, and React resets `value` mid-
+ * composition. Here a local `draft` backs the input, the parent re-render is
+ * ignored while the field is focused or composing, and the store update is held
+ * back until composition ends — so typing is never interrupted.
+ */
+function useWritableDraft(value: string, onChange: (v: string) => void) {
+  const [draft, setDraft] = useState(value);
+  const focused = useRef(false);
+  const composing = useRef(false);
+
+  useEffect(() => {
+    if (!focused.current && !composing.current) {
+      setDraft(value);
+    }
+  }, [value]);
+
+  function commit(next: string) {
+    setDraft(next);
+    if (!composing.current) onChange(next);
+  }
+
+  return {
+    value: draft,
+    onFocus: () => {
+      focused.current = true;
+    },
+    onBlur: () => {
+      focused.current = false;
+      onChange(draft);
+    },
+    onInput: (e: FieldEvent) => commit(e.currentTarget.value),
+    onChange: (e: FieldEvent) => commit(e.currentTarget.value),
+    onCompositionStart: () => {
+      composing.current = true;
+    },
+    onCompositionEnd: (e: FieldEvent) => {
+      composing.current = false;
+      commit(e.currentTarget.value);
+    },
+  };
+}
 
 export function TextField({
   label,
@@ -27,7 +75,7 @@ export function TextField({
   type?: "text" | "date" | "datetime-local" | "tel" | "email" | "url";
 }) {
   const id = useId();
-  const handleValueChange = (v: string) => onChange(v);
+  const field = useWritableDraft(value, onChange);
   return (
     <div className="flex flex-col gap-1.5">
       <label htmlFor={id} className="text-[13px] font-medium text-text-secondary">
@@ -36,11 +84,10 @@ export function TextField({
       <input
         id={id}
         type={type}
-        value={value}
-        onInput={(e) => handleValueChange(e.currentTarget.value)}
-        onChange={(e) => handleValueChange(e.target.value)}
         placeholder={hint}
+        autoComplete="off"
         className={inputClass}
+        {...field}
       />
     </div>
   );
@@ -60,7 +107,7 @@ export function TextareaField({
   rows?: number;
 }) {
   const id = useId();
-  const handleValueChange = (v: string) => onChange(v);
+  const field = useWritableDraft(value, onChange);
   return (
     <div className="flex flex-col gap-1.5">
       <label htmlFor={id} className="text-[13px] font-medium text-text-secondary">
@@ -69,13 +116,34 @@ export function TextareaField({
       <textarea
         id={id}
         rows={rows}
-        value={value}
-        onInput={(e) => handleValueChange(e.currentTarget.value)}
-        onChange={(e) => handleValueChange(e.target.value)}
         placeholder={hint}
+        autoComplete="off"
         className={inputClass}
+        {...field}
       />
     </div>
+  );
+}
+
+function ListItemInput({
+  value,
+  placeholder,
+  onChange,
+}: {
+  value: string;
+  placeholder?: string;
+  onChange: (v: string) => void;
+}) {
+  const field = useWritableDraft(value, onChange);
+
+  return (
+    <input
+      type="text"
+      placeholder={placeholder}
+      autoComplete="off"
+      className={inputClass}
+      {...field}
+    />
   );
 }
 
@@ -137,21 +205,14 @@ export function ListField({
       {hint && <p className="text-[12px] text-text-tertiary">{hint}</p>}
       {items.map((item, idx) => (
         <div key={idx} className="flex gap-2 items-start">
-          <input
-            type="text"
+          <ListItemInput
             value={item}
-            onInput={(e) => {
+            onChange={(v) => {
               const next = [...items];
-              next[idx] = e.currentTarget.value;
-              onChange(next);
-            }}
-            onChange={(e) => {
-              const next = [...items];
-              next[idx] = e.target.value;
+              next[idx] = v;
               onChange(next);
             }}
             placeholder={itemPlaceholder}
-            className={inputClass}
           />
           <button
             type="button"

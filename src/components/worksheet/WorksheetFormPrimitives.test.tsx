@@ -10,7 +10,7 @@
  */
 
 import { describe, expect, it, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useState } from "react";
 
@@ -41,6 +41,27 @@ describe("TextField", () => {
     expect(screen.getByPlaceholderText("輸入 hint")).toBeInTheDocument();
   });
 
+  it("holds store updates until IME composition ends (Chinese input)", () => {
+    const onChange = vi.fn();
+    render(<TextField label="話" value="" onChange={onChange} />);
+    const input = screen.getByLabelText("話") as HTMLInputElement;
+
+    fireEvent.focus(input);
+    fireEvent.compositionStart(input);
+    fireEvent.input(input, { target: { value: "你" } });
+
+    // Mid-composition: the half-formed character is visible, but the store is
+    // NOT updated — that re-render is exactly what used to clobber IME input.
+    expect(input.value).toBe("你");
+    expect(onChange).not.toHaveBeenCalled();
+
+    fireEvent.input(input, { target: { value: "你好" } });
+    fireEvent.compositionEnd(input, { target: { value: "你好" } });
+
+    expect(onChange).toHaveBeenCalledTimes(1);
+    expect(onChange).toHaveBeenLastCalledWith("你好");
+  });
+
   it("keeps repeated labels connected to their own inputs", () => {
     render(
       <>
@@ -68,8 +89,16 @@ describe("TextareaField", () => {
     const user = userEvent.setup();
     render(<TextareaField label="筆記" value="" onChange={onChange} />);
     await user.type(screen.getByLabelText("筆記"), "abc");
-    // Without a parent rerender, the controlled value prop remains empty.
-    expect(onChange).toHaveBeenLastCalledWith("c");
+    expect(onChange).toHaveBeenLastCalledWith("abc");
+  });
+
+  it("keeps typed text visible before a parent rerender", async () => {
+    const user = userEvent.setup();
+    render(<TextareaField label="筆記" value="" onChange={() => {}} />);
+    const textarea = screen.getByLabelText("筆記") as HTMLTextAreaElement;
+
+    await user.type(textarea, "abc");
+    expect(textarea.value).toBe("abc");
   });
 
   it("keeps typed text when controlled by a parent", async () => {

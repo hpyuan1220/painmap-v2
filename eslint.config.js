@@ -58,5 +58,12 @@ export default tseslint.config(
       ],
     },
   },
+  // Vercel Edge functions run server-side (Node/edge globals, e.g. process.env).
+  {
+    files: ["api/**/*.{ts,js}"],
+    languageOptions: {
+      globals: { ...globals.node, ...globals.browser },
+    },
+  },
   eslintPluginPrettier,
 );
