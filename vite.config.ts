@@ -5,6 +5,7 @@
 //     error logger plugins, and sandbox detection (port/host/strictPort).
 // You can pass additional config via defineConfig({ vite: { ... } }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
+import { nitro } from "nitro/vite";
 import { visualizer } from "rollup-plugin-visualizer";
 
 export default defineConfig({
@@ -18,6 +19,9 @@ export default defineConfig({
   // at the worker layer (not a vite-time change).
   vite: {
     plugins: [
+      // Vercel's official TanStack Start support expects Nitro to generate
+      // the correct server/runtime output for Vercel Functions.
+      nitro() as never,
       // Bundle visualizer — produces dist/stats.html on every build.
       // Only emits when bundle is generated (i.e. `npm run build`), so dev is unaffected.
       // gzipSize/brotliSize give realistic transfer numbers.
