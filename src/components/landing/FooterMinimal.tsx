@@ -11,14 +11,15 @@
  */
 import { useNavigate } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
-import { startNewPainCard } from "@/lib/painCardActions";
+import { usePainCardStore } from "@/store/painCard";
 
 export function FooterMinimal() {
   const navigate = useNavigate();
+  const createCard = usePainCardStore((s) => s.createCard);
 
   const handleStart = () => {
-    const { path } = startNewPainCard();
-    navigate({ to: path });
+    createCard();
+    navigate({ to: "/learn/worksheet-lite/01", search: { flow: "ai-detective" } as never });
   };
 
   return (
@@ -34,7 +35,7 @@ export function FooterMinimal() {
             onClick={handleStart}
             className="group inline-flex h-12 items-center justify-center gap-2 rounded-md bg-text-primary px-6 text-[14px] font-medium text-text-inverse transition-colors duration-200 hover:bg-text-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-text-primary focus-visible:outline-offset-2 shrink-0"
           >
-            從第一張卡開始
+            從 AI detective 第一張卡開始
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
           </button>
         </div>

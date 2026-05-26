@@ -1,7 +1,8 @@
-import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useSearch } from "@tanstack/react-router";
 
 import { Logo } from "@/components/Logo";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { getWorksheetFlowConfig } from "@/lib/worksheetFlowRegistry";
 import { LiteProgressStepper } from "@/components/worksheet-lite/LiteProgressStepper";
 
 export const Route = createFileRoute("/learn/worksheet-lite")({
@@ -9,6 +10,8 @@ export const Route = createFileRoute("/learn/worksheet-lite")({
 });
 
 function WorksheetLiteLayout() {
+  const search = useSearch({ strict: false });
+  const flow = getWorksheetFlowConfig(search.flow === "ai-detective" ? "ai-detective" : "lite");
   return (
     <div className="relative min-h-screen flex flex-col bg-canvas-base text-text-primary">
       <div className="relative z-10 flex flex-col flex-1">
@@ -23,7 +26,7 @@ function WorksheetLiteLayout() {
                 PainMap
               </span>
               <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-text-tertiary">
-                / Condensed
+                / {flow.title}
               </span>
             </Link>
             <ThemeToggle />

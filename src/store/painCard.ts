@@ -193,6 +193,9 @@ function emptyPainCard(): PainCard {
       last_review_at: null,
     },
 
+    active_flow_id: "lite",
+    flow_ai_sessions: {},
+
     llm_cache: {},
   };
 }
@@ -397,6 +400,10 @@ export const usePainCardStore = create<PainCardStore>()(
         }
         if (version < 5) {
           if (state.card) state.card.llm_cache ??= {};
+        }
+        if (state.card) {
+          state.card.active_flow_id ??= "lite";
+          state.card.flow_ai_sessions ??= {};
         }
         return persistedState;
       },

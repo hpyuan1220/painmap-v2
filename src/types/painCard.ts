@@ -26,6 +26,37 @@ export type NextAction = "interview" | "more_evidence" | "change_topic";
 
 export type CurrentStep = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
 
+export type FlowAiActionType =
+  | "narrow_scope"
+  | "challenge_assumption"
+  | "find_gap"
+  | "rewrite_candidate"
+  | "next_step";
+
+export type FlowAiSuggestion = {
+  id: string;
+  label: string;
+  value: string;
+  targetPath?: string | null;
+};
+
+export type FlowAiTurn = {
+  id: string;
+  created_at: string;
+  actionType: FlowAiActionType;
+  observation: string;
+  challenge: string;
+  followUpQuestions: string[];
+  suggestions: FlowAiSuggestion[];
+};
+
+export type FlowAiSession = {
+  inlineTurns: FlowAiTurn[];
+  deepChatDraft: string;
+  deepChatTurns: FlowAiTurn[];
+  acceptedSuggestionIds: string[];
+};
+
 export type PainCard = {
   // === Meta ===
   id: string;
@@ -176,6 +207,9 @@ export type PainCard = {
     formats: Array<"markdown" | "json" | "pdf">;
     last_review_at: string | null;
   };
+
+  active_flow_id?: string;
+  flow_ai_sessions?: Record<string, FlowAiSession>;
 
   // === LLM 語意判定 cache ===
   // key = JudgeKind（如 "card2.background_specific"）

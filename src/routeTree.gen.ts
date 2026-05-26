@@ -16,6 +16,8 @@ import { Route as LearnWorksheetIndexRouteImport } from './routes/learn.workshee
 import { Route as LearnWorksheetLiteIndexRouteImport } from './routes/learn.worksheet-lite.index'
 import { Route as LearnWorksheetResultRouteImport } from './routes/learn.worksheet.result'
 import { Route as LearnWorksheetLiteResultRouteImport } from './routes/learn.worksheet-lite.result'
+import { Route as LearnWorksheetLite08RouteImport } from './routes/learn.worksheet-lite.08'
+import { Route as LearnWorksheetLite07RouteImport } from './routes/learn.worksheet-lite.07'
 import { Route as LearnWorksheet09RouteImport } from './routes/learn.worksheet.09'
 import { Route as LearnWorksheetLite06RouteImport } from './routes/learn.worksheet-lite.06'
 import { Route as LearnWorksheet08RouteImport } from './routes/learn.worksheet.08'
@@ -65,6 +67,16 @@ const LearnWorksheetResultRoute = LearnWorksheetResultRouteImport.update({
 const LearnWorksheetLiteResultRoute = LearnWorksheetLiteResultRouteImport.update({
   id: '/result',
   path: '/result',
+  getParentRoute: () => LearnWorksheetLiteRoute,
+} as any)
+const LearnWorksheetLite08Route = LearnWorksheetLite08RouteImport.update({
+  id: '/08',
+  path: '/08',
+  getParentRoute: () => LearnWorksheetLiteRoute,
+} as any)
+const LearnWorksheetLite07Route = LearnWorksheetLite07RouteImport.update({
+  id: '/07',
+  path: '/07',
   getParentRoute: () => LearnWorksheetLiteRoute,
 } as any)
 const LearnWorksheetLite06Route = LearnWorksheetLite06RouteImport.update({
@@ -159,6 +171,8 @@ export interface FileRoutesByFullPath {
   '/learn/worksheet-lite/05': typeof LearnWorksheetLite05Route
   '/learn/worksheet/06': typeof LearnWorksheet06Route
   '/learn/worksheet-lite/06': typeof LearnWorksheetLite06Route
+  '/learn/worksheet-lite/07': typeof LearnWorksheetLite07Route
+  '/learn/worksheet-lite/08': typeof LearnWorksheetLite08Route
   '/learn/worksheet/07': typeof LearnWorksheet07Route
   '/learn/worksheet/08': typeof LearnWorksheet08Route
   '/learn/worksheet/09': typeof LearnWorksheet09Route
@@ -181,6 +195,8 @@ export interface FileRoutesByTo {
   '/learn/worksheet-lite/05': typeof LearnWorksheetLite05Route
   '/learn/worksheet/06': typeof LearnWorksheet06Route
   '/learn/worksheet-lite/06': typeof LearnWorksheetLite06Route
+  '/learn/worksheet-lite/07': typeof LearnWorksheetLite07Route
+  '/learn/worksheet-lite/08': typeof LearnWorksheetLite08Route
   '/learn/worksheet/07': typeof LearnWorksheet07Route
   '/learn/worksheet/08': typeof LearnWorksheet08Route
   '/learn/worksheet/09': typeof LearnWorksheet09Route
@@ -206,6 +222,8 @@ export interface FileRoutesById {
   '/learn/worksheet-lite/05': typeof LearnWorksheetLite05Route
   '/learn/worksheet/06': typeof LearnWorksheet06Route
   '/learn/worksheet-lite/06': typeof LearnWorksheetLite06Route
+  '/learn/worksheet-lite/07': typeof LearnWorksheetLite07Route
+  '/learn/worksheet-lite/08': typeof LearnWorksheetLite08Route
   '/learn/worksheet/07': typeof LearnWorksheet07Route
   '/learn/worksheet/08': typeof LearnWorksheet08Route
   '/learn/worksheet/09': typeof LearnWorksheet09Route
@@ -232,6 +250,8 @@ export interface FileRouteTypes {
     | '/learn/worksheet-lite/05'
     | '/learn/worksheet/06'
     | '/learn/worksheet-lite/06'
+    | '/learn/worksheet-lite/07'
+    | '/learn/worksheet-lite/08'
     | '/learn/worksheet/07'
     | '/learn/worksheet/08'
     | '/learn/worksheet/09'
@@ -254,6 +274,8 @@ export interface FileRouteTypes {
     | '/learn/worksheet-lite/05'
     | '/learn/worksheet/06'
     | '/learn/worksheet-lite/06'
+    | '/learn/worksheet-lite/07'
+    | '/learn/worksheet-lite/08'
     | '/learn/worksheet/07'
     | '/learn/worksheet/08'
     | '/learn/worksheet/09'
@@ -278,6 +300,8 @@ export interface FileRouteTypes {
     | '/learn/worksheet-lite/05'
     | '/learn/worksheet/06'
     | '/learn/worksheet-lite/06'
+    | '/learn/worksheet-lite/07'
+    | '/learn/worksheet-lite/08'
     | '/learn/worksheet/07'
     | '/learn/worksheet/08'
     | '/learn/worksheet/09'
@@ -414,6 +438,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LearnWorksheetLite06RouteImport
       parentRoute: typeof LearnWorksheetLiteRoute
     }
+    '/learn/worksheet-lite/08': {
+      id: '/learn/worksheet-lite/08'
+      path: '/08'
+      fullPath: '/learn/worksheet-lite/08'
+      preLoaderRoute: typeof LearnWorksheetLite08RouteImport
+      parentRoute: typeof LearnWorksheetLiteRoute
+    }
+    '/learn/worksheet-lite/07': {
+      id: '/learn/worksheet-lite/07'
+      path: '/07'
+      fullPath: '/learn/worksheet-lite/07'
+      preLoaderRoute: typeof LearnWorksheetLite07RouteImport
+      parentRoute: typeof LearnWorksheetLiteRoute
+    }
     '/learn/worksheet-lite/05': {
       id: '/learn/worksheet-lite/05'
       path: '/05'
@@ -473,6 +511,8 @@ interface LearnWorksheetLiteRouteChildren {
   LearnWorksheetLite04Route: typeof LearnWorksheetLite04Route
   LearnWorksheetLite05Route: typeof LearnWorksheetLite05Route
   LearnWorksheetLite06Route: typeof LearnWorksheetLite06Route
+  LearnWorksheetLite07Route: typeof LearnWorksheetLite07Route
+  LearnWorksheetLite08Route: typeof LearnWorksheetLite08Route
   LearnWorksheetLiteResultRoute: typeof LearnWorksheetLiteResultRoute
   LearnWorksheetLiteIndexRoute: typeof LearnWorksheetLiteIndexRoute
 }
@@ -502,6 +542,8 @@ const LearnWorksheetLiteRouteChildren: LearnWorksheetLiteRouteChildren = {
   LearnWorksheetLite04Route: LearnWorksheetLite04Route,
   LearnWorksheetLite05Route: LearnWorksheetLite05Route,
   LearnWorksheetLite06Route: LearnWorksheetLite06Route,
+  LearnWorksheetLite07Route: LearnWorksheetLite07Route,
+  LearnWorksheetLite08Route: LearnWorksheetLite08Route,
   LearnWorksheetLiteResultRoute: LearnWorksheetLiteResultRoute,
   LearnWorksheetLiteIndexRoute: LearnWorksheetLiteIndexRoute,
 }

@@ -25,6 +25,7 @@ export const LITE_STEP_PATHS = {
 export function startNewPainCardLite(): { id: string; path: "/learn/worksheet-lite/01" } {
   const store = usePainCardStore.getState();
   store.createCard();
+  store.updateField("active_flow_id", "lite");
   const id = usePainCardStore.getState().card.id;
   return { id, path: "/learn/worksheet-lite/01" };
 }
